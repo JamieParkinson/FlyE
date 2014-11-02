@@ -1,0 +1,36 @@
+; Split hollow cylindrical electrodes
+; 06/2014 Jamie Parkinson
+
+; User set variables
+# local outer_r = 24
+# local inner_r = 20
+# local n_segments = 9
+# local seg_length = 20
+# local seg_gap_size = 2 -- z-axis
+# local split_gap_size = 1 -- x,y-axes
+
+# local length = n_segments*(seg_gap_size + seg_length)
+
+pa_define($((2*outer_r)+6), $((2*outer_r)+6), $(length+2), planar, none, e, 1)
+
+locate($(outer_r+3), $(outer_r+3), $(length-1), 1, 0, 0, 0) {
+
+# local n = 1 -- electrode counter
+# for i=0,(n_segments-1) do -- segment loop
+	 locate(0, 0, -$(i*(seg_length + seg_gap_size))) {
+#	 	for j=0,3 do -- splits loop
+			 locate(0, 0, 0, 1, 0, $(j*90), 0) {
+				 electrode($(n)) {
+					fill {
+						within{ cylinder(0, 0, 0, $(outer_r),, -$(seg_length)) } ; Outer cylinder
+						notin{  cylinder(0, 0, 0, $(inner_r),, -$(seg_length)) } ; Inner cylinder
+						notin{  box3d(-$(math.floor(split_gap_size/2)), -$(outer_r), 0, $(outer_r), $(outer_r), -$(seg_length)) } ; Cut away in y
+						notin{  box3d(-$(outer_r), -$(outer_r), 0, $(outer_r), $(math.floor(split_gap_size/2)), -$(seg_length)) } ; Cut away in x
+					}
+				 }
+			 }
+#			 n = n + 1
+# 	 	end
+	}
+# end
+}

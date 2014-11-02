@@ -1,0 +1,29 @@
+espace:
+{
+	n_electrodes = 36;
+	dimensions = { x = 54; y = 54; z = 200; };
+	dat_directory = "/home/jamie/FlyEfiles/efields/";
+	pa_name = "cylinder";
+}
+
+simulation:
+{
+	time_step = 1e-6;
+	duration = 6e-4;
+	n_particles = 5e5;
+	max_voltage = 145.0$v$v;
+}
+
+norm_dist = false;
+sigma = { x = 0.5; y = 0.5; z = 5; };
+
+particles: {
+	temperature = 1;
+	n = 25;
+	k = 25;
+}
+
+target_v = 500.0;
+target_v_precision = 50.0;
+
+output_dir = "/home/jamie/FlyEfiles/";
