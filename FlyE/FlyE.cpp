@@ -40,11 +40,12 @@
 /*
  * DISCARD_COLLISIONS knows whether to keep data from collisions. Also affects HDF5 writing.
  * LEAN affects whether any trajectory data apart from initial and final states is saved
+ * INGLIS_TELLER determines whether we neutralise particles past the Inglis-Teller limit
  */
 
 //#define DISCARD_COLLISIONS
 //#define LEAN
-//#define INGLIS_TELLER
+#define INGLIS_TELLER
 
 #ifdef DISCARD_COLLISIONS
 bool discardCollisions = true;
@@ -65,6 +66,7 @@ const float a0 = 5.2917721092e-11;  // Bohr radius
 const float m = 1.6737e-27;  // Hydrogen mass
 const float kb = 1.3806488e-23;  // Boltzmann constant
 const float Fion = 1.14222e11;  // Ionisation threshold excluding n^(-4) factor
+const float Fit = 1.71407e11; // Inglis-Teller limit excluding algebraic terms (see Particle.cpp)
 const float FWHMfactor = 2.35482;  // FWHM to std dev = 2 sqrt( 2 ln 2 )
 
 chrono::time_point<chrono::system_clock> chronoStart, chronoEnd;  // To use for timing
@@ -111,7 +113,6 @@ int main(int argc, char *argv[]) {
   particles.reserve(nParticles);
   int nTimeSteps = duration / timeStep;  // Cast as an int in order to round
 
-  // TODO establish the meaning of temperature for a uniform velocity distribution
   float sigmaV = sqrt(2 * (temperature * kb / FWHMfactor) / m);  // Std dev of velocity
   float sectionWidth = N_IN_SECTION * config.z / config.nElectrodes;  // Width of each section of 4 electrodes
 
@@ -151,8 +152,7 @@ int main(int argc, char *argv[]) {
                              v_r * muller_factor * vz, n, k);
     }
   }
-
-  const float Fit = Particle::ITlim(n,k); // Inglis-Teller limit
+  const float ITlim = Particle::ITlim(n,k); // Inglis-Teller limit
 
 #if V_SCHEME != 3
   int section = 2;  // For keeping track of the electrodes which are on
@@ -193,8 +193,6 @@ int main(int argc, char *argv[]) {
   //float offTime = config.z / (MM_M_CORRECTION * targetVel);
   float offTime = 3.7037e-4;
 
-  // TODO Different I-T limits for each k state
-
 #else // Exponential or instantaneous
   for (int e = 0; e < N_IN_SECTION; ++e) {
     allElectrodes[e]->setVoltage(maxVoltage);
@@ -233,7 +231,7 @@ int main(int argc, char *argv[]) {
       }  // Ionise if field too strong
 
 #ifdef INGLIS_TELLER
-      if (mag >= (Fit / pow(particle->getN(), 5)) && !particle->isNeutralised()) {
+      if (mag >= ITlim && !particle->isNeutralised()) {
         particle->neutralise(t);
         nNeutralised++;
       } // Neutralise is field is past the Inglis-Teller limit

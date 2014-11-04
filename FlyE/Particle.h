@@ -32,7 +32,7 @@
 #define N_DIMENSIONS 3
 #endif
 
-extern const float e, a0; // Declared in FlyE.cpp
+extern const float e, a0, Fit; // Declared in FlyE.cpp
 
 class Particle {
  protected:

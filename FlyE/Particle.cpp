@@ -248,9 +248,10 @@ hyperslabParams Particle::makeParameters(int pi, int d, char pv) {
 
 float Particle::ITlim(int n, int k) {
   // Solution of:
-  // -\frac{1}{2} 3 a_0 e F n (n+1)-\frac{13.6057 e}{(n+1)^2}=\frac{3}{2} a_0 e F (n-1) n-\frac{13.6057 e}{n^2}
+  // \frac{1}{2} (-3) a_0 e F n (n+1)-\frac{c h R_{\infty }}{(n+1)^2}=\frac{3}{2} a_0 e F k n-\frac{c h R_{\infty }}{n^2}
 
-  return (4.53523 + 9.07046*n)/(n*n*n*n*a0*(1+n)*(1+n));
+  // ITlim = \frac{2 c h (2 n+1) R_{\infty }}{3 a_0 e n^3 (n+1)^2 (k+n+1)}
+  return Fit*(1 + 2*n)/(n*n*n*(1 + n)*(1 + n)*(1 + k + n));
 }
 
 float Particle::ITlim() {
