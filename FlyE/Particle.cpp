@@ -183,10 +183,7 @@ void Particle::ionise() {
 
 void Particle::collide() {
   collided_ = true;
-  memorise();
-#ifdef DISCARD_COLLISIONS
-  forget();
-#endif
+  if (storeCollisions) memorise();
 }
 
 void Particle::succeed() {

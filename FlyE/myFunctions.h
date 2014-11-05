@@ -20,12 +20,12 @@ using namespace std;
 
 // Global variables
 extern float timeStep, duration, maxVoltage, sigmaX, sigmaY, sigmaZ, temperature, targetVel, targetVelPrecision;
-extern bool normDist;
+extern bool normDist, kDist, storeCollisions, storeTrajectories, inglisTeller;
 extern int nParticles, n, k;
 extern string outDir;
 extern params config;
 
-// Uses libconfig to read in my config file
+// Uses libconfig++ to read in my config file
 void readConfig(const string confFilePath) {
   libconfig::Config myConf;
   myConf.readFile(confFilePath.c_str());
@@ -47,6 +47,7 @@ void readConfig(const string confFilePath) {
   duration = c["simulation"]["duration"];
   nParticles = c["simulation"]["n_particles"];
   maxVoltage = c["simulation"]["max_voltage"];
+  inglisTeller = c["simulation"]["inglis_teller"];
 
   normDist = c["norm_dist"];
   sigmaX = c["sigma"]["x"];
@@ -56,16 +57,19 @@ void readConfig(const string confFilePath) {
   temperature = c["particles"]["temperature"];
   n = c["particles"]["n"];
   k = c["particles"]["k"];
+  kDist = c["particles"]["k_dist"];
 
   targetVel = c["target_v"];
   targetVelPrecision = c["target_v_precision"];
 
-  outDir = c["output_dir"].c_str();
+  outDir = c["storage"]["output_dir"].c_str();
+  storeCollisions = c["storage"]["store_collisions"];
+  storeTrajectories = c["storage"]["store_trajectories"];
 }
 
 // Uses the very very bad HDF5 library to write to HDF5. Awful code, ugly, impossible to understand. Very fast.
 void writeHDF5(vector<Particle> &particles, const string &outFilePath,
-               const int &nTimeSteps, const bool &discardCollisions,
+               const int &nTimeSteps,
                const int &nSucceeded, const int &nIonised, const int &nCollided,
                const int &nParticles) {
   H5::H5File* outFile = new H5::H5File(outFilePath.c_str(), H5F_ACC_TRUNC);  // Initialise data file
@@ -134,7 +138,7 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
       pType = N_TYPES - 1;
     }
 
-    if (pType == 1 && discardCollisions) {
+    if (pType == 1 && !storeCollisions) {
       continue;
     }
 

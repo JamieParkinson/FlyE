@@ -33,6 +33,7 @@
 #endif
 
 extern const float e, a0, Fit; // Declared in FlyE.cpp
+extern bool storeCollisions; // From config
 
 class Particle {
  protected:

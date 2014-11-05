@@ -12,21 +12,45 @@
 /*
  * Config file guide:
  *
- * N_ELECTRODES: Number of individual electrodes in the arrangement
- * [X|Y|Z]_DIMENSION: The dimensions of the matrices in the .dat files
- * DAT_DIRECTORY: Path to the directory in which the .dat files are stored
- * PA_NAME: The prefix to the dat file names eg [PA_NAME]_E1_L2_X.dat
- * TIME_STEP: Time step to run simulation with (s)
- * DURATION: Number of seconds to run simulation for
- * N_PARTICLES: Number of particles to run simulation with
- * MAX_VOLTAGE: The maximum voltage that any electrode will reach
- * SIGMA_[X|Y|Z]: Standard deviation of inital particle positions in each axis
- * TEMPERATURE: Temperature of initial particle distribution (for generating velocities)
- * NORM_DIST: if TRUE then we get a cloud of particles at the beginning, if FALSE then we get a uniform phase space
- * TARGET_V: The particle velocity we're aiming for...
- * TARGET_V_PRECISION: +/- this precision
+ * espace:
+ * {
+ *  n_electrodes: Number of individual electrodes in the arrangement
+ *  dimensions = {x; y; z}: The dimensions of the matrices in the .dat files
+ *  dat_directory: Path to the directory in which the .dat files are stored
+ *  pa_name: The prefix to the dat file names eg [PA_NAME]_E1_L2_X.dat
+ * }
  *
+ * simulation:
+ * {
+ *  time_step: Time step to run simulation with (s)
+ *  duration: Number of seconds to run simulation for
+ *  n_particles: Number of particles to run simulation with
+ *  max_voltage: The maximum voltage that any electrode will reach
+ *  inglis_teller: Whether to neutralise particles in a field above the I-T limit
+ * }
+ *
+ * norm_dist: Whether to initialise particles uniformly or normally distributed
+ * sigma = {x; y; z}: Standard deviation of initial particle positions in each axis
+ *
+ * particles:
+ * {
+ *  temperature: Temperature of initial particle distribution (for generating velocities)
+ *  n: Principal quantum no. of all particles
+ *  k_dist: Whether to distribute ks uniformly or just stick with one (below)
+ *  k: Single k value
+ * }
+ *
+ * target_v: The particle velocity we're aiming for...
+ * target_v_precision: +/- this precision
+ *
+ * storage:
+ * {
+ *  output_dir: Directory to write the HDF5 output file
+ *  store_trajectories: Whether to store full trajectories or just start and end points
+ *  store_collisions: Whether to store the trajectories of particles that collide
  */
+
+// TODO Clean the code up!!
 
 #include <random> // For random number generation
 #include <chrono> // For (system clock) timing
@@ -37,25 +61,11 @@
 #define SIMION_CORRECTION 0.1 // Not sure why it's needed but gives us V/m
 #define MM_M_CORRECTION 1000 // To convert from m to mm
 
-/*
- * DISCARD_COLLISIONS knows whether to keep data from collisions. Also affects HDF5 writing.
- * LEAN affects whether any trajectory data apart from initial and final states is saved
- * INGLIS_TELLER determines whether we neutralise particles past the Inglis-Teller limit
- */
-
-//#define DISCARD_COLLISIONS
-//#define LEAN
-#define INGLIS_TELLER
-
-#ifdef DISCARD_COLLISIONS
-bool discardCollisions = true;
-#else
-bool discardCollisions = false;
-#endif
-
 #include "Espace.h" // My classes
 #include "Particle.h"
 #include "myFunctions.h" // Includes myStructs.h (for params and hyperslabParams) too
+
+// TODO put this in the config file
 
 #define V_SCHEME 3 // [ 1 : exp | 2 : inst | 3 : trap ] for choosing voltage scheme
 
@@ -75,7 +85,7 @@ chrono::duration<float> chronoElapsed;
 float timeStep, duration;
 
 // Various global variables, mostly for storing config values
-bool normDist;
+bool normDist, kDist, storeCollisions, storeTrajectories, inglisTeller;
 int nParticles, n, k;
 float maxVoltage, sigmaX, sigmaY, sigmaZ, temperature, targetVel,
     targetVelPrecision;  // For normal distribution of initial particle positions
@@ -120,6 +130,13 @@ int main(int argc, char *argv[]) {
 
   mt19937 generator(chronoElapsed.count());  // Set up normal distribution generators (Mersenne Twister). Use the time from a few seconds ago as seed.
 
+  // Very lazy way to choose whether I want a uniform distribution of ks
+  int kLower = (kDist) ? 1 : k;
+  int kUpper = (kDist) ? (n - 1) : k;
+  uniform_int_distribution<> k_dist(kLower,kUpper);
+
+  // TODO think about the *actual* distribution of k
+
   if (normDist) {  // Cloud or uniform phase space. Ugly code duplication but necessary due to variable scope.
     normal_distribution<float> x_dist(config.x / 2, sigmaX);  // Center at start of cylinder
     normal_distribution<float> y_dist(config.y / 2, sigmaY);
@@ -129,7 +146,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < nParticles - 1; ++i) {  // Generate particles
       particles.emplace_back(x_dist(generator), y_dist(generator),
                              z_dist(generator), v_dist(generator),
-                             v_dist(generator), v_dist(generator), n, k);
+                             v_dist(generator), v_dist(generator), n, k_dist(generator));
     }
   } else {  // Uniform particle distribution between electrodes 1 and 4
     uniform_real_distribution<float> uniform_dist(0, 1);
@@ -149,9 +166,10 @@ int main(int argc, char *argv[]) {
                              p_r * sin(p_theta) + 0.5 * config.y,
                              sectionWidth * (3 * uniform_dist(generator) + 1),
                              v_r * muller_factor * vx, v_r * muller_factor * vy,
-                             v_r * muller_factor * vz, n, k);
+                             v_r * muller_factor * vz, n, k_dist(generator));
     }
   }
+
   const float ITlim = Particle::ITlim(n,k); // Inglis-Teller limit
 
 #if V_SCHEME != 3
@@ -230,12 +248,10 @@ int main(int argc, char *argv[]) {
         continue;
       }  // Ionise if field too strong
 
-#ifdef INGLIS_TELLER
-      if (mag >= ITlim && !particle->isNeutralised()) {
+      if (mag >= ITlim && !particle->isNeutralised() && inglisTeller) {
         particle->neutralise(t);
         nNeutralised++;
       } // Neutralise is field is past the Inglis-Teller limit
-#endif
 
       if (rndLoc[2] >= config.z) {
         particle->succeed();
@@ -262,9 +278,8 @@ int main(int argc, char *argv[]) {
               1) + (particle->getVel(1)*timeStep + 0.5 * ay * pow(timeStep,2)) * MM_M_CORRECTION,
           particle->getLoc(
               2) + (particle->getVel(2)*timeStep + 0.5 * az * pow(timeStep,2)) * MM_M_CORRECTION);
-#ifndef LEAN
-      particle->memorise();  // Commit to memory
-#endif
+
+      if (storeTrajectories) particle->memorise();  // Commit to memory
     }
 
 #if V_SCHEME == 1 // Exponentially increasing voltages on electrodes
@@ -345,12 +360,10 @@ int main(int argc, char *argv[]) {
   cout << "Exporting simulation data..." << endl;
 
   string outFilePath = string(outDir) + "outFile.h5";
-#ifndef LEAN
-  int nts = nTimeSteps + 1;
-#else
-  int nts = 2;
-#endif
-  writeHDF5(particles, outFilePath, nts, discardCollisions, nSucceeded,
+
+  int nts = (storeTrajectories) ? (nTimeSteps + 1) : 2; // Number of timesteps in HDF5 file
+
+  writeHDF5(particles, outFilePath, nts, nSucceeded,
             nIonised, nCollided, nParticles);
 
   return 0;
