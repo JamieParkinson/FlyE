@@ -24,6 +24,7 @@ extern bool normDist, kDist, storeCollisions, storeTrajectories, inglisTeller;
 extern int nParticles, n, k;
 extern string outDir;
 extern params config;
+extern accelerationSchemes scheme;
 
 // Uses libconfig++ to read in my config file
 void readConfig(const string confFilePath) {
@@ -47,6 +48,10 @@ void readConfig(const string confFilePath) {
   duration = c["simulation"]["duration"];
   nParticles = c["simulation"]["n_particles"];
   maxVoltage = c["simulation"]["max_voltage"];
+  scheme = (c["simulation"]["accel_scheme"] == "exponential") ?
+      Exponential : (c["simulation"]["accel_scheme"] == "instantaneous") ?
+      Instantaneous :
+      Trap;
   inglisTeller = c["simulation"]["inglis_teller"];
 
   normDist = c["norm_dist"];

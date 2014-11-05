@@ -49,7 +49,7 @@
 #define MM_M_CORRECTION 1000
 #endif
 
-static const char dimensions[N_DIMENSIONS] = { 'X', 'Y', 'Z' };
+const char dimensions[N_DIMENSIONS] = { 'X', 'Y', 'Z' };
 
 #include "myStructs.h"
 

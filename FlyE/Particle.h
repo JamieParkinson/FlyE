@@ -142,7 +142,7 @@ class Particle {
   hyperslabParams makeParameters(int pi, int d = 0, char pv = 'p');
 
   // Gets the IT limit for a given state
-  static float ITlim(int n, int k);
+  float ITlim(int n, int k);
 
   // Calls static method above
   float ITlim();

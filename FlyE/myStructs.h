@@ -20,4 +20,8 @@ struct hyperslabParams {
   hsize_t start[4], stride[4], count[4], block[4];
 };
 
+enum accelerationSchemes {
+  Exponential, Instantaneous, Trap
+};
+
 #endif /* MYSTRUCTS_H_ */

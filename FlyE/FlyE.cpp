@@ -7,9 +7,7 @@
  * 
  * 07/2014 Jamie Parkinson
  * 
- */
-
-/*
+ *
  * Config file guide:
  *
  * espace:
@@ -26,6 +24,7 @@
  *  duration: Number of seconds to run simulation for
  *  n_particles: Number of particles to run simulation with
  *  max_voltage: The maximum voltage that any electrode will reach
+ *  accel_scheme: "instantaneous", "exponential" or "trap"
  *  inglis_teller: Whether to neutralise particles in a field above the I-T limit
  * }
  *
@@ -51,7 +50,6 @@
  */
 
 // TODO Clean the code up!!
-
 #include <random> // For random number generation
 #include <chrono> // For (system clock) timing
 #include <algorithm> // for_each
@@ -61,13 +59,9 @@
 #define SIMION_CORRECTION 0.1 // Not sure why it's needed but gives us V/m
 #define MM_M_CORRECTION 1000 // To convert from m to mm
 
-#include "Espace.h" // My classes
-#include "Particle.h"
+#include "Espace.h" // Basically a 4D array with some useful methods
+#include "Particle.h" // Quite an in-depth particle object
 #include "myFunctions.h" // Includes myStructs.h (for params and hyperslabParams) too
-
-// TODO put this in the config file
-
-#define V_SCHEME 3 // [ 1 : exp | 2 : inst | 3 : trap ] for choosing voltage scheme
 
 using namespace std;
 
@@ -76,7 +70,7 @@ const float a0 = 5.2917721092e-11;  // Bohr radius
 const float m = 1.6737e-27;  // Hydrogen mass
 const float kb = 1.3806488e-23;  // Boltzmann constant
 const float Fion = 1.14222e11;  // Ionisation threshold excluding n^(-4) factor
-const float Fit = 1.71407e11; // Inglis-Teller limit excluding algebraic terms (see Particle.cpp)
+const float Fit = 1.71407e11;  // Inglis-Teller limit excluding algebraic terms (see Particle.cpp)
 const float FWHMfactor = 2.35482;  // FWHM to std dev = 2 sqrt( 2 ln 2 )
 
 chrono::time_point<chrono::system_clock> chronoStart, chronoEnd;  // To use for timing
@@ -91,6 +85,7 @@ float maxVoltage, sigmaX, sigmaY, sigmaZ, temperature, targetVel,
     targetVelPrecision;  // For normal distribution of initial particle positions
 string outDir;
 params config;
+accelerationSchemes scheme;
 
 int nIonised = 0, nCollided = 0, nSucceeded = 0, nNeutralised = 0;  // For counting the particles' fates
 
@@ -101,7 +96,7 @@ int main(int argc, char *argv[]) {
   cout << "IMPORTING E-FIELD DATA:\n" << endl;
 
   cout << "Reading config..." << endl;
-  readConfig(argv[1]); // argv[1] is the path to the config file
+  readConfig(argv[1]);  // argv[1] is the path to the config file
 
   vector<shared_ptr<Electrode> > allElectrodes;  // Array of electrodes - shared_ptr gives auto memory management
   allElectrodes.reserve(config.nElectrodes);  // Make sure the vector doesn't have to be resized too much at runtime
@@ -133,7 +128,7 @@ int main(int argc, char *argv[]) {
   // Very lazy way to choose whether I want a uniform distribution of ks
   int kLower = (kDist) ? 1 : k;
   int kUpper = (kDist) ? (n - 1) : k;
-  uniform_int_distribution<> k_dist(kLower,kUpper);
+  uniform_int_distribution<> k_dist(kLower, kUpper);
 
   // TODO think about the *actual* distribution of k
 
@@ -146,7 +141,8 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < nParticles - 1; ++i) {  // Generate particles
       particles.emplace_back(x_dist(generator), y_dist(generator),
                              z_dist(generator), v_dist(generator),
-                             v_dist(generator), v_dist(generator), n, k_dist(generator));
+                             v_dist(generator), v_dist(generator), n,
+                             k_dist(generator));
     }
   } else {  // Uniform particle distribution between electrodes 1 and 4
     uniform_real_distribution<float> uniform_dist(0, 1);
@@ -170,12 +166,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  const float ITlim = Particle::ITlim(n,k); // Inglis-Teller limit
-
-#if V_SCHEME != 3
-  int section = 2;  // For keeping track of the electrodes which are on
-#endif
-
   // TODO tune turn-off time to get collimated exit beam
 
   // For getting electrode positions
@@ -184,39 +174,43 @@ int main(int argc, char *argv[]) {
   }
   Espace normWorld = Electrode::sumElectrodes(allElectrodes, config);
 
-#if V_SCHEME == 1
-  int lastCrossingTime = 0;
-  float deltaT = 0, ti = 0;
-  cout << "-- Using the exponentially increasing voltage scheme --" << endl;
-#elif V_SCHEME == 2
-  cout << "-- Using the instantaneous switching of electrodes scheme --" << endl;
-#elif V_SCHEME == 3
-  cout << "-- Using the moving trap voltage scheme --" << endl;
-#endif
+  int section = 2;  // For the exponential and instantaneous schemes
+  int lastCrossingTime = 0;  // For the exponential scheme
+  float deltaT = 0, ti = 0;  // Also for the exponential scheme
+
+  if (scheme == Exponential) {
+    cout << "-- Using the exponentially increasing voltage scheme --" << endl;
+  } else if (scheme == Instantaneous) {
+    cout << "-- Using the instantaneous switching of electrodes scheme --"
+         << endl;
+  } else {
+    cout << "-- Using the moving trap voltage scheme --" << endl;
+  }
 
   cout << "Setting initial voltages..." << endl;
 
-#if V_SCHEME == 3 // Moving trap
-  for (int e = 0; e < config.nElectrodes; e += N_IN_SECTION) {
-    for (int s = 0; s < N_IN_SECTION; ++s) {
-      if (((e / 4) + 1) % 6 != 0) {
-        allElectrodes[e + s]->setVoltage(
-            maxVoltage * cos( M_PI * (((e / 4) + 1) % 6) / 3));  // Do all 4 with periodic potential
-      } else {
-        allElectrodes[e + s]->setVoltage(maxVoltage);  // Do all 4 with periodic potential
+  Espace thisWorld = Espace(config);
+  float offTime;
+  if (scheme == Trap) {  // Moving trap
+    for (int e = 0; e < config.nElectrodes; e += N_IN_SECTION) {
+      for (int s = 0; s < N_IN_SECTION; ++s) {
+        if (((e / 4) + 1) % 6 != 0) {
+          allElectrodes[e + s]->setVoltage(
+              maxVoltage * cos( M_PI * (((e / 4) + 1) % 6) / 3));  // Do all 4 with periodic potential
+        } else {
+          allElectrodes[e + s]->setVoltage(maxVoltage);  // Do all 4 with periodic potential
+        }
       }
     }
+    thisWorld = Electrode::sumElectrodes(allElectrodes, config);
+    //float offTime = config.z / (MM_M_CORRECTION * targetVel);
+    offTime = 3.7037e-4;
+  } else {  // Exponential or instantaneous
+    for (int e = 0; e < N_IN_SECTION; ++e) {
+      allElectrodes[e]->setVoltage(maxVoltage);
+    }
+    thisWorld = Electrode::sumElectrodes(allElectrodes, config, N_IN_SECTION);
   }
-  Espace thisWorld = Electrode::sumElectrodes(allElectrodes, config);
-  //float offTime = config.z / (MM_M_CORRECTION * targetVel);
-  float offTime = 3.7037e-4;
-
-#else // Exponential or instantaneous
-  for (int e = 0; e < N_IN_SECTION; ++e) {
-    allElectrodes[e]->setVoltage(maxVoltage);
-  }
-  Espace thisWorld = Electrode::sumElectrodes(allElectrodes,config,N_IN_SECTION);
-#endif
 
   cout << "Starting simulation..." << endl;
   chronoStart = chrono::system_clock::now();
@@ -248,10 +242,11 @@ int main(int argc, char *argv[]) {
         continue;
       }  // Ionise if field too strong
 
-      if (mag >= ITlim && !particle->isNeutralised() && inglisTeller) {
+      if (mag >= particle->ITlim(n, k) && !particle->isNeutralised()
+          && inglisTeller) {
         particle->neutralise(t);
         nNeutralised++;
-      } // Neutralise is field is past the Inglis-Teller limit
+      }  // Neutralise is field is past the Inglis-Teller limit
 
       if (rndLoc[2] >= config.z) {
         particle->succeed();
@@ -279,72 +274,91 @@ int main(int argc, char *argv[]) {
           particle->getLoc(
               2) + (particle->getVel(2)*timeStep + 0.5 * az * pow(timeStep,2)) * MM_M_CORRECTION);
 
-      if (storeTrajectories) particle->memorise();  // Commit to memory
+      if (storeTrajectories)
+        particle->memorise();  // Commit to memory
     }
 
-#if V_SCHEME == 1 // Exponentially increasing voltages on electrodes
+    if (scheme == Exponential) {  // Exponentially increasing voltages on electrodes
 
-    if ( particles[0].getLoc(2) >= section * sectionWidth && section < config.nElectrodes/4) {  // Use synchronous particle to switch electrodes, if it's past this section but not past the end
-      float syncAccel = ( particles[0].getVel(2) - particles[0].recallVel(lastCrossingTime,2) ) / ( timeStep * (t - lastCrossingTime) );// Extrapolate particle accel.
-      lastCrossingTime = t;// Update the last crossing time
+      if (particles[0].getLoc(2) >= section * sectionWidth
+          && section < config.nElectrodes / 4) {  // Use synchronous particle to switch electrodes, if it's past this section but not past the end
+        float syncAccel = (particles[0].getVel(2)
+            - particles[0].recallVel(lastCrossingTime, 2))
+            / (timeStep * (t - lastCrossingTime));  // Extrapolate particle accel.
+        lastCrossingTime = t;  // Update the last crossing time
 
-      // Increase v until roughly when the next electrode is switched on: deltaT is the time the voltage increases for. Just a solution of const. accel. equations.
-      deltaT = ( -particles[0].getVel(2) + sqrt( pow( particles[0].getVel(2),2 ) + 2 * syncAccel * sectionWidth / MM_M_CORRECTION ) ) / syncAccel;
-      ti = t * timeStep;// remember we have to work in seconds
+        // Increase v until roughly when the next electrode is switched on: deltaT is the time the voltage increases for. Just a solution of const. accel. equations.
+        deltaT = (-particles[0].getVel(2)
+            + sqrt(
+                pow(particles[0].getVel(2),
+                    2) + 2 * syncAccel * sectionWidth / MM_M_CORRECTION))
+            / syncAccel;
+        ti = t * timeStep;  // remember we have to work in seconds
 
-      cout << "Section " << section << " switched on at " << t*timeStep << "s" << endl;
-      section++;
-    }
+        cout << "Section " << section << " switched on at " << t * timeStep
+             << "s" << endl;
+        section++;
+      }
 
-    if ( deltaT && t <= (ti + deltaT)/timeStep) {  // Increase V until the appropriate time
-      for ( int e = N_IN_SECTION * (section - 2); e < N_IN_SECTION * (section - 1); ++e) {  // Ugly! We have to subtract 1 from section because it was incremented in the above branch.
+      if (deltaT && t <= (ti + deltaT) / timeStep) {  // Increase V until the appropriate time
+        for (int e = N_IN_SECTION * (section - 2);
+            e < N_IN_SECTION * (section - 1); ++e) {  // Ugly! We have to subtract 1 from section because it was incremented in the above branch.
 #pragma omp single // Not convinced this is necessary but it emphasises the fact that affects all the particles
-        allElectrodes[e]->setVoltage( maxVoltage * ( exp( 1000*(t*timeStep - ti) ) - 1) / ( exp( 1000*deltaT ) - 1) );  // 1000 is just a constant that works well. I have no justification for it.
+          allElectrodes[e]->setVoltage(
+              maxVoltage * (exp(1000 * (t * timeStep - ti)) - 1)
+                  / (exp(1000 * deltaT) - 1));  // 1000 is just a constant that works well. I have no justification for it.
+        }
+        thisWorld = Electrode::sumElectrodes(allElectrodes, config,
+                                             N_IN_SECTION * (section - 1));  // Sum electrode fields
       }
-      thisWorld = Electrode::sumElectrodes(allElectrodes, config, N_IN_SECTION*(section-1));  // Sum electrode fields
-    }
 
-#elif V_SCHEME == 2 // Instantaneous switching of electrodes
+    } else if (scheme == Instantaneous) {  // Instantaneous switching of electrodes
 
-    if ( particles[0].getLoc(2) >= section * sectionWidth && section < config.nElectrodes/4) {  // Use synchronous particle to switch electrodes as above
-      for (int e = N_IN_SECTION * (section - 1); e < N_IN_SECTION * section; ++e) {
+      if (particles[0].getLoc(2) >= section * sectionWidth
+          && section < config.nElectrodes / 4) {  // Use synchronous particle to switch electrodes as above
+        for (int e = N_IN_SECTION * (section - 1); e < N_IN_SECTION * section;
+            ++e) {
 #pragma omp single
-        allElectrodes[e]->setVoltage(maxVoltage);  // Instantaneous switch
+          allElectrodes[e]->setVoltage(maxVoltage);  // Instantaneous switch
+        }
+        cout << "Section " << section << " switched on at " << t * timeStep
+             << endl;
+        thisWorld = Electrode::sumElectrodes(allElectrodes, config,
+                                             N_IN_SECTION * section);  // Sum electrode fields
+        section++;
       }
-      cout << "Section " << section << " switched on at " << t*timeStep << endl;
-      thisWorld = Electrode::sumElectrodes(allElectrodes, config, N_IN_SECTION*section);  // Sum electrode fields
-      section++;
-    }
 
-#elif V_SCHEME == 3 // Moving trap
-    if (t < static_cast<int>(offTime / timeStep)) {
+    } else if (scheme == Trap) {  // Moving trap
+      if (t < static_cast<int>(offTime / timeStep)) {
 #pragma omp parallel for collapse(2) schedule( guided )
-      for (int e = 0; e < config.nElectrodes; e += N_IN_SECTION) {
-        for (int s = 0; s < N_IN_SECTION; ++s) {
-          if (((e / 4) + 1) % 6 != 0) {
-            allElectrodes[e + s]->setVoltage(
-                maxVoltage
-                    * cos(
-                        (M_PI * (((e / 4) + 1) % 6) / 3)
-                            - (pow(t * timeStep, 2) * M_PI * targetVel
-                                * MM_M_CORRECTION / (offTime * sectionWidth * 6))));  // Do all 4 with periodic potential
-          } else {
-            allElectrodes[e + s]->setVoltage(
-                maxVoltage
-                    * cos(
-                        pow(t * timeStep, 2) * M_PI * targetVel
-                            * MM_M_CORRECTION / (offTime * sectionWidth * 6)));  // Do all 4 with periodic potential
+        for (int e = 0; e < config.nElectrodes; e += N_IN_SECTION) {
+          for (int s = 0; s < N_IN_SECTION; ++s) {
+            if (((e / 4) + 1) % 6 != 0) {
+              allElectrodes[e + s]->setVoltage(
+                  maxVoltage
+                      * cos(
+                          (M_PI * (((e / 4) + 1) % 6) / 3)
+                              - (pow(t * timeStep, 2) * M_PI * targetVel
+                                  * MM_M_CORRECTION
+                                  / (offTime * sectionWidth * 6))));  // Do all 4 with periodic potential
+            } else {
+              allElectrodes[e + s]->setVoltage(
+                  maxVoltage
+                      * cos(
+                          pow(t * timeStep, 2) * M_PI * targetVel
+                              * MM_M_CORRECTION
+                              / (offTime * sectionWidth * 6)));  // Do all 4 with periodic potential
+            }
           }
         }
+        thisWorld = Electrode::sumElectrodes(allElectrodes, config);
+      } else {
+        allElectrodes[0]->setVoltage(0.0);
+        allElectrodes[1]->setVoltage(0.0);
+        allElectrodes[2]->setVoltage(0.0);
+        thisWorld = Electrode::sumElectrodes(allElectrodes, config, 2);
       }
-      thisWorld = Electrode::sumElectrodes(allElectrodes, config);
-    } else {
-      allElectrodes[0]->setVoltage(0.0);
-      allElectrodes[1]->setVoltage(0.0);
-      allElectrodes[2]->setVoltage(0.0);
-      thisWorld = Electrode::sumElectrodes(allElectrodes, config, 2);
     }
-#endif
     cout << timeStep * t << "s simulated\r" << flush;
   }
 
@@ -361,10 +375,10 @@ int main(int argc, char *argv[]) {
 
   string outFilePath = string(outDir) + "outFile.h5";
 
-  int nts = (storeTrajectories) ? (nTimeSteps + 1) : 2; // Number of timesteps in HDF5 file
+  int nts = (storeTrajectories) ? (nTimeSteps + 1) : 2;  // Number of timesteps in HDF5 file
 
-  writeHDF5(particles, outFilePath, nts, nSucceeded,
-            nIonised, nCollided, nParticles);
+  writeHDF5(particles, outFilePath, nts, nSucceeded, nIonised, nCollided,
+            nParticles);
 
   return 0;
 }
