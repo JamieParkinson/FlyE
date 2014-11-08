@@ -62,6 +62,7 @@
 #include "Espace.h" // Basically a 4D array with some useful methods
 #include "Particle.h" // Quite an in-depth particle object
 #include "myFunctions.h" // Includes myStructs.h (for params and hyperslabParams) too
+#include "myKDist.h" // Wrapper/abstraction for RNGs
 
 using namespace std;
 
@@ -79,23 +80,19 @@ chrono::duration<float> chronoElapsed;
 float timeStep, duration;
 
 // Various global variables, mostly for storing config values
-bool normDist, kDist, storeCollisions, storeTrajectories, inglisTeller;
+bool normDist, storeCollisions, storeTrajectories, inglisTeller;
 int nParticles, n, k;
 float maxVoltage, sigmaX, sigmaY, sigmaZ, temperature, targetVel,
     targetVelPrecision;  // For normal distribution of initial particle positions
 string outDir;
 params config;
 accelerationSchemes scheme;
+kDists kDist;
 
 int nIonised = 0, nCollided = 0, nSucceeded = 0, nNeutralised = 0;  // For counting the particles' fates
 
-constexpr char types[4] = { 'S', 'C', 'I', 'T' };  // Successes, Collisions, Ionisations, Trapped
-constexpr char lcDimensions[N_DIMENSIONS] = { 'x', 'y', 'z' };
-
 int main(int argc, char *argv[]) {
-  cout << "IMPORTING E-FIELD DATA:\n" << endl;
-
-  cout << "Reading config..." << endl;
+  cout << "Reading config file..." << endl;
   readConfig(argv[1]);  // argv[1] is the path to the config file
 
   vector<shared_ptr<Electrode> > allElectrodes;  // Array of electrodes - shared_ptr gives auto memory management
@@ -125,12 +122,18 @@ int main(int argc, char *argv[]) {
 
   mt19937 generator(chronoElapsed.count());  // Set up normal distribution generators (Mersenne Twister). Use the time from a few seconds ago as seed.
 
-  // Very lazy way to choose whether I want a uniform distribution of ks
-  int kLower = (kDist) ? 1 : k;
-  int kUpper = (kDist) ? (n - 1) : k;
-  uniform_int_distribution<> k_dist(kLower, kUpper);
+  // Using my wrapper class because C++11's RNGs don't have a common parent
+  myDist* k_dist;
+  if (kDist == Single) {
+    k_dist = new mySingleDist(k);
+  } else if (kDist == Uniform) {
+    k_dist = new myUniformDist(1, n-1);
+  } else { // kDist == Triangle
+    vector<float> kpieces {0.0, (float) n};
+    vector<float> kweights {1, 0};
+    k_dist = new myTriangleDist(kpieces, kweights);
+  }
 
-  // TODO think about the *actual* distribution of k
 
   if (normDist) {  // Cloud or uniform phase space. Ugly code duplication but necessary due to variable scope.
     normal_distribution<float> x_dist(config.x / 2, sigmaX);  // Center at start of cylinder
@@ -142,7 +145,7 @@ int main(int argc, char *argv[]) {
       particles.emplace_back(x_dist(generator), y_dist(generator),
                              z_dist(generator), v_dist(generator),
                              v_dist(generator), v_dist(generator), n,
-                             k_dist(generator));
+                             (*k_dist)(generator));
     }
   } else {  // Uniform particle distribution between electrodes 1 and 4
     uniform_real_distribution<float> uniform_dist(0, 1);
@@ -162,15 +165,16 @@ int main(int argc, char *argv[]) {
                              p_r * sin(p_theta) + 0.5 * config.y,
                              sectionWidth * (3 * uniform_dist(generator) + 1),
                              v_r * muller_factor * vx, v_r * muller_factor * vy,
-                             v_r * muller_factor * vz, n, k_dist(generator));
+                             v_r * muller_factor * vz, n, (*k_dist)(generator));
+      cout << particles[i].getK() << endl;
     }
   }
 
   // TODO tune turn-off time to get collimated exit beam
 
-  // For getting electrode positions
+  // For getting electrode positions (because |E| = 0 in electrodes)
   for (auto &electrode : allElectrodes) {
-    electrode->setVoltage(&electrode - &allElectrodes[0]);
+    electrode->setVoltage(&electrode - &allElectrodes[0]); // Arbitrary voltage
   }
   Espace normWorld = Electrode::sumElectrodes(allElectrodes, config);
 

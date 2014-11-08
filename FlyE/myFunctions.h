@@ -20,11 +20,12 @@ using namespace std;
 
 // Global variables
 extern float timeStep, duration, maxVoltage, sigmaX, sigmaY, sigmaZ, temperature, targetVel, targetVelPrecision;
-extern bool normDist, kDist, storeCollisions, storeTrajectories, inglisTeller;
+extern bool normDist, storeCollisions, storeTrajectories, inglisTeller;
 extern int nParticles, n, k;
 extern string outDir;
 extern params config;
 extern accelerationSchemes scheme;
+extern kDists kDist;
 
 // Uses libconfig++ to read in my config file
 void readConfig(const string confFilePath) {
@@ -62,7 +63,10 @@ void readConfig(const string confFilePath) {
   temperature = c["particles"]["temperature"];
   n = c["particles"]["n"];
   k = c["particles"]["k"];
-  kDist = c["particles"]["k_dist"];
+  kDist = (c["particles"]["k_dist"] == "uniform") ?
+      Uniform : (c["particles"]["k_dist"] == "single") ?
+      Single :
+      Triangle;
 
   targetVel = c["target_v"];
   targetVelPrecision = c["target_v_precision"];

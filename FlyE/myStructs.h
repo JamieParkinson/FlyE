@@ -24,4 +24,8 @@ enum accelerationSchemes {
   Exponential, Instantaneous, Trap
 };
 
+enum kDists {
+  Uniform, Single, Triangle
+};
+
 #endif /* MYSTRUCTS_H_ */
