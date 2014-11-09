@@ -50,7 +50,6 @@
  */
 
 // TODO Clean the code up!!
-#include <random> // For random number generation
 #include <chrono> // For (system clock) timing
 #include <algorithm> // for_each
 
@@ -166,7 +165,6 @@ int main(int argc, char *argv[]) {
                              sectionWidth * (3 * uniform_dist(generator) + 1),
                              v_r * muller_factor * vx, v_r * muller_factor * vy,
                              v_r * muller_factor * vz, n, (*k_dist)(generator));
-      cout << particles[i].getK() << endl;
     }
   }
 

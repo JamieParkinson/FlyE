@@ -105,9 +105,15 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
 
   vector<shared_ptr<H5::DataSet> > dSets;  // Storing datasets
   vector<shared_ptr<H5::DataSet> > ntimeDSets; // For neutralisation times
+  vector<shared_ptr<H5::DataSet> > kDSets; // For k-values
+
   vector<H5::DataSpace> dSpaces;  // Storing dataspaces
   vector<H5::DataSpace> ntimeDSpaces; // For neutralisation times
+  vector<H5::DataSpace> kDSpaces; // For k-values
+
   vector< vector<int> > ntimeVecs(N_TYPES); // For neutralisation time vectors
+  vector< vector<int> > kVecs(N_TYPES); // For k-value vectors
+
   vector<int> pTypeCounts = { 0, 0, 0, 0, 0 };  // Particle type counters
   int pType;  // Will be used to select elements of above vectors
 
@@ -121,13 +127,15 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
     dataDims[1] = 2;  // Position and velocity
     dataDims[0] = N_DIMENSIONS;  // x, y, z
 
-    hsize_t ntimeDims[1]; // For neutralisation times
-    ntimeDims[0] = nParticlesOfType[type];
+    hsize_t scalarDims[1]; // For neutralisation times and k-values
+    scalarDims[0] = nParticlesOfType[type];
 
     dSpaces.emplace_back(4, dataDims);
-    ntimeDSpaces.emplace_back(1, ntimeDims);
+    ntimeDSpaces.emplace_back(1, scalarDims);
+    kDSpaces.emplace_back(1, scalarDims);
 
     ntimeVecs[type].reserve(nParticlesOfType[type]);
+    kVecs[type].reserve(nParticlesOfType[type]);
 
     dSets.emplace_back(
         make_shared<H5::DataSet>(
@@ -136,6 +144,10 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
     ntimeDSets.emplace_back(
         make_shared<H5::DataSet>(
             outFile->createDataSet("/" + typeNames[type] + "/neutralTimes", iType, ntimeDSpaces[type])));
+
+    kDSets.emplace_back(
+        make_shared<H5::DataSet>(
+            outFile->createDataSet("/" + typeNames[type] + "/ks", iType, kDSpaces[type])));
   }
 
   for (Particle &particle : particles) {  // Look through particles
@@ -147,7 +159,7 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
       pType = N_TYPES - 1;
     }
 
-    if (pType == 1 && !storeCollisions) {
+    if (pType == 1 && !storeCollisions) { // If we're discarding collisions
       continue;
     }
 
@@ -179,6 +191,7 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
     ++pTypeCounts[pType];  // Increase out count of this particle type
 
     ntimeVecs[pType].emplace_back(particle.neutralisationTime()); // Store ntime
+    kVecs[pType].emplace_back(particle.getK()); // Store k
 
     particle.forget();  // Clear the memory of the particle we just dealt with
 
@@ -186,8 +199,9 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
          << flush;
   }
 
-  for (int type = 0; type < N_TYPES; ++type) { // Write neutralisation times
+  for (int type = 0; type < N_TYPES; ++type) { // Write neutralisation times & k-values
     ntimeDSets[type]->write(ntimeVecs[type].data(), iType);
+    kDSets[type]->write(kVecs[type].data(), iType);
   }
 
   delete typeGroup;

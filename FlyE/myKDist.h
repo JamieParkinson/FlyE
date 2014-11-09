@@ -1,4 +1,6 @@
-#include <random>
+#pragma once
+
+#include <random> // C++11 RNGs
 
 class myDist {
  public:
