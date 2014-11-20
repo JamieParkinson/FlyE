@@ -21,18 +21,8 @@
 
 #pragma once
 
-#include <vector>
-#include <fstream>
-#include <string>
-#include <H5Cpp.h>
+#include "Containers.h"
 
-#include "myStructs.h"
-
-#ifndef N_DIMENSIONS
-#define N_DIMENSIONS 3
-#endif
-
-extern const float e, a0, Fit; // Declared in FlyE.cpp
 extern bool storeCollisions; // From config
 
 class Particle {

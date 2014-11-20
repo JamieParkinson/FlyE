@@ -37,21 +37,9 @@
 #include <memory>
 #include <vector>
 
-#ifndef N_DIMENSIONS
-#define N_DIMENSIONS 3
-#endif
+const char dimensions[3] = { 'X', 'Y', 'Z' };
 
-#ifndef SIMION_CORRECTION
-#define SIMION_CORRECTION 0.1
-#endif
-
-#ifndef MM_M_CORRECTION
-#define MM_M_CORRECTION 1000
-#endif
-
-const char dimensions[N_DIMENSIONS] = { 'X', 'Y', 'Z' };
-
-#include "myStructs.h"
+#include "Containers.h"
 
 class Espace {  // General representation of the pseudo-multidimensional array that we use to represent our space
  protected:

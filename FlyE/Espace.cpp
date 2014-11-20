@@ -1,6 +1,7 @@
 /* Source for Espace class */
 
 #include "Espace.h"
+#include "PhysicalConstants.h"
 
 Espace::Espace(const params &config)
     : config_(config) {
@@ -10,30 +11,30 @@ Espace::Espace(const params &config)
 ;
 
 float Espace::gradientX(const int x, const int y, const int z) {
-  return MM_M_CORRECTION * (magAt(x + 1, y, z) - magAt(x - 1, y, z)) / 2;
+  return Physics::MM_M_CORRECTION * (magAt(x + 1, y, z) - magAt(x - 1, y, z)) / 2;
 }
 
 float Espace::gradientY(const int x, const int y, const int z) {
-  return MM_M_CORRECTION * (magAt(x, y + 1, z) - magAt(x, y - 1, z)) / 2;
+  return Physics::MM_M_CORRECTION * (magAt(x, y + 1, z) - magAt(x, y - 1, z)) / 2;
 }
 
 float Espace::gradientZ(const int x, const int y, const int z) {
-  return MM_M_CORRECTION * (magAt(x, y, z + 1) - magAt(x, y, z - 1)) / 2;
+  return Physics::MM_M_CORRECTION * (magAt(x, y, z + 1) - magAt(x, y, z - 1)) / 2;
 }
 
 float& Espace::at(const int x, const int y, const int z, const int d) {
-  return field_[d + N_DIMENSIONS * z + N_DIMENSIONS * config_.z * y
-      + N_DIMENSIONS * config_.z * config_.y * x];
+  return field_[d + Physics::N_DIMENSIONS * z + Physics::N_DIMENSIONS * config_.z * y
+      + Physics::N_DIMENSIONS * config_.z * config_.y * x];
 }
 
 float& Espace::normAt(const int x, const int y, const int z, const int d) {
-  return normField_[d + N_DIMENSIONS * z + N_DIMENSIONS * config_.z * y
-      + N_DIMENSIONS * config_.z * config_.y * x];
+  return normField_[d + Physics::N_DIMENSIONS * z + Physics::N_DIMENSIONS * config_.z * y
+      + Physics::N_DIMENSIONS * config_.z * config_.y * x];
 }
 
 float Espace::magAt(const int x, const int y, const int z) {
-  int cPart = N_DIMENSIONS * z + N_DIMENSIONS * config_.z * y
-      + N_DIMENSIONS * config_.z * config_.y * x;
+  int cPart = Physics::N_DIMENSIONS * z + Physics::N_DIMENSIONS * config_.z * y
+      + Physics::N_DIMENSIONS * config_.z * config_.y * x;
   return sqrt(
       pow(field_[cPart], 2) + pow(field_[cPart + 1], 2)
           + pow(field_[cPart + 2], 2));
@@ -65,7 +66,7 @@ void Electrode::import(int n) {
         + "_E" + std::to_string(config_.nElectrodes - n + 1) + "_L"
         + std::to_string(x + 2) + "_";  // width+2 to correct zero-indexing, and (nElectrodes - n + 1) to correct weird backwards numbering
 
-    for (int d = 0; d < N_DIMENSIONS; ++d) {
+    for (int d = 0; d < Physics::N_DIMENSIONS; ++d) {
       std::string datFilePath = datPath + dimensions[d] + ".dat";
       std::ifstream datFile(datFilePath.c_str());
       if (datFile.fail()) {
@@ -80,7 +81,7 @@ void Electrode::import(int n) {
           y = 0;
           std::stringstream linestream(line);
           while (getline(linestream, piece, '\t')) {  // Tabs (ie cells)
-            normAt(x, y, z, d) = SIMION_CORRECTION * stod(piece);  // Ugly access to overloaded parentheses
+            normAt(x, y, z, d) = Physics::SIMION_CORRECTION * stod(piece);  // Ugly access to overloaded parentheses
             ++y;
           }
         }

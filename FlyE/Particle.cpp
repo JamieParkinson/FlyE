@@ -1,6 +1,10 @@
 /* Source for Particle class */
+#include <vector>
+#include <fstream>
+#include <string>
 
 #include "Particle.h"
+#include "PhysicalConstants.h"
 
 Particle::Particle(float x, float y, float z, float vx, float vy,
                    float vz)
@@ -15,7 +19,7 @@ Particle::Particle(float x, float y, float z, float vx, float vy,
       v_( { vx, vy, vz }),
       n_(n),
       k_(k) {
-  mu_ = 1.5 * n * k * e * a0;
+  mu_ = 1.5 * n * k * Physics::e * Physics::a0;
   memorise();
 }
 
@@ -248,7 +252,7 @@ float Particle::ITlim(int n, int k) {
   // \frac{1}{2} (-3) a_0 e F n (n+1)-\frac{c h R_{\infty }}{(n+1)^2}=\frac{3}{2} a_0 e F k n-\frac{c h R_{\infty }}{n^2}
 
   // ITlim = \frac{2 c h (2 n+1) R_{\infty }}{3 a_0 e n^3 (n+1)^2 (k+n+1)}
-  return Fit*(1 + 2*n)/(n*n*n*(1 + n)*(1 + n)*(1 + k + n));
+  return Physics::Fit*(1 + 2*n)/(n*n*n*(1 + n)*(1 + n)*(1 + k + n));
 }
 
 float Particle::ITlim() {
