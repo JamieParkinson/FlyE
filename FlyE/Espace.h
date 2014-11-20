@@ -25,7 +25,7 @@
  * then the operation is expanded inline).
  *
  * Jamie Parkinson, July 2014
- */
+ *
 
 #pragma once
 
@@ -88,3 +88,4 @@ class Electrode : public Espace {  // Adds voltage and file import functions
       const std::vector<std::shared_ptr<Electrode> > &electrodes,
       params &config, int nToSum = 0);
 };
+*/a

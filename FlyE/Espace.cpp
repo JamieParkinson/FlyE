@@ -1,4 +1,4 @@
-/* Source for Espace class */
+/* Source for Espace class
 
 #include "Espace.h"
 #include "PhysicalConstants.h"
@@ -116,3 +116,4 @@ Espace Electrode::sumElectrodes(
   return sumSpace;
 }
 
+*/
