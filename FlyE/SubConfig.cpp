@@ -2,30 +2,19 @@
 
 #include "SubConfig.h"
 
-void SubConfig::setRoot(libconfig::Setting &root) {
-  myRoot_ = &root;
+SubConfig::SubConfig(INIReader *reader) {
+  populate(reader);
 }
 
-std::string SubConfig::toString() {
-  std::string str = "Config information for " + myRoot_.getName();
+AcceleratorConfig::AcceleratorConfig(INIReader *reader) : SubConfig(reader) {}
 
-  for (int i = 0; i < myRoot_.getLength(); ++i) {
-    str.append(myRoot_[i].getName());
-    str.append(": ");
-    str.append(static_cast<std::string>(myRoot_[i]));
-    str.append("\n");
-  }
-
-  return str;
-}
-
-void AcceleratorConfig::populate() {
-  datDirectory_ = myRoot_["dat_directory"];
-  nElectrodes_ = myRoot_["n_electrodes"];
-  PAname_ = myRoot_["pa_name"];
-  x_ = myRoot_["dimensions"]["x"];
-  y_ = myRoot_["dimensions"]["y"];
-  z_ = myRoot_["dimensions"]["z"];
+void AcceleratorConfig::populate(INIReader *reader) {
+  datDirectory_ = reader->Get("accelerator", "dat_directory", "~");
+  nElectrodes_ = reader->GetInteger("accelerator", "n_electrodes", 36);
+  PAname_ = reader->Get("accelerator", "pa_name", "cylinder");
+  x_ = reader->GetInteger("accelerator", "x", 54) - 2;
+  y_ = reader->GetInteger("accelerator", "y", 54) - 2;
+  z_ = reader->GetInteger("accelerator", "z", 200) - 2;
 }
 
 const std::string& AcceleratorConfig::datDirectory() const {
@@ -52,14 +41,14 @@ int AcceleratorConfig::z() const {
   return z_;
 }
 
-void SimulationConfig::populate() {
-  accelerationScheme_ = myRoot_["accel_scheme"];
-  duration_ = myRoot_["duration"];
-  inglisTeller_ = myRoot_["inglis_teller"];
-  maxVoltage_ = myRoot_["max_voltage"];
-  nParticles_ = myRoot_["n_particles"];
-  targetVel_ = myRoot_["target_vel"];
-  timeStep_ = myRoot_["time_step"];
+void SimulationConfig::populate(INIReader *reader) {
+  accelerationScheme_ = reader->Get("simulation", "accel_scheme", "trap");
+  duration_ = (float) reader->GetReal("simulation", "duration", 6e-4);
+  inglisTeller_ = reader->GetBoolean("simulation", "inglis_teller", false);
+  maxVoltage_ = (float) reader->GetReal("simulation", "max_voltage", 100);
+  nParticles_ = reader->GetInteger("simulation", "n_particles", 50000);
+  targetVel_ = (float) reader->GetReal("simulation", "target_vel", 500);
+  timeStep_ = (float) reader->GetReal("simulation", "time_step", 1e-6);
 }
 
 const std::string& SimulationConfig::accelerationScheme() const {
@@ -90,15 +79,15 @@ float SimulationConfig::timeStep() const {
   return timeStep_;
 }
 
-void ParticlesConfig::populate() {
-  k_ = myRoot_["k"];
-  kDist_ = myRoot_["k_dist"];
-  n_ = myRoot_["n"];
-  normDist_ = myRoot_["norm_dist"];
-  sigmaX_ = myRoot_["sigma"]["x"];
-  sigmaY_ = myRoot_["sigma"]["y"];
-  sigmaZ_ = myRoot_["sigma"]["z"];
-  temperature_ = myRoot_["temperature"];
+void ParticlesConfig::populate(INIReader *reader) {
+  k_ = reader->GetInteger("particles", "k", 20);
+  kDist_ = reader->Get("particles", "k_dist", "single");
+  n_ = reader->GetInteger("particles", "n", 25);
+  normDist_ = reader->GetBoolean("particles", "norm_dist", false);
+  sigmaX_ = (float) reader->GetReal("particles", "sigma_x", 0.5);
+  sigmaY_ = (float) reader->GetReal("particles", "sigma_y", 0.5);
+  sigmaZ_ = (float) reader->GetReal("particles", "sigma_z", 5);
+  temperature_ = (float) reader->GetReal("particles", "temperature", 1.0);
 }
 
 int ParticlesConfig::k() const {
@@ -133,10 +122,10 @@ float ParticlesConfig::temperature() const {
   return temperature_;
 }
 
-void StorageConfig::populate() {
-  outDir_ = myRoot_["output_dir"];
-  storeCollisions_ = myRoot_["store_collisions"];
-  storeTrajectories_ = myRoot_["store_trajectories"];
+void StorageConfig::populate(INIReader *reader) {
+  outDir_ = reader->Get("storage", "output_dir", "~");
+  storeCollisions_ = reader->GetBoolean("storage", "store_collisions", true);
+  storeTrajectories_ = reader->GetBoolean("storage", "store_trajectories", true);
 }
 
 const std::string& StorageConfig::outDir() const {

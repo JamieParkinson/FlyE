@@ -5,31 +5,14 @@
 
 ConfigLoader::ConfigLoader(std::string configFilePath)
     : configFilePath_(configFilePath) {
-  config_.readFile(configFilePath.c_str());
-  libconfig::Setting &settings = config_.getRoot();
+  myReader_ = new INIReader(configFilePath);
 
-  for (int i = 0; i < settings.getLength(); ++i) {
-    libconfig::Setting &setting = settings[i];
-    std::string name(setting.getName(), 11);
+  accelConf_ = new AcceleratorConfig(myReader_);
+  particlesConf_ = new ParticlesConfig(myReader_);
+  simConf_ = new SimulationConfig(myReader_);
+  storageConf_ = new StorageConfig(myReader_);
 
-    SubConfig *subConf = new SubConfig();
-    if (name == "accelerator") {
-      subConf = new AcceleratorConfig();
-      accelConf_ = static_cast<AcceleratorConfig*>(subConf);
-    } else if (name == "simulation") {
-      subConf = new SimulationConfig();
-      simConf_ = static_cast<SimulationConfig*>(subConf);
-    } else if (name == "particles") {
-      subConf = new ParticlesConfig();
-      particlesConf_ = static_cast<ParticlesConfig*>(subConf);
-    } else if (name == "storage") {
-      subConf = new StorageConfig();
-      storageConf_ = static_cast<StorageConfig*>(subConf);
-    }
-
-    subConf->setRoot(setting);
-    subConf->populate();
-  }
+  delete myReader_;
 }
 
 AcceleratorConfig* ConfigLoader::getAcceleratorConfig() {

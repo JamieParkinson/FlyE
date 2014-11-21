@@ -1,19 +1,13 @@
 #pragma once
 
-#include <libconfig.h++>
+#include "inih/cpp/INIReader.h"
 
 class SubConfig {
- protected:
-  libconfig::Setting *myRoot_;
-
  public:
-  SubConfig();
   virtual ~SubConfig();
-
-  void setRoot(const libconfig::Setting root);
-  virtual void populate();
-
-  std::string toString();
+  SubConfig(INIReader *reader);
+  virtual void populate(INIReader *reader);
+  virtual std::string toString();
 };
 
 class AcceleratorConfig : public SubConfig {
@@ -24,7 +18,8 @@ class AcceleratorConfig : public SubConfig {
   std::string PAname_;
 
  public:
-  void populate();
+  AcceleratorConfig(INIReader *reader);
+  void populate(INIReader *reader);
   // Getters
   const std::string& datDirectory() const;
   int nElectrodes() const;
@@ -44,7 +39,8 @@ class SimulationConfig : public SubConfig {
   bool inglisTeller_;
 
  public:
-  void populate();
+  SimulationConfig(INIReader *reader);
+  void populate(INIReader *reader);
   // Getters
   const std::string& accelerationScheme() const;
   float duration() const;
@@ -64,7 +60,8 @@ class ParticlesConfig : public SubConfig {
   int n_, k_;
 
  public:
-  void populate();
+  ParticlesConfig(INIReader *reader);
+  void populate(INIReader *reader);
   // Getters
   int k() const;
   const std::string& kDist() const;
@@ -82,7 +79,8 @@ class StorageConfig : public SubConfig {
   bool storeTrajectories_, storeCollisions_;
 
  public:
-  void populate();
+  StorageConfig(INIReader *reader);
+  void populate(INIReader *reader);
   const std::string& outDir() const;
   bool storeTrajectories() const;
   bool storeCollisions() const;

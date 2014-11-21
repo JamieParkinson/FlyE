@@ -2,14 +2,14 @@
  * A class to read in and then contain the contents of a config file
  */
 #include <string>
-#include <libconfig.h++>
+#include "inih/cpp/INIReader.h"
 
 #include "SubConfig.h"
 
 class ConfigLoader {
  private:
-  std::string configFilePath_ = "";
-  libconfig::Config config_;
+  std::string configFilePath_;
+  INIReader *myReader_;
   AcceleratorConfig *accelConf_;
   SimulationConfig *simConf_;
   ParticlesConfig *particlesConf_;
