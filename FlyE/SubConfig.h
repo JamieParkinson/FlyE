@@ -53,22 +53,22 @@ class AcceleratorConfig : public SubConfig {
 
   // Getters
 
-  /** @return Directory in which the E-Field .dat files are stored */
+  /** @brief Directory in which the E-Field .dat files are stored */
   const std::string& datDirectory() const;
 
-  /** @return Number of electrodes in the accelerator */
+  /** @brief Number of electrodes in the accelerator */
   int nElectrodes() const;
 
-  /** @return Prefix for EXSIMECK-named files */
+  /** @brief Prefix for EXSIMECK-named files */
   const std::string& PAname() const;
 
-  /** @return Dimension in x of accelerator geometry */
+  /** @brief Dimension in x of accelerator geometry */
   int x() const;
 
-  /** @return Dimension in y of accelerator geometry */
+  /** @brief Dimension in y of accelerator geometry */
   int y() const;
 
-  /** @return Dimension in z of accelerator geometry */
+  /** @brief Dimension in z of accelerator geometry */
   int z() const;
 };
 
@@ -98,22 +98,22 @@ class SimulationConfig : public SubConfig {
 
   // Getters
 
-  /** @return Scheme for acceleration: trap, inst or exp */
+  /** @brief Scheme for acceleration: trap, inst or exp */
   const std::string& accelerationScheme() const;
 
-  /** @return Time to run simulation for (s) */
+  /** @brief Time to run simulation for (s) */
   float duration() const;
 
-  /** @return Whether to neutralise the dipole moment of particles past the I-T limit */
+  /** @brief Whether to neutralise the dipole moment of particles past the I-T limit */
   bool inglisTeller() const;
 
-  /** @return Maximum voltage that can be applied to electrodes (V) */
+  /** @brief Maximum voltage that can be applied to electrodes (V) */
   float maxVoltage() const;
 
-  /** @return Velocity to try to accelerate the particles to (m/s) */
+  /** @brief Velocity to try to accelerate the particles to (m/s) */
   float targetVel() const;
 
-  /** @return Timestep to use in simulation (s) */
+  /** @brief Timestep to use in simulation (s) */
   float timeStep() const;
 };
 
@@ -145,19 +145,19 @@ class ParticlesConfig : public SubConfig {
 
   // Getters
 
-  /** @return Number of particles in the simulation */
+  /** @brief Number of particles in the simulation */
   int nParticles() const;
 
-  /** @return If kDist is single, then use this value */
+  /** @brief If kDist is single, then use this value */
   int k() const;
 
-  /** @return Distribution of k-values: single, uniform or triangle */
+  /** @brief Distribution of k-values: single, uniform or triangle */
   const std::string& kDist() const;
 
-  /** @return Principal quantum number of all particles */
+  /** @brief Principal quantum number of all particles */
   int n() const;
 
-  /** @return Whether the particles are to be normally distributed */
+  /** @brief Whether the particles are to be normally distributed */
   bool normDist() const;
 
   ///@{ @return If normDist is true, the parameters of the normal distributions
@@ -166,7 +166,7 @@ class ParticlesConfig : public SubConfig {
   float sigmaZ() const;
   ///@}
 
-  /** @return Temperature of initial particle cloud */
+  /** @brief Temperature of initial particle cloud */
   float temperature() const;
 };
 
@@ -191,12 +191,12 @@ class StorageConfig : public SubConfig {
   //!< @copydoc SubConfig::toString()
   std::string toString();
 
-  /** @return The directory to write output files to */
+  /** @brief The directory to write output files to */
   const std::string& outDir() const;
 
-  /** @return Whether to store the full particle trajectories or just endpoints */
+  /** @brief Whether to store the full particle trajectories or just endpoints */
   bool storeTrajectories() const;
 
-  /** @return Whether to store any data of particles that collide */
+  /** @brief Whether to store any data of particles that collide */
   bool storeCollisions() const;
 };
