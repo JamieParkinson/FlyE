@@ -37,20 +37,20 @@ static float VectorField::vectorMagnitude(blitz::TinyVector<float, 3> vec) {
   return static_cast<float>( sqrt(vec(0)*vec(0) + vec(1)*vec(1) + vec(2)*vec(2)) );
 }
 
-float VectorField::magnitude(int x, int y, int z) {
+float VectorField::magnitudeAt(int x, int y, int z) {
   return vectorMagnitude(fieldArray_(x, y, z));
 }
 
-float VectorField::gradientX(int x, int y, int z) {
-  return 0.5*Physics::MM_M_CORRECTION*(magnitude(x+1, y, z) - magnitude(x-1, y, z));
+float VectorField::gradientXat(int x, int y, int z) {
+  return 0.5*Physics::MM_M_CORRECTION*(magnitudeAt(x+1, y, z) - magnitudeAt(x-1, y, z));
 }
 
-float VectorField::gradientY(int x, int y, int z) {
-  return 0.5*Physics::MM_M_CORRECTION*(magnitude(x, y+1, z) - magnitude(x, y-1, z));
+float VectorField::gradientYat(int x, int y, int z) {
+  return 0.5*Physics::MM_M_CORRECTION*(magnitudeAt(x, y+1, z) - magnitudeAt(x, y-1, z));
 }
 
-float VectorField::gradientZ(int x, int y, int z) {
-  return 0.5*Physics::MM_M_CORRECTION*(magnitude(x, y, z+1) - magnitude(x, y, z-1));
+float VectorField::gradientZat(int x, int y, int z) {
+  return 0.5*Physics::MM_M_CORRECTION*(magnitudeAt(x, y, z+1) - magnitudeAt(x, y, z-1));
 }
 
 static VectorField VectorField::sumVectorFields(std::vector< std::shared_ptr<VectorField> > &fields, int nToSum) {

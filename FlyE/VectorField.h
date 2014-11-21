@@ -7,6 +7,7 @@
 
 class VectorField {
  protected:
+  // A 3D array of vectors
   blitz::Array<blitz::TinyVector<float,3>, 3> fieldArray_;
 
   // To be used internally; for calculating the magnitude of the vector field at a point
@@ -30,12 +31,12 @@ class VectorField {
   void operator *=(float scalar);
 
   // Magnitude of the vector field at a point
-  float magnitude(int x, int y, int z);
+  float magnitudeAt(int x, int y, int z);
 
   // Gradients in each direction
-  float gradientX(int x, int y, int z);
-  float gradientY(int x, int y, int z);
-  float gradientZ(int x, int y, int z);
+  float gradientXat(int x, int y, int z);
+  float gradientYat(int x, int y, int z);
+  float gradientZat(int x, int y, int z);
 
   // For adding together std::vectors of shared_ptr<VectorField>s
   // -1 means sum everything

@@ -2,20 +2,26 @@
  * At this stage a sort of pseudocode for how I'd like things to look
  */
 
-int main(int argc, char* argv[]) {
-  SimConfig *myConfig = new SimConfig("PATH TO CONFIG");
+#include <iostream>
+#include "ConfigLoader.h"
 
-  AcceleratorGeometry *myAccelerator(myConfig);
+int main(int argc, char* argv[]) {
+  ConfigLoader *myConfig = new ConfigLoader("/home/jamie/git/FlyE/FlyE/flyE.conf");
+  AcceleratorConfig *accelConf = myConfig->getAcceleratorConfig();
+  std::cout << accelConf->toString() << std::endl;
+
+
+ /* AcceleratorGeometry *myAccelerator(myConfig);
   myAccelerator->importEFields();
 
   ParticleGenerator *myGenerator(myConfig);
   myGenerator->makeSynchronousParticle();
   Particles myParticles = myGenerator->makeParticles();
 
-  Simulator *mySimulator = new Simulator(SimConfig, myAccelerator, myParticles);
+  Simulator *mySimulator = new Simulator(ConfigLoader, myAccelerator, myParticles);
 
   mySimulator->run();
   mySimulator->printBasicStats();
 
-  mySimulator->write("PATH TO WRITE");
+  mySimulator->write("PATH TO WRITE"); */
 }
