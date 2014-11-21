@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[]) {
   ConfigLoader *myConfig = new ConfigLoader("/home/jamie/git/FlyE/FlyE/flyE.conf");
-  AcceleratorConfig *accelConf = myConfig->getAcceleratorConfig();
+  std::unique_ptr<AcceleratorConfig> accelConf = myConfig->getAcceleratorConfig();
   std::cout << accelConf->toString() << std::endl;
 
 

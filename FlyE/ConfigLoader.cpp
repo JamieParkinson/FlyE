@@ -1,49 +1,32 @@
 #include "ConfigLoader.h"
 
+#include "inih/cpp/INIReader.h"
+
 #include "PhysicalConstants.h"
 #include "Containers.h"
 
 ConfigLoader::ConfigLoader(std::string configFilePath)
     : configFilePath_(configFilePath) {
-  config_.readFile(configFilePath.c_str());
-  libconfig::Setting &settings = config_.getRoot();
+  INIReader myReader_(configFilePath);
 
-  for (int i = 0; i < settings.getLength(); ++i) {
-    libconfig::Setting &setting = settings[i];
-    std::string name(setting.getName(), 11);
-
-    SubConfig *subConf = new SubConfig();
-    if (name == "accelerator") {
-      subConf = new AcceleratorConfig();
-      accelConf_ = static_cast<AcceleratorConfig*>(subConf);
-    } else if (name == "simulation") {
-      subConf = new SimulationConfig();
-      simConf_ = static_cast<SimulationConfig*>(subConf);
-    } else if (name == "particles") {
-      subConf = new ParticlesConfig();
-      particlesConf_ = static_cast<ParticlesConfig*>(subConf);
-    } else if (name == "storage") {
-      subConf = new StorageConfig();
-      storageConf_ = static_cast<StorageConfig*>(subConf);
-    }
-
-    subConf->setRoot(setting);
-    subConf->populate();
-  }
+  accelConf_ = std::unique_ptr<AcceleratorConfig>(new AcceleratorConfig(myReader_));
+  particlesConf_ = std::unique_ptr<ParticlesConfig>(new ParticlesConfig(myReader_));
+  simConf_ = std::unique_ptr<SimulationConfig>(new SimulationConfig(myReader_));
+  storageConf_ = std::unique_ptr<StorageConfig>(new StorageConfig(myReader_));
 }
 
-AcceleratorConfig* ConfigLoader::getAcceleratorConfig() {
-  return accelConf_;
+std::unique_ptr<AcceleratorConfig> ConfigLoader::getAcceleratorConfig() {
+  return std::move(accelConf_);
 }
 
-ParticlesConfig* ConfigLoader::getParticlesConfig() {
-  return particlesConf_;
+std::unique_ptr<ParticlesConfig> ConfigLoader::getParticlesConfig() {
+  return std::move(particlesConf_);
 }
 
-SimulationConfig* ConfigLoader::getSimulationConfig() {
-  return simConf_;
+std::unique_ptr<SimulationConfig> ConfigLoader::getSimulationConfig() {
+  return std::move(simConf_);
 }
 
-StorageConfig* ConfigLoader::getStorageConfig() {
-  return storageConf_;
+std::unique_ptr<StorageConfig> ConfigLoader::getStorageConfig() {
+  return std::move(storageConf_);
 }
