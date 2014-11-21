@@ -1,0 +1,82 @@
+\hypertarget{classSubConfig}{\section{Sub\+Config Class Reference}
+\label{classSubConfig}\index{Sub\+Config@{Sub\+Config}}
+}
+
+
+Abstract class which the config data containers inherit from.  
+
+
+
+
+{\ttfamily \#include $<$Sub\+Config.\+h$>$}
+
+
+
+Inheritance diagram for Sub\+Config\+:
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \hyperlink{classSubConfig_afe8a45f5bc9122755af2fa4a38c937d7}{populate} (I\+N\+I\+Reader \&reader)=0
+\begin{DoxyCompactList}\small\item\em Populates the member variables of the object using the data in the I\+N\+I\+Reader object. \end{DoxyCompactList}\item 
+virtual std\+::string \hyperlink{classSubConfig_aaaef674182db54e8d13eec1456e1ab5b}{to\+String} ()=0
+\begin{DoxyCompactList}\small\item\em Returns a string with formatted contents of member variables. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Abstract class which the config data containers inherit from. 
+
+This class is mostly just here for semantic reasons. All the different domains of configuration data (eg Accelerator, Particles etc) are stored in classes which inherit from this.
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{classConfigLoader}{Config\+Loader}
+\end{DoxySeeAlso}
+\begin{DoxyAuthor}{Author}
+Jamie Parkinson \href{mailto:jamie.parkinson.12@ucl.ac.uk}{\tt jamie.\+parkinson.\+12@ucl.\+ac.\+uk} 
+\end{DoxyAuthor}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classSubConfig_afe8a45f5bc9122755af2fa4a38c937d7}{\index{Sub\+Config@{Sub\+Config}!populate@{populate}}
+\index{populate@{populate}!Sub\+Config@{Sub\+Config}}
+\subsubsection[{populate}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Sub\+Config\+::populate (
+\begin{DoxyParamCaption}
+\item[{I\+N\+I\+Reader \&}]{reader}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}}\label{classSubConfig_afe8a45f5bc9122755af2fa4a38c937d7}
+
+
+Populates the member variables of the object using the data in the I\+N\+I\+Reader object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reader} & An I\+N\+I\+Reader object, usually supplied by constructor \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \hyperlink{classStorageConfig_a35f314733d8173fb293fdc8366d682eb}{Storage\+Config}, \hyperlink{classParticlesConfig_a9bdb5293661f70cb9d3ac94d3e03d77b}{Particles\+Config}, \hyperlink{classSimulationConfig_a1600504534ec0b054f858107397f2cc6}{Simulation\+Config}, and \hyperlink{classAcceleratorConfig_a437db574794d1bd9ffbf2a5d5dfc75ae}{Accelerator\+Config}.
+
+\hypertarget{classSubConfig_aaaef674182db54e8d13eec1456e1ab5b}{\index{Sub\+Config@{Sub\+Config}!to\+String@{to\+String}}
+\index{to\+String@{to\+String}!Sub\+Config@{Sub\+Config}}
+\subsubsection[{to\+String}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::string Sub\+Config\+::to\+String (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}}\label{classSubConfig_aaaef674182db54e8d13eec1456e1ab5b}
+
+
+Returns a string with formatted contents of member variables. 
+
+\begin{DoxyReturn}{Returns}
+A string with formatted contents of member variables\+Java-\/inspired method to print out the data in the object. 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classStorageConfig_a999c3186d9b0135535ab4d672fb9a094}{Storage\+Config}, \hyperlink{classParticlesConfig_a7a2244687fcb09024e777bd312823d53}{Particles\+Config}, \hyperlink{classSimulationConfig_a9f4f56e9187054743fc80d6cfe9d732d}{Simulation\+Config}, and \hyperlink{classAcceleratorConfig_a2d7943bead17ab085c024d52a3cc04a5}{Accelerator\+Config}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Sub\+Config.\+h\item 
+Sub\+Config.\+cpp\end{DoxyCompactItemize}

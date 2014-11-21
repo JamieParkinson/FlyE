@@ -7,7 +7,7 @@
 
 class Electrode : public VectorField {
  public:
-  bool import();
+  int import();
 
   void setVoltage(float voltage);
 };

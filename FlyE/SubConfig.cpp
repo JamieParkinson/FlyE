@@ -62,7 +62,6 @@ void SimulationConfig::populate(INIReader &reader) {
   duration_ = (float) reader.GetReal("simulation", "duration", 6e-4);
   inglisTeller_ = reader.GetBoolean("simulation", "inglis_teller", false);
   maxVoltage_ = (float) reader.GetReal("simulation", "max_voltage", 100);
-  nParticles_ = reader.GetInteger("simulation", "n_particles", 50000);
   targetVel_ = (float) reader.GetReal("simulation", "target_vel", 500);
   timeStep_ = (float) reader.GetReal("simulation", "time_step", 1e-6);
 }
@@ -73,7 +72,6 @@ std::string SimulationConfig::toString() {
   str << "Simulation Config: \n";
   str << "Time step: " << timeStep_ << "\n";
   str << "Duration: " << duration_ << "\n";
-  str << "Number of particles: " << nParticles_ << "\n";
   str << "Acceleration scheme: " << accelerationScheme_ << "\n";
   str << "Max voltage: " << maxVoltage_ << "\n";
   str << "Target velocity: " << targetVel_ << "\n";
@@ -98,10 +96,6 @@ float SimulationConfig::maxVoltage() const {
   return maxVoltage_;
 }
 
-int SimulationConfig::nParticles() const {
-  return nParticles_;
-}
-
 float SimulationConfig::targetVel() const {
   return targetVel_;
 }
@@ -115,6 +109,7 @@ ParticlesConfig::ParticlesConfig(INIReader &reader) {
 }
 
 void ParticlesConfig::populate(INIReader &reader) {
+  nParticles_ = reader.GetInteger("simulation", "n_particles", 50000);
   k_ = reader.GetInteger("particles", "k", 20);
   kDist_ = reader.Get("particles", "k_dist", "single");
   n_ = reader.GetInteger("particles", "n", 25);
@@ -129,6 +124,7 @@ std::string ParticlesConfig::toString() {
   std::stringstream str;
 
   str << "Particles Config: \n";
+  str << "Number of particles: " << nParticles_ << "\n";
   str << "Temperature: " << temperature_ << "\n";
 
   if (normDist_) {
@@ -147,6 +143,10 @@ std::string ParticlesConfig::toString() {
   str << "n: " << n_;
 
   return str.str();
+}
+
+int ParticlesConfig::nParticles() const {
+  return nParticles_;
 }
 
 int ParticlesConfig::k() const {
