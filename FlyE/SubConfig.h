@@ -5,9 +5,8 @@
 class SubConfig {
  public:
   virtual ~SubConfig();
-  SubConfig(INIReader *reader);
-  virtual void populate(INIReader *reader);
-  virtual std::string toString();
+  virtual void populate(INIReader &reader) = 0;
+  virtual std::string toString() = 0;
 };
 
 class AcceleratorConfig : public SubConfig {
@@ -18,8 +17,9 @@ class AcceleratorConfig : public SubConfig {
   std::string PAname_;
 
  public:
-  AcceleratorConfig(INIReader *reader);
-  void populate(INIReader *reader);
+  AcceleratorConfig(INIReader &reader);
+  void populate(INIReader &reader);
+  std::string toString();
   // Getters
   const std::string& datDirectory() const;
   int nElectrodes() const;
@@ -39,8 +39,9 @@ class SimulationConfig : public SubConfig {
   bool inglisTeller_;
 
  public:
-  SimulationConfig(INIReader *reader);
-  void populate(INIReader *reader);
+  SimulationConfig(INIReader &reader);
+  void populate(INIReader &reader);
+  std::string toString();
   // Getters
   const std::string& accelerationScheme() const;
   float duration() const;
@@ -60,8 +61,9 @@ class ParticlesConfig : public SubConfig {
   int n_, k_;
 
  public:
-  ParticlesConfig(INIReader *reader);
-  void populate(INIReader *reader);
+  ParticlesConfig(INIReader &reader);
+  void populate(INIReader &reader);
+  std::string toString();
   // Getters
   int k() const;
   const std::string& kDist() const;
@@ -79,8 +81,9 @@ class StorageConfig : public SubConfig {
   bool storeTrajectories_, storeCollisions_;
 
  public:
-  StorageConfig(INIReader *reader);
-  void populate(INIReader *reader);
+  StorageConfig(INIReader &reader);
+  void populate(INIReader &reader);
+  std::string toString();
   const std::string& outDir() const;
   bool storeTrajectories() const;
   bool storeCollisions() const;
