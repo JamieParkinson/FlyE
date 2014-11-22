@@ -41,7 +41,7 @@ float VectorField::gradientZat(int x, int y, int z) {
 
 // TODO improve this? Template metaprogramming etc
 static VectorField VectorField::sumVectorFields(std::vector< std::shared_ptr<VectorField> > &fields, int nToSum) {
-  blitz::Array<blitz::TinyVector<float, 3>, 3> sumArray;
+  VectorField sumArray;
   sumArray.resize(fields[0]->shape()); // Make sure this VectorField is the right shape
 
   nToSum = (nToSum == -1) ? fields.size() : nToSum; // Sum all if no value of nToSum is given
@@ -51,5 +51,5 @@ static VectorField VectorField::sumVectorFields(std::vector< std::shared_ptr<Vec
     sumArray += field;
   }
 
-  return VectorField(sumArray);
+  return std::move(sumArray);
 }
