@@ -1,6 +1,9 @@
 #pragma once
 
-#include <blitz/array.h>
+#include <blitz/array-impl.h>
+#include <blitz/tinyvec2.h>
+#include <memory>
+#include <vector>
 
 /**
  * @brief A general 3D vector field class, with basic operators
@@ -13,11 +16,8 @@
  *
  * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
  */
-class VectorField {
+class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
  protected:
-  /** @brief A 3D array of vectors. @see blitz::Array<blitz::TinyVector<float, 3>, 3> */
-  blitz::Array<blitz::TinyVector<float, 3>, 3> fieldArray_;
-
   /** @brief To be used internally; for calculating the magnitude of the vector field at a point
    *
    * sqrt(x^2 + y^2 + z^2)
@@ -25,9 +25,14 @@ class VectorField {
    * @param vec A Blitz++ 3D TinyVector of floats (cartesian)
    * @return The magnitude of the given vector
    */
-  static float vectorMagnitude(blitz::TinyVector<float, 3> vec);
+  static float vectorMagnitude(const blitz::TinyVector<float, 3> &vec);
 
  public:
+  /** @brief Empty void constructor
+   *
+   * Just here to be used by subclasses
+   */
+  VectorField();
   /**
    * @brief Constructs a VectorField of dimensions sizeX * sizeY * sizeZ
    *
@@ -38,32 +43,17 @@ class VectorField {
   VectorField(int sizeX, int sizeY, int sizeZ);
 
   /**
-   * @brief Constructs a VectorField from a Blitz++ array of the correct dimensions
-   *
-   * @param blitzArray An array of the same type as fieldArray_
+   * @brief Copy constructor; copies the internal array
+   * @param vec VectorField we're copying from
    */
-  VectorField(blitz::Array<blitz::TinyVector<float, 3>, 3> blitzArray);
+  VectorField(const VectorField &vec);
 
   /**
-   * @brief Basic addition/subtraction operators for combining fields by superposition
-   * @name Addition/Subtraction
-   * @param vec Another VectorField object
+   * @brief Assignment operator overload
+   * @param rhs The right hand side VectorField of the assignment
+   * @return The VectorField with contents replaced by those of rhs
    */
-  ///@{
-  VectorField operator +(VectorField vec);
-  VectorField operator -(VectorField vec);
-  void operator +=(VectorField vec);
-  void operator -=(VectorField vec);
-  ///@}
-
-  /**@brief For multiplying every value in the vector field by a scalar
-   * @name Multiplication
-   * @param scalar The number to multiply field by
-   */
-  ///@{
-  VectorField operator *(float scalar);
-  void operator *=(float scalar);
-  ///@}
+  VectorField operator =(const VectorField &rhs);
 
   /** @brief Magnitude of the vector field at a point
    *
