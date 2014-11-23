@@ -49,14 +49,14 @@
  *  store_collisions: Whether to store the trajectories of particles that collide
  * }
  *
- */
+ *
 #include <chrono> // For (system clock) timing
 #include <algorithm> // for_each
 
 #include "Espace.h" // Basically a 4D array with some useful methods
+#include "IntegerDistribution.h" // Wrapper/abstraction for RNGs
 #include "Particle.h" // Quite an in-depth particle object
 #include "myFunctions.h" // Includes myStructs.h (for params and hyperslabParams) too
-#include "myKDist.h" // Wrapper/abstraction for RNGs
 #include "PhysicalConstants.h" // Contains all my constants
 
 using namespace std;
@@ -369,4 +369,4 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
+*/

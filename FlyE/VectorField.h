@@ -87,5 +87,5 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
    * @param vec A Blitz++ 3D TinyVector of floats (cartesian)
    * @return The magnitude of the given vector
    */
-  static float vectorMagnitude(const blitz::TinyVector<float, 3> &vec);
+  static float vectorMagnitude(blitz::TinyVector<float, 3> vec);
 };

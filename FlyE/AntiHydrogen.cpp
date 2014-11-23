@@ -28,6 +28,7 @@ float AntiHydrogen::mu() {
 
 void AntiHydrogen::neutralise(int t) {
   neutralised_ = t;
+  memorise();
 }
 
 bool AntiHydrogen::isNeutralised() {
@@ -40,6 +41,7 @@ int AntiHydrogen::neutralisationTime() {
 
 void AntiHydrogen::ionise() {
   ionised_ = true;
+  memorise();
 }
 
 int AntiHydrogen::isDead() {

@@ -141,8 +141,12 @@ bool Particle::succeeded() {
 
 void Particle::collide() {
   collided_ = true;
-  if (storeCollisions)
-    memorise();
+  forget();
+}
+
+void Particle::collideAndStore() {
+  collided_ = true;
+  memorise();
 }
 
 void Particle::succeed() {

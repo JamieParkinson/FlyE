@@ -1,5 +1,7 @@
 #include "SmartField.h"
 
+#include "PhysicalConstants.h"
+
 SmartField::SmartField(std::vector<std::shared_ptr<Electrode> > electrodes)
     : electrodes_(electrodes) {
 }
@@ -8,7 +10,7 @@ blitz::TinyVector<float, 3> SmartField::at(int x, int y, int z) {
   blitz::TinyVector<float, 3> point;
 
   for (auto &electrode : electrodes_) {
-    point += electrode->getVoltage() * electrode(x, y, z);
+    point += electrode->getVoltage() * electrode->operator()(x, y, z);
   }
 
   return point;

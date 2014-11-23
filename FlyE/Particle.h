@@ -137,11 +137,14 @@ class Particle {
    */
   bool succeeded();
 
-  /** @brief Call a collision event
+  /** @brief Call a collision event and throw the track away
    *
    * Sets the collided_ int to 1
    */
   void collide();
+
+  /** @brief Call a collision event and don't throw it away */
+  void collideAndStore();
 
   /** @brief Call a success event
    *
