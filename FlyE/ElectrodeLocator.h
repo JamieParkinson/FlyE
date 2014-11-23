@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <blitz/array-impl.h>
 
 class Electrode;
@@ -10,11 +11,21 @@ class Electrode;
  */
 class ElectrodeLocator : public blitz::Array<bool, 3> {
  public:
+  /** @brief Blank constructor */
+  ElectrodeLocator();
   /**
    * @brief Construct an ElectrodeLocator from an Electrode
    * @param electrode The electrode to locate
    */
   ElectrodeLocator(Electrode &electrode);
+
+  /** @brief For construction from a shared_ptr to an Electrode
+   *
+   * Useful because shared_ptr<Electrode>s are quite common
+   *
+   * @param electrode A shared_ptr to an Electrode to be located
+   */
+  ElectrodeLocator(std::shared_ptr<Electrode> electrode);
 
   /**
    * @brief Checks to see if the electrode exists at a given point

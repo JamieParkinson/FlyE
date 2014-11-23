@@ -1,14 +1,11 @@
 #include "Electrode.h"
 
-#include <bits/basic_ios.h>
-#include <bits/ostream.tcc>
 #include <blitz/array.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-#include "ElectrodeLocator.h"
 #include "PhysicalConstants.h"
 
 Electrode::Electrode() : electrodeNumber_(0), currentVoltage_(0) {}
@@ -31,10 +28,6 @@ Electrode Electrode::operator =(const Electrode &rhs) {
 
 void Electrode::applyVoltage(float voltage) {
   currentVoltage_ = voltage;
-}
-
-blitz::TinyVector<float, 3> Electrode::operator ()(int x, int y, int z) {
-  return currentVoltage_ * this->operator()(x, y, z);
 }
 
 void Electrode::import(std::shared_ptr<AcceleratorConfig> config) {
@@ -83,6 +76,6 @@ void Electrode::import(std::shared_ptr<AcceleratorConfig> config) {
   }
 }
 
-ElectrodeLocator Electrode::getLocator() {
-  return ElectrodeLocator(*this);
+float Electrode::getVoltage() {
+  return currentVoltage_;
 }

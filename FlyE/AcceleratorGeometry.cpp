@@ -18,3 +18,17 @@ void AcceleratorGeometry::applyElectrodeVoltages(std::vector<float> voltages) {
     electrodes_[e]->applyVoltage(voltages[e]);
   }
 }
+
+SmartField AcceleratorGeometry::makeSmartField() {
+  return SmartField(electrodes_);
+}
+
+ElectrodeLocator AcceleratorGeometry::electrodeLocations() {
+  ElectrodeLocator locator;
+
+  for (auto &electrode : electrodes_) {
+    locator += ElectrodeLocator(electrode);
+  }
+
+  return locator;
+}

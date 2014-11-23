@@ -4,6 +4,8 @@
 #include <vector>
 
 #include "Electrode.h"
+#include "SmartField.h"
+#include "ElectrodeLocator.h"
 
 class AcceleratorConfig;
 
@@ -18,4 +20,8 @@ class AcceleratorGeometry {
   void importElectrodes();
 
   void applyElectrodeVoltages(std::vector<float> voltages);
+
+  SmartField makeSmartField();
+
+  ElectrodeLocator electrodeLocations();
 };

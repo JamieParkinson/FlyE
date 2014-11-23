@@ -17,17 +17,7 @@
  * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
  */
 class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
- protected:
-  /** @brief To be used internally; for calculating the magnitude of the vector field at a point
-   *
-   * sqrt(x^2 + y^2 + z^2)
-   *
-   * @param vec A Blitz++ 3D TinyVector of floats (cartesian)
-   * @return The magnitude of the given vector
-   */
-  static float vectorMagnitude(const blitz::TinyVector<float, 3> &vec);
-
- public:
+  public:
   /** @brief Empty void constructor
    *
    * Just here to be used by subclasses
@@ -89,4 +79,13 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
    */
   static VectorField sumVectorFields(
       std::vector<std::shared_ptr<VectorField> > &fields, int nToSum = -1);
+
+  /** @brief For calculating the magnitude of the vector field at a point
+   *
+   * sqrt(x^2 + y^2 + z^2)
+   *
+   * @param vec A Blitz++ 3D TinyVector of floats (cartesian)
+   * @return The magnitude of the given vector
+   */
+  static float vectorMagnitude(const blitz::TinyVector<float, 3> &vec);
 };

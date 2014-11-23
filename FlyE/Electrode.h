@@ -6,8 +6,6 @@
 #include "VectorField.h"
 #include "SubConfig.h"
 
-class ElectrodeLocator;
-
 /** @brief Represents a single electrode in the accelerator geometry
  *
  * Derived from VectorField. Adds methods to import E-Field files, change its voltage and get its location.
@@ -65,23 +63,6 @@ class Electrode : public VectorField {
    */
   void applyVoltage(float voltage);
 
-  /** @brief Shadows blitz's access operator, but applies the voltage first
-   *
-   * @param x x-coordinate of point
-   * @param y y-coordinate of point
-   * @param z z-coordinate of point
-   * @return The TinyVector of the field at the point, multiplied by currentVoltage_
-   */
-  blitz::TinyVector<float, 3> operator ()(int x, int y, int z);
-
-  /** @brief An ElectrodeLocator for this electrode
-   *
-   * The ElectrodeLocator stores the location of the Electrode
-   *
-   * @see ElectrodeLocator
-   *
-   * @return An ElectrodeLocator for this electrode
-   */
-  ElectrodeLocator getLocator();
+  float getVoltage();
 };
 
