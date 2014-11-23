@@ -1,10 +1,11 @@
 #pragma once
 
+#include <blitz/tinyvec2.h>
 #include <memory>
 
 #include "VectorField.h"
+#include "SubConfig.h"
 
-class AcceleratorConfig;
 class ElectrodeLocator;
 
 /** @brief Represents a single electrode in the accelerator geometry
@@ -17,16 +18,32 @@ class ElectrodeLocator;
  * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
  */
 class Electrode : public VectorField {
-  friend class ElectrodeLocator;
  protected:
   int electrodeNumber_; //!< The number/index of the electrode within the accelerator geometry.
   float currentVoltage_; //!< The voltage that is currently being applied to the electrode
  public:
+  /** @brief Blank constructor */
+  Electrode();
   /** @brief Constructs an "empty" Electrode with given index
    *
    * @param electrodeNumber The number/index of the electrode within the accelerator geometry.
    */
   Electrode(int electrodeNumber);
+
+  /** @brief Copy constructor
+   *
+   * @param elec Electrode to copy
+   */
+  Electrode(const Electrode &elec);
+
+  /** @brief Assignment operator overload
+   *
+   * Copies contents
+   *
+   * @param rhs The right hand side Electrode of the assignment
+   * @return The newly assigned Electrode
+   */
+  Electrode operator =(const Electrode &rhs);
 
   /** @brief Imports the E-Field files associated with this electrode
    *
@@ -38,7 +55,7 @@ class Electrode : public VectorField {
    * @see ConfigLoader
    * @see AcceleratorConfig
    */
-  void import(std::unique_ptr<AcceleratorConfig> config);
+  void import(std::shared_ptr<AcceleratorConfig> config);
 
   /** @brief Applies a voltage to the Electrode
    *

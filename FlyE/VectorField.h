@@ -43,7 +43,7 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
   VectorField(int sizeX, int sizeY, int sizeZ);
 
   /**
-   * @brief Copy constructor; copies the internal array
+   * @brief Copy constructor; uses blitz's version
    * @param vec VectorField we're copying from
    */
   VectorField(const VectorField &vec);

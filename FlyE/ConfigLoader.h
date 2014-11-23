@@ -12,10 +12,10 @@
 class ConfigLoader {
  private:
   std::string configFilePath_; /** Path to config file. @see ConfigLoader() */
-  std::unique_ptr<AcceleratorConfig> accelConf_; //!< Smart pointer to AcceleratorConfig object
-  std::unique_ptr<SimulationConfig> simConf_; //!< Smart pointer to SimulationConfig object
-  std::unique_ptr<ParticlesConfig> particlesConf_; //!< Smart pointer to ParticlesConfig object
-  std::unique_ptr<StorageConfig> storageConf_; //!< Smart pointer to ParticlesConfig object
+  std::shared_ptr<AcceleratorConfig> accelConf_; //!< Smart pointer to AcceleratorConfig object
+  std::shared_ptr<SimulationConfig> simConf_; //!< Smart pointer to SimulationConfig object
+  std::shared_ptr<ParticlesConfig> particlesConf_; //!< Smart pointer to ParticlesConfig object
+  std::shared_ptr<StorageConfig> storageConf_; //!< Smart pointer to ParticlesConfig object
 
  public:
   /** @brief Constructs ConfigLoader from the file at the given path.
@@ -25,8 +25,8 @@ class ConfigLoader {
    */
   ConfigLoader(std::string configFilePath);
 
-  std::unique_ptr<AcceleratorConfig> getAcceleratorConfig(); //!< Getter for AcceleratorConfig object
-  std::unique_ptr<ParticlesConfig> getParticlesConfig(); //!< Getter for ParticlesConfig object
-  std::unique_ptr<SimulationConfig> getSimulationConfig(); //!< Getter for SimulationConfig object
-  std::unique_ptr<StorageConfig> getStorageConfig(); //!< Getter for StorageConfig object
+  std::shared_ptr<AcceleratorConfig> getAcceleratorConfig(); //!< Getter for AcceleratorConfig object
+  std::shared_ptr<ParticlesConfig> getParticlesConfig(); //!< Getter for ParticlesConfig object
+  std::shared_ptr<SimulationConfig> getSimulationConfig(); //!< Getter for SimulationConfig object
+  std::shared_ptr<StorageConfig> getStorageConfig(); //!< Getter for StorageConfig object
 };
