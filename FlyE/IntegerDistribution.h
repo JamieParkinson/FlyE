@@ -12,30 +12,20 @@
  *
  * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
  */
-template<class T_DistType>
 class IntegerDistribution {
  public:
-
-  /** @brief Downcaster, used by the CRTP
-   *
-   * @return The derived class
-   */
-  T_DistType& asConcrete() {
-    return static_cast<T_DistType&>(*this);
-  }
-
-  /** @brief Virtual (via CRTP) operator to get a number from a generator
+  /** @brief Virtual operator to get a number from a generator
    *
    * @param generator An instance of a std::mt19937
    * @return A random integer
    */
-  int operator()(std::mt19937 &generator) {
-    return asConcrete()(generator);
-  }
+  virtual int operator()(std::mt19937 &generator) = 0;
+
+  virtual ~IntegerDistribution();
 };
 
 /** @brief Uniform distribution of integers */
-class UniformDistribution : public IntegerDistribution<UniformDistribution> {
+class UniformDistribution : public IntegerDistribution {
  private:
   std::uniform_int_distribution<> dist_; //!< The underlying RNG
 
@@ -61,7 +51,7 @@ class UniformDistribution : public IntegerDistribution<UniformDistribution> {
 };
 
 /** @brief A single integer. Dirac delta distribution */
-class SingleDistribution : public IntegerDistribution<SingleDistribution> {
+class SingleDistribution : public IntegerDistribution {
  private:
   int k_; //!< The number to always return
 
@@ -82,7 +72,7 @@ class SingleDistribution : public IntegerDistribution<SingleDistribution> {
 };
 
 /** @brief A triangular integer distribution */
-class TriangleDistribution : public IntegerDistribution<TriangleDistribution> {
+class TriangleDistribution : public IntegerDistribution {
  private:
   std::piecewise_linear_distribution<> dist_; //!< The underlying RNG
 

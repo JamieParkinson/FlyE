@@ -14,8 +14,9 @@ class ParticleGenerator {
   std::shared_ptr<AcceleratorConfig> acceleratorConfig_;
   std::vector<PType> particles_;
 
-  template<class T_DistType>
-  int generateK(IntegerDistribution<T_DistType>& dist, std::mt19937 generator);
+  void generateNormDist(std::mt19937 generator, float sigmaV, int sectionWidth, IntegerDistribution *kDist);
+
+  void generateUniformDist(std::mt19937 generator, float sigmaV, int sectionWidth, IntegerDistribution *kDist);
 
  public:
   ParticleGenerator(std::shared_ptr<ParticlesConfig> particlesConfig, std::shared_ptr<AcceleratorConfig> acceleratorConfig);
