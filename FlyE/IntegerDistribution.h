@@ -2,7 +2,7 @@
 
 #include <random> // C++11 RNGs
 
-// Using the Curiously Recurring Template Pattern
+typedef std::mt19937 mersenne_twister;
 
 /** @brief A wrapper class for some C++11 RNGs
  *
@@ -16,11 +16,12 @@ class IntegerDistribution {
  public:
   /** @brief Virtual operator to get a number from a generator
    *
-   * @param generator An instance of a std::mt19937
+   * @param generator An instance of a mersenne_twister
    * @return A random integer
    */
-  virtual int operator()(std::mt19937 &generator) = 0;
+  virtual int operator()(mersenne_twister &generator) = 0;
 
+  /** @brief Blank virtual destructor */
   virtual ~IntegerDistribution();
 };
 
@@ -35,19 +36,14 @@ class UniformDistribution : public IntegerDistribution {
    * @param kLower Lower bound for distribution
    * @param kUpper Upper bound for distribution
    */
-  UniformDistribution(int kLower, int kUpper) {
-    std::uniform_int_distribution<>::param_type params { kLower, kUpper };
-    dist_.param(params);
-  }
+  UniformDistribution(int kLower, int kUpper);
 
   /** @brief Returns uniformly distributed integers
    *
-   * @param generator A std::mt19937 instance
+   * @param generator A mersenne_twister instance
    * @return A uniformly distributed integer
    */
-  int operator()(std::mt19937 &generator) {
-    return dist_(generator);
-  }
+  int operator()(mersenne_twister &generator);
 };
 
 /** @brief A single integer. Dirac delta distribution */
@@ -57,18 +53,14 @@ class SingleDistribution : public IntegerDistribution {
 
  public:
   /** @brief Sets the number to return */
-  SingleDistribution(int k)
-      : k_(k) {
-  }
+  SingleDistribution(int k);
 
   /** @brief Always returns the value of k
    *
    * @param generator A std:mt19937 instance
    * @return k
    */
-  int operator()(std::mt19937 &generator) {
-    return k_;
-  }
+  int operator()(mersenne_twister &generator);
 };
 
 /** @brief A triangular integer distribution */
@@ -83,18 +75,12 @@ class TriangleDistribution : public IntegerDistribution {
    * @param kweights weights
    */
   TriangleDistribution(std::vector<float> &kpieces,
-                       std::vector<float> &kweights) {
-    std::piecewise_linear_distribution<>::param_type params { kpieces.begin(),
-        kpieces.end(), kweights.begin() };
-    dist_.param(params);
-  }
+                       std::vector<float> &kweights);
 
   /** @brief Returns triangularly distributed integers
    *
-   * @param generator A std::mt19937 instance
+   * @param generator A mersenne_twister instance
    * @return A triangularly distributed integer
    */
-  int operator()(std::mt19937 &generator) {
-    return (int) dist_(generator);
-  }
+  int operator()(mersenne_twister &generator);
 };

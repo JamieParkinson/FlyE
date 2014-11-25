@@ -22,7 +22,7 @@ template<> void ParticleGenerator<AntiHydrogen>::generateSynchronousParticle(
 }
 
 template<> void ParticleGenerator<AntiHydrogen>::generateNormDist(
-    std::mt19937 generator, float sigmaV, int sectionWidth,
+    mersenne_twister generator, float sigmaV, int sectionWidth,
     IntegerDistribution *kDist) {
 
   float_n_dist x_dist(acceleratorConfig_->x() / 2, particlesConfig_->sigmaX());  // Center at start of cylinder
@@ -40,7 +40,7 @@ template<> void ParticleGenerator<AntiHydrogen>::generateNormDist(
 }
 
 template<> void ParticleGenerator<AntiHydrogen>::generateUniformDist(
-    std::mt19937 generator, float sigmaV, int sectionWidth,
+    mersenne_twister generator, float sigmaV, int sectionWidth,
     IntegerDistribution *kDist) {
   float_u_dist uniform_dist(0, 1);
   float_n_dist muller_dist(0, 1);  // Using (a modified version of) the method described by Muller (1959) to generate spherical velocity dist.
@@ -71,7 +71,7 @@ template<> void ParticleGenerator<AntiHydrogen>::generateParticles() {
   int sectionWidth = Physics::N_IN_SECTION * acceleratorConfig_->z()
       / acceleratorConfig_->nElectrodes();  // Width of each section of 4 electrodes
 
-  std::mt19937 generator;
+  mersenne_twister generator;
 
   IntegerDistribution* kDist;
   if (particlesConfig_->kDist() == "single") {
