@@ -4,10 +4,8 @@
 ElectrodeLocator::ElectrodeLocator() {
 }
 
-// Deeply suspicious code. Exploits built-in implicit boolean type conversion.
-// is TRUE where the y-component of the Electrode's field is === zero
 ElectrodeLocator::ElectrodeLocator(Electrode &electrode)
-    : blitz::Array<bool, 3>(!electrode.extractComponent(float(), 1, 3)) {
+    : blitz::Array<bool, 3>(!electrode.extractComponent(float(), 1, 3)) { // Definitely witchcraft
 }
 
 ElectrodeLocator::ElectrodeLocator(std::shared_ptr<Electrode> electrode)
