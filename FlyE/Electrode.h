@@ -18,7 +18,7 @@
 class Electrode : public VectorField {
  protected:
   int electrodeNumber_; //!< The number/index of the electrode within the accelerator geometry.
-  float currentVoltage_; //!< The voltage that is currently being applied to the electrode
+  float currentVoltage_ = 1.0; //!< The voltage that is currently being applied to the electrode
  public:
   /** @brief Blank constructor */
   Electrode();

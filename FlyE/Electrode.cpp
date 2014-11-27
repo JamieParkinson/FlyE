@@ -11,8 +11,7 @@
 Electrode::Electrode() : electrodeNumber_(0), currentVoltage_(0) {}
 
 Electrode::Electrode(int electrodeNumber)
-    : electrodeNumber_(electrodeNumber),
-      currentVoltage_(1.0) {
+    : electrodeNumber_(electrodeNumber) {
 }
 
 Electrode::Electrode(const Electrode &elec)

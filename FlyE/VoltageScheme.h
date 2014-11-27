@@ -7,7 +7,6 @@ class Particle;
 class VoltageScheme {
  protected:
   float maxVoltage_;
-  bool isActive_ = true;
   int nElectrodes_;
   int sectionWidth_;
   std::vector<float> voltages_;
@@ -30,6 +29,8 @@ class SynchronousParticleScheme : public VoltageScheme {
 
  public:
   SynchronousParticleScheme(Particle &synchronousParticle, float maxVoltage, int nElectrodes, int sectionWidth, float timeStep);
+
+  std::vector<float> initialVoltages();
 };
 
 class InstantaneousScheme : public SynchronousParticleScheme {
@@ -43,7 +44,7 @@ class InstantaneousScheme : public SynchronousParticleScheme {
 
 class ExponentialScheme : public SynchronousParticleScheme {
  protected:
-  int timeConstant_ = 1000.0;
+  static constexpr int timeConstant_ = 1000.0;
   float deltaT_ = 0.0;
   float startRampTime_ = 0.0;
 
@@ -56,5 +57,19 @@ class ExponentialScheme : public SynchronousParticleScheme {
 };
 
 class MovingTrapScheme : public VoltageScheme {
+ protected:
+  static constexpr int trapWidth_ = 6;
+  float targetVel_;
+  float offTime_;
+  static constexpr int nOscillations_ = 3; // Experimental
 
+  static float frequency(int k, float V);
+
+ public:
+  // TODO remember to deal with OffTime
+  MovingTrapScheme(float maxVoltage, int nElectrodes, int sectionWidth, float timeStep, float targetVel, int k);
+
+  std::vector<float> getVoltages(int t);
+
+  bool isActive(int t);
 };

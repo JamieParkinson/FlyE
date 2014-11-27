@@ -49,7 +49,7 @@
  *  store_collisions: Whether to store the trajectories of particles that collide
  * }
  *
- */
+ *
 #include <chrono> // For (system clock) timing
 #include <algorithm> // for_each
 
@@ -369,3 +369,4 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+*/
