@@ -3,6 +3,8 @@
 typedef std::uniform_int_distribution<> u_int_dist;
 typedef std::piecewise_linear_distribution<> piecewise_dist;
 
+IntegerDistribution::~IntegerDistribution() {}
+
 UniformDistribution::UniformDistribution(int kLower, int kUpper) {
   u_int_dist::param_type params { kLower, kUpper };
   dist_.param(params);

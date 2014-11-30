@@ -38,13 +38,6 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
    */
   VectorField(const VectorField &vec);
 
-  /**
-   * @brief Assignment operator overload
-   * @param rhs The right hand side VectorField of the assignment
-   * @return The VectorField with contents replaced by those of rhs
-   */
-  VectorField operator =(const VectorField &rhs);
-
   /** @brief Magnitude of the vector field at a point
    *
    * @see vectorMagnitude()
@@ -55,6 +48,13 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
    * @return The magnitude of the field at the point (x,y,z)
    */
   float magnitudeAt(int x, int y, int z);
+
+  /** @brief Magnitude of the vector field at a point
+   *
+   * @param intLoc A vector of size 3, containing (x, y, z)
+   * @return The magnitude of the field at the point (x,y,z)
+   */
+  float magnitudeAt(std::vector<int> intLoc);
 
   ///@{
   /** @brief Gradients in each direction

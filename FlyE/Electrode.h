@@ -34,15 +34,6 @@ class Electrode : public VectorField {
    */
   Electrode(const Electrode &elec);
 
-  /** @brief Assignment operator overload
-   *
-   * Copies contents
-   *
-   * @param rhs The right hand side Electrode of the assignment
-   * @return The newly assigned Electrode
-   */
-  Electrode operator =(const Electrode &rhs);
-
   /** @brief Imports the E-Field files associated with this electrode
    *
    * Stores them as the base field of the Electrode. By convention, this is the field when the Electrode has

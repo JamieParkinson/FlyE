@@ -2,6 +2,9 @@
 
 #include "PhysicalConstants.h"
 
+SmartField::SmartField() {
+}
+
 SmartField::SmartField(std::vector<std::shared_ptr<Electrode> > electrodes)
     : electrodes_(electrodes) {
 }

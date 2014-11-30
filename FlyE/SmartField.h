@@ -13,6 +13,9 @@ class SmartField {
   std::vector< std::shared_ptr<Electrode> > electrodes_; //!< All of the electrodes in an AcceleratorGeometry
 
  public:
+  /** @brief Blank constructor, does nothing */
+  SmartField();
+
   /** @brief Constructs a SmartField from a vector of electrodes
    *
    * @param electrodes A vector of shared_ptr<Electrode>s

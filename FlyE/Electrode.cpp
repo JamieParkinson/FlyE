@@ -20,22 +20,18 @@ Electrode::Electrode(const Electrode &elec)
       currentVoltage_(elec.currentVoltage_){
 }
 
-Electrode Electrode::operator =(const Electrode &rhs) {
-  *this = rhs;
-  return *this;
-}
-
 void Electrode::applyVoltage(float voltage) {
   currentVoltage_ = voltage;
 }
 
 void Electrode::import(std::shared_ptr<AcceleratorConfig> config) {
+  this->resize(config->x(), config->y(), config->z());
+
   for (int x = 0; x < config->x(); ++x) {  // Layers (excluding nx-th and first)
 
     std::string piece;
     std::string line;
     std::stringstream basePath;
-    std::stringstream path;
 
     // width+2 to correct zero-indexing, and (nElectrodes - electrodeNumber_ + 1) to correct weird backwards numbering
     basePath << config->datDirectory() << config->PAname() << "_E"
@@ -43,14 +39,15 @@ void Electrode::import(std::shared_ptr<AcceleratorConfig> config) {
              << "_";
 
     for (int d = 0; d < Physics::N_DIMENSIONS; ++d) {
-      path << basePath << Physics::axes[d] << ".dat";
+      std::stringstream path;
+      path << basePath.str() << Physics::axes[d] << ".dat";
       blitz::Array<float, 3> thisDimension = this->extractComponent(float(), d,
                                                                     3);  // Get this dimension
 
       std::ifstream datFile(path.str().c_str());
 
       if (datFile.fail()) {
-        std::cout << "Error reading .dat file: " << path << std::endl;
+        std::cout << "Error reading .dat file: " << path.str() << std::endl;
         continue;
       }
 

@@ -47,4 +47,6 @@ class AcceleratorGeometry {
    * @return ElectrodeLocator for *all* electrodes
    */
   ElectrodeLocator electrodeLocations();
+
+  std::shared_ptr<AcceleratorConfig> getAcceleratorConfig();
 };

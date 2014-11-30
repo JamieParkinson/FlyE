@@ -8,7 +8,7 @@ AcceleratorGeometry::AcceleratorGeometry(std::shared_ptr<AcceleratorConfig> conf
 
 void AcceleratorGeometry::importElectrodes() {
   for (int e = 0; e < config_->nElectrodes(); ++e) {
-    electrodes_.emplace_back(std::make_shared<Electrode>(e));
+    electrodes_.emplace_back(std::make_shared<Electrode>(e+1));
     electrodes_[e]->import(config_);
   }
 }
@@ -31,4 +31,8 @@ ElectrodeLocator AcceleratorGeometry::electrodeLocations() {
   }
 
   return locator;
+}
+
+std::shared_ptr<AcceleratorConfig> AcceleratorGeometry::getAcceleratorConfig() {
+  return config_;
 }

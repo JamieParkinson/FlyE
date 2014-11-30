@@ -20,7 +20,7 @@ constexpr int N_IN_SECTION = 4; //!< The number of electrodes in each section (f
 constexpr float SIMION_CORRECTION = 0.1; //!< Not sure why it's needed but gives us V/m
 constexpr int MM_M_CORRECTION = 1000; //!< To convert from m to mm
 
-constexpr char axes[3] = {'x', 'y', 'z'}; //!< Characters for each Cartesian axis name
+constexpr char axes[3] = {'X', 'Y', 'Z'}; //!< Characters for each Cartesian axis name
 
 }
 

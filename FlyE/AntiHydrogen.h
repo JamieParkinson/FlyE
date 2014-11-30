@@ -1,3 +1,4 @@
+#pragma once
 #include "Particle.h"
 
 /** @brief An implementation of Particle with some specific properties
@@ -76,4 +77,16 @@ class AntiHydrogen : public Particle {
    * @return The Inglis-Teller limit of this particle
    */
   float ITlim();
+
+  /** @brief Gets the value of k
+   *
+   * @return value of k
+   */
+  int k();
+
+  /** @brief Gets the value of n
+   *
+   * @return value of n
+   */
+  int n();
 };

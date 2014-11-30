@@ -9,7 +9,7 @@
 
 typedef std::mt19937 mersenne_twister;
 
-template<typename PType>
+template<class PType>
 /** @brief A class to generate a vector of particles for the simulation
  *
  * Particle parameters are held in the shared_ptr<ParticlesConfig> object. Type of particles is the template parameter.
@@ -77,3 +77,5 @@ class ParticleGenerator {
    */
   std::vector<PType>& getParticles();
 };
+
+#include "ParticleGenerator.cpp"

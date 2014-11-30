@@ -7,7 +7,7 @@
 typedef std::normal_distribution<float> float_n_dist;
 typedef std::uniform_real_distribution<float> float_u_dist;
 
-template<typename PType>
+template<class PType>
 ParticleGenerator<PType>::ParticleGenerator(
     std::shared_ptr<ParticlesConfig> particlesConfig,
     std::shared_ptr<AcceleratorConfig> acceleratorConfig)
@@ -42,8 +42,11 @@ template<> void ParticleGenerator<AntiHydrogen>::generateNormDist(
 template<> void ParticleGenerator<AntiHydrogen>::generateUniformDist(
     mersenne_twister generator, float sigmaV, int sectionWidth,
     IntegerDistribution *kDist) {
+
   float_u_dist uniform_dist(0, 1);
   float_n_dist muller_dist(0, 1);  // Using (a modified version of) the method described by Muller (1959) to generate spherical velocity dist.
+
+  muller_dist(generator);
 
   for (int i = 0; i < particlesConfig_->nParticles() - 1; ++i) {  // Generate particles
     float p_theta = 2 * M_PI * uniform_dist(generator);
@@ -84,8 +87,15 @@ template<> void ParticleGenerator<AntiHydrogen>::generateParticles() {
     kDist = new TriangleDistribution(kpieces, kweights);
   }
 
+  generateSynchronousParticle(0.5*acceleratorConfig_->x(), 0.5*acceleratorConfig_->y(), 0.5*sectionWidth, 0, 0, 0);
+
   if (particlesConfig_->normDist())
     generateNormDist(generator, sigmaV, sectionWidth, kDist);
   else
     generateUniformDist(generator, sigmaV, sectionWidth, kDist);
+}
+
+template<class PType>
+std::vector<PType>& ParticleGenerator<PType>::getParticles() {
+  return particles_;
 }

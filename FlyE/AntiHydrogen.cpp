@@ -51,3 +51,11 @@ int AntiHydrogen::isDead() {
 float AntiHydrogen::ITlim() {
   return ITlim_;
 }
+
+int AntiHydrogen::k() {
+  return k_;
+}
+
+int AntiHydrogen::n() {
+  return n_;
+}

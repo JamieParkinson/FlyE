@@ -13,12 +13,6 @@ VectorField::VectorField(const VectorField &vec)
     : blitz::Array<blitz::TinyVector<float, 3>, 3>(vec) {
 }
 
-// Operator overload
-VectorField VectorField::operator =(const VectorField &rhs) {
-  *this = rhs;
-  return *this;
-}
-
 // Other useful methods
 float VectorField::vectorMagnitude(blitz::TinyVector<float, 3> vec) {
   return static_cast<float>(sqrt(

@@ -3,25 +3,27 @@
  */
 
 #include <iostream>
-#include "ConfigLoader.h"
+#include "FlyE.h"
 
 int main(int argc, char* argv[]) {
-  ConfigLoader *myConfig = new ConfigLoader("/home/jamie/git/FlyE/FlyE/flyE.conf");
-  std::unique_ptr<AcceleratorConfig> accelConf = myConfig->getAcceleratorConfig();
-  std::cout << accelConf->toString() << std::endl;
+  ConfigLoader myConfig("/home/jamie/git/FlyE/FlyE/flyE.conf");
 
+  AcceleratorGeometry myAccelerator(myConfig.getAcceleratorConfig());
+  myAccelerator.importElectrodes();
 
- /* AcceleratorGeometry *myAccelerator(myConfig);
-  myAccelerator->importEFields();
+  ParticleGenerator<AntiHydrogen> myGenerator(myConfig.getParticlesConfig(),
+                                              myConfig.getAcceleratorConfig());
+  myGenerator.generateParticles();
+  std::vector<AntiHydrogen> particles = myGenerator.getParticles();
 
-  ParticleGenerator *myGenerator(myConfig);
-  myGenerator->makeSynchronousParticle();
-  Particles myParticles = myGenerator->makeParticles();
+  Simulator mySimulator(myAccelerator, particles,
+                        myConfig.getSimulationConfig(),
+                        myConfig.getStorageConfig());
 
-  Simulator *mySimulator = new Simulator(ConfigLoader, myAccelerator, myParticles);
+  mySimulator.run();
 
-  mySimulator->run();
-  mySimulator->printBasicStats();
+  SimulationNumbers stats = mySimulator.getBasicStats();
+  std::cout << stats << std::endl;
 
-  mySimulator->write("PATH TO WRITE"); */
+  mySimulator.write("/home/jamie/FlyEfiles/out.h5");
 }

@@ -17,6 +17,8 @@ class VoltageScheme {
 
   virtual std::vector<float> getVoltages(int t) = 0;
 
+  virtual std::vector<float> getInitialVoltages() = 0;
+
   virtual bool isActive(int t) = 0;
 
   virtual ~VoltageScheme();
@@ -30,7 +32,11 @@ class SynchronousParticleScheme : public VoltageScheme {
  public:
   SynchronousParticleScheme(Particle &synchronousParticle, float maxVoltage, int nElectrodes, int sectionWidth, float timeStep);
 
-  std::vector<float> initialVoltages();
+  virtual std::vector<float> getVoltages(int t) = 0;
+
+  virtual bool isActive(int t) = 0;
+
+  std::vector<float> getInitialVoltages();
 };
 
 class InstantaneousScheme : public SynchronousParticleScheme {
@@ -68,6 +74,8 @@ class MovingTrapScheme : public VoltageScheme {
  public:
   // TODO remember to deal with OffTime
   MovingTrapScheme(float maxVoltage, int nElectrodes, int sectionWidth, float timeStep, float targetVel, int k);
+
+  std::vector<float> getInitialVoltages();
 
   std::vector<float> getVoltages(int t);
 

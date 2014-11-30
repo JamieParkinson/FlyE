@@ -5,6 +5,9 @@
 #include "Particle.h"
 #include "PhysicalConstants.h"
 
+VoltageScheme::~VoltageScheme() {
+}
+
 VoltageScheme::VoltageScheme(float maxVoltage, int nElectrodes,
                              int sectionWidth, float timeStep)
     : maxVoltage_(maxVoltage),
@@ -22,7 +25,7 @@ SynchronousParticleScheme::SynchronousParticleScheme(
       synchronousParticle_(synchronousParticle) {
 }
 
-std::vector<float> SynchronousParticleScheme::initialVoltages() {
+std::vector<float> SynchronousParticleScheme::getInitialVoltages() {
   std::fill(voltages_.begin(), voltages_.begin() + Physics::N_IN_SECTION,
             maxVoltage_);
 
@@ -107,11 +110,16 @@ MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
 
 float MovingTrapScheme::frequency(int k, float v) {
   // Copied out of Mathematica, in turn copied from MATLAB. See ManifoldIntersect.nb and freqScript.m
-  return 0.0454669 * (59321.0 + sqrt(-1.999753439e9 + 3.033655172413793e6 * k * v));
+  return 0.0454669
+      * (59321.0 + sqrt(-1.999753439e9 + 3.033655172413793e6 * k * v));
 }
 
 bool MovingTrapScheme::isActive(int t) {
   return (t * timeStep_ < offTime_);
+}
+
+std::vector<float> MovingTrapScheme::getInitialVoltages() {
+  return getVoltages(0);
 }
 
 std::vector<float> MovingTrapScheme::getVoltages(int t) {
@@ -122,17 +130,22 @@ std::vector<float> MovingTrapScheme::getVoltages(int t) {
     return voltages_;
   }
 
-  float phase = pow(tSeconds, 2) * M_PI * targetVel_
-      * Physics::MM_M_CORRECTION / (offTime_ * sectionWidth_ * trapWidth_);
+  float phase = pow(tSeconds, 2) * M_PI * targetVel_ * Physics::MM_M_CORRECTION
+      / (offTime_ * sectionWidth_ * trapWidth_);
 
   std::vector<int> listOfEs(nElectrodes_);
-  std::iota(listOfEs.begin(), listOfEs.end(), 0); // Create range 0:1:nElectrodes_
+  std::iota(listOfEs.begin(), listOfEs.end(), 0);  // Create range 0:1:nElectrodes_
   // Transform into something like 0 0 0 0 1 1 1 1 2 2 2 2 etc
-  std::transform(listOfEs.begin(), listOfEs.end(), listOfEs.begin(), [](const int &e) { return floor(e/Physics::N_IN_SECTION); });
+  std::transform(
+      listOfEs.begin(), listOfEs.end(), listOfEs.begin(),
+      [](const int &e) -> int {return floor(e/Physics::N_IN_SECTION);});
 
   // Periodic potential
-  std::transform(listOfEs.begin(), listOfEs.end(), voltages_.begin(),
-                [&](const int &e) -> float { return maxVoltage_ * cos((M_PI * (((e / 4) + 1) % 6) / 3) - phase); });
+  std::transform(
+      listOfEs.begin(),
+      listOfEs.end(),
+      voltages_.begin(),
+      [&](const int &e) -> float {return maxVoltage_ * cos((M_PI * (((e / 4) + 1) % 6) / 3) - phase);});
 
   return voltages_;
 }
