@@ -35,7 +35,7 @@
  * {
  *  temperature: Temperature of initial particle distribution (for generating velocities)
  *  n: Principal quantum no. of all particles
- *  k_dist: Whether to distribute ks uniformly or just stick with one (below)
+ *  k_dist: Whether to distribute ks "uniform"ly, "single" or "triangle"
  *  k: Single k value
  * }
  *
@@ -47,31 +47,19 @@
  *  output_dir: Directory to write the HDF5 output file
  *  store_trajectories: Whether to store full trajectories or just start and end points
  *  store_collisions: Whether to store the trajectories of particles that collide
- */
-
-// TODO Clean the code up!!
+ * }
+ *
+ *
 #include <chrono> // For (system clock) timing
 #include <algorithm> // for_each
 
-#define N_DIMENSIONS 3
-#define N_IN_SECTION 4 // The number of electrodes in each section (for symmetry in x/y)
-#define SIMION_CORRECTION 0.1 // Not sure why it's needed but gives us V/m
-#define MM_M_CORRECTION 1000 // To convert from m to mm
-
 #include "Espace.h" // Basically a 4D array with some useful methods
+#include "IntegerDistribution.h" // Wrapper/abstraction for RNGs
 #include "Particle.h" // Quite an in-depth particle object
 #include "myFunctions.h" // Includes myStructs.h (for params and hyperslabParams) too
-#include "myKDist.h" // Wrapper/abstraction for RNGs
+#include "PhysicalConstants.h" // Contains all my constants
 
 using namespace std;
-
-const float e = -1.60217657e-19;  // Electron charge
-const float a0 = 5.2917721092e-11;  // Bohr radius
-const float m = 1.6737e-27;  // Hydrogen mass
-const float kb = 1.3806488e-23;  // Boltzmann constant
-const float Fion = 1.14222e11;  // Ionisation threshold excluding n^(-4) factor
-const float Fit = 1.71407e11;  // Inglis-Teller limit excluding algebraic terms (see Particle.cpp)
-const float FWHMfactor = 2.35482;  // FWHM to std dev = 2 sqrt( 2 ln 2 )
 
 chrono::time_point<chrono::system_clock> chronoStart, chronoEnd;  // To use for timing
 chrono::duration<float> chronoElapsed;
@@ -114,8 +102,8 @@ int main(int argc, char *argv[]) {
   particles.reserve(nParticles);
   int nTimeSteps = duration / timeStep;  // Cast as an int in order to round
 
-  float sigmaV = sqrt(2 * (temperature * kb / FWHMfactor) / m);  // Std dev of velocity
-  float sectionWidth = N_IN_SECTION * config.z / config.nElectrodes;  // Width of each section of 4 electrodes
+  float sigmaV = sqrt(2 * (temperature * Physics::kb / Physics::FWHMfactor) / Physics::mH);  // Std dev of velocity
+  float sectionWidth = Physics::N_IN_SECTION * config.z / config.nElectrodes;  // Width of each section of 4 electrodes
 
   particles.emplace_back(config.x / 2, config.y / 2, 55, 0, 0, 0);  // Synchronous particle
 
@@ -194,8 +182,8 @@ int main(int argc, char *argv[]) {
   Espace thisWorld = Espace(config);
   float offTime;
   if (scheme == Trap) {  // Moving trap
-    for (int e = 0; e < config.nElectrodes; e += N_IN_SECTION) {
-      for (int s = 0; s < N_IN_SECTION; ++s) {
+    for (int e = 0; e < config.nElectrodes; e += Physics::N_IN_SECTION) {
+      for (int s = 0; s < Physics::N_IN_SECTION; ++s) {
         if (((e / 4) + 1) % 6 != 0) {
           allElectrodes[e + s]->setVoltage(
               maxVoltage * cos( M_PI * (((e / 4) + 1) % 6) / 3));  // Do all 4 with periodic potential
@@ -208,10 +196,10 @@ int main(int argc, char *argv[]) {
     //float offTime = config.z / (MM_M_CORRECTION * targetVel);
     offTime = 3.7037e-4;
   } else {  // Exponential or instantaneous
-    for (int e = 0; e < N_IN_SECTION; ++e) {
+    for (int e = 0; e < Physics::N_IN_SECTION; ++e) {
       allElectrodes[e]->setVoltage(maxVoltage);
     }
-    thisWorld = Electrode::sumElectrodes(allElectrodes, config, N_IN_SECTION);
+    thisWorld = Electrode::sumElectrodes(allElectrodes, config, Physics::N_IN_SECTION);
   }
 
   cout << "Starting simulation..." << endl;
@@ -238,7 +226,7 @@ int main(int argc, char *argv[]) {
         continue;
       }  // Exploit the fact that |E| is 0 in electrodes to detect collisions
 
-      if (mag >= (Fion / pow(particle->getN(), 4))) {
+      if (mag >= (Physics::Fion / pow(particle->getN(), 4))) {
         particle->ionise();
         nIonised++;
         continue;
@@ -260,21 +248,18 @@ int main(int argc, char *argv[]) {
       float dEy = thisWorld.gradientY(rndLoc[0], rndLoc[1], rndLoc[2]);
       float dEz = thisWorld.gradientZ(rndLoc[0], rndLoc[1], rndLoc[2]);
 
-      float ax = dEx * particle->mu() / m;  // Accelerations
-      float ay = dEy * particle->mu() / m;
-      float az = dEz * particle->mu() / m;
+      float ax = dEx * particle->mu() / Physics::mH;  // Accelerations
+      float ay = dEy * particle->mu() / Physics::mH;
+      float az = dEz * particle->mu() / Physics::mH;
 
       particle->setVel(particle->getVel(0) + ax * timeStep,  // Accelerate it
                        particle->getVel(1) + ay * timeStep,
                        particle->getVel(2) + az * timeStep);
 
       particle->setLoc(
-          particle->getLoc(
-              0) + (particle->getVel(0)*timeStep + 0.5 * ax * pow(timeStep,2)) * MM_M_CORRECTION,  // Move it
-          particle->getLoc(
-              1) + (particle->getVel(1)*timeStep + 0.5 * ay * pow(timeStep,2)) * MM_M_CORRECTION,
-          particle->getLoc(
-              2) + (particle->getVel(2)*timeStep + 0.5 * az * pow(timeStep,2)) * MM_M_CORRECTION);
+          particle->getLoc(0) + (particle->getVel(0)*timeStep + 0.5 * ax * pow(timeStep,2)) * Physics::MM_M_CORRECTION,  // Move it
+          particle->getLoc(1) + (particle->getVel(1)*timeStep + 0.5 * ay * pow(timeStep,2)) * Physics::MM_M_CORRECTION,
+          particle->getLoc(2) + (particle->getVel(2)*timeStep + 0.5 * az * pow(timeStep,2)) * Physics::MM_M_CORRECTION);
 
       if (storeTrajectories)
         particle->memorise();  // Commit to memory
@@ -293,7 +278,7 @@ int main(int argc, char *argv[]) {
         deltaT = (-particles[0].getVel(2)
             + sqrt(
                 pow(particles[0].getVel(2),
-                    2) + 2 * syncAccel * sectionWidth / MM_M_CORRECTION))
+                    2) + 2 * syncAccel * sectionWidth / Physics::MM_M_CORRECTION))
             / syncAccel;
         ti = t * timeStep;  // remember we have to work in seconds
 
@@ -303,22 +288,22 @@ int main(int argc, char *argv[]) {
       }
 
       if (deltaT && t <= (ti + deltaT) / timeStep) {  // Increase V until the appropriate time
-        for (int e = N_IN_SECTION * (section - 2);
-            e < N_IN_SECTION * (section - 1); ++e) {  // Ugly! We have to subtract 1 from section because it was incremented in the above branch.
+        for (int e = Physics::N_IN_SECTION * (section - 2);
+            e < Physics::N_IN_SECTION * (section - 1); ++e) {  // Ugly! We have to subtract 1 from section because it was incremented in the above branch.
 #pragma omp single // Not convinced this is necessary but it emphasises the fact that affects all the particles
           allElectrodes[e]->setVoltage(
               maxVoltage * (exp(1000 * (t * timeStep - ti)) - 1)
                   / (exp(1000 * deltaT) - 1));  // 1000 is just a constant that works well. I have no justification for it.
         }
         thisWorld = Electrode::sumElectrodes(allElectrodes, config,
-                                             N_IN_SECTION * (section - 1));  // Sum electrode fields
+                                             Physics::N_IN_SECTION * (section - 1));  // Sum electrode fields
       }
 
     } else if (scheme == Instantaneous) {  // Instantaneous switching of electrodes
 
       if (particles[0].getLoc(2) >= section * sectionWidth
           && section < config.nElectrodes / 4) {  // Use synchronous particle to switch electrodes as above
-        for (int e = N_IN_SECTION * (section - 1); e < N_IN_SECTION * section;
+        for (int e = Physics::N_IN_SECTION * (section - 1); e < Physics::N_IN_SECTION * section;
             ++e) {
 #pragma omp single
           allElectrodes[e]->setVoltage(maxVoltage);  // Instantaneous switch
@@ -326,29 +311,29 @@ int main(int argc, char *argv[]) {
         cout << "Section " << section << " switched on at " << t * timeStep
              << endl;
         thisWorld = Electrode::sumElectrodes(allElectrodes, config,
-                                             N_IN_SECTION * section);  // Sum electrode fields
+                                             Physics::N_IN_SECTION * section);  // Sum electrode fields
         section++;
       }
 
     } else if (scheme == Trap) {  // Moving trap
       if (t < static_cast<int>(offTime / timeStep)) {
 #pragma omp parallel for collapse(2) schedule( guided )
-        for (int e = 0; e < config.nElectrodes; e += N_IN_SECTION) {
-          for (int s = 0; s < N_IN_SECTION; ++s) {
+        for (int e = 0; e < config.nElectrodes; e += Physics::N_IN_SECTION) {
+          for (int s = 0; s < Physics::N_IN_SECTION; ++s) {
             if (((e / 4) + 1) % 6 != 0) {
               allElectrodes[e + s]->setVoltage(
                   maxVoltage
                       * cos(
                           (M_PI * (((e / 4) + 1) % 6) / 3)
                               - (pow(t * timeStep, 2) * M_PI * targetVel
-                                  * MM_M_CORRECTION
+                                  * Physics::MM_M_CORRECTION
                                   / (offTime * sectionWidth * 6))));  // Do all 4 with periodic potential
             } else {
               allElectrodes[e + s]->setVoltage(
                   maxVoltage
                       * cos(
                           pow(t * timeStep, 2) * M_PI * targetVel
-                              * MM_M_CORRECTION
+                              * Physics::MM_M_CORRECTION
                               / (offTime * sectionWidth * 6)));  // Do all 4 with periodic potential
             }
           }
@@ -384,3 +369,4 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+*/

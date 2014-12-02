@@ -1,21 +1,17 @@
-/* Source for Particle class */
+#include <vector>
+#include <fstream>
+#include <string>
+#include <cmath>
+#include <algorithm>
 
 #include "Particle.h"
+#include "PhysicalConstants.h"
 
-Particle::Particle(float x, float y, float z, float vx, float vy,
-                   float vz)
-    : r_( { x, y, z }),
-      v_( { vx, vy, vz }) {
-  memorise();
-}
-
-Particle::Particle(float x, float y, float z, float vx, float vy,
-                   float vz, int n, int k)
+Particle::Particle(float x, float y, float z, float vx, float vy, float vz)
     : r_( { x, y, z }),
       v_( { vx, vy, vz }),
-      n_(n),
-      k_(k) {
-  mu_ = 1.5 * n * k * e * a0;
+      collided_(false),
+      succeeded_(false) {
   memorise();
 }
 
@@ -53,16 +49,7 @@ void Particle::forget() {
   zvTraj_.shrink_to_fit();
 }
 
-float Particle::mu() {
-  return mu_;
-}
-
 std::vector<float> Particle::recallLoc(int d) {
-  /*std::vector<float> returnVec;
-   for (auto it = rTrajectory_.begin(); it < rTrajectory_.end(); it += 3) {
-   returnVec.emplace_back(*(d + it));
-   }
-   return returnVec;*/
   switch (d) {
     case 0:
       return xTraj_;
@@ -76,7 +63,6 @@ std::vector<float> Particle::recallLoc(int d) {
 }
 
 float Particle::recallLoc(int i, int d) {
-  //return rTrajectory_[N_DIMENSIONS * i + d];
   switch (d) {
     case 0:
       return xTraj_[i];
@@ -90,13 +76,6 @@ float Particle::recallLoc(int i, int d) {
 }
 
 std::vector<float> Particle::recallVel(int d) {
-  /*
-   std::vector<float> returnVec;
-   for (auto it = vTrajectory_.begin(); it < vTrajectory_.end(); it += 3) {
-   returnVec.emplace_back(*(d + it));
-   }
-   return returnVec;
-   */
   switch (d) {
     case 0:
       return xvTraj_;
@@ -110,7 +89,6 @@ std::vector<float> Particle::recallVel(int d) {
 }
 
 float Particle::recallVel(int i, int d) {
-  //return vTrajectory_[N_DIMENSIONS * i + d];
   switch (d) {
     case 0:
       return xvTraj_[i];
@@ -143,8 +121,18 @@ std::vector<float> Particle::getLoc() {
   return r_;
 }
 
+std::vector<int> Particle::getIntLoc() {
+  std::vector<int> intR(3);
+  std::transform(r_.begin(), r_.end(), intR.begin(), [](const float &r) -> int { return round(r); });
+  return intR;
+}
+
 float Particle::getLoc(int d) {
   return r_[d];
+}
+
+int Particle::getIntLoc(int d) {
+  return static_cast<int>(round(r_[d]));
 }
 
 std::vector<float> Particle::getVel() {
@@ -155,55 +143,22 @@ float Particle::getVel(int d) {
   return v_[d];
 }
 
-int Particle::getN() {
-  return n_;
-}
-
-int Particle::getK() {
-  return k_;
-}
-
 int Particle::isDead() {
-  return (collided_) ? 1 : (ionised_) ? 2 : 0;
-}
-
-bool Particle::isNeutralised() {
-  return neutralised_;
+  return (collided_) ? 1 : 0;
 }
 
 bool Particle::succeeded() {
   return succeeded_;
 }
 
-void Particle::ionise() {
-  ionised_ = true;
-  memorise();
-  // forget();
-}
-
 void Particle::collide() {
   collided_ = true;
-  if (storeCollisions) memorise();
+  memorise();
 }
 
 void Particle::succeed() {
   memorise();
   succeeded_ = true;
-}
-
-void Particle::neutralise() {
-  mu_ = 0.0;
-  neutralised_ = true;
-}
-
-void Particle::neutralise(int t) {
-  mu_ = 0.0;
-  neutralised_ = true;
-  neutralisationTime_ = t;
-}
-
-int Particle::neutralisationTime() {
-  return neutralisationTime_;
 }
 
 void Particle::cutDownMemory() {
@@ -220,37 +175,4 @@ void Particle::cutDownMemory() {
   xvTraj_.emplace_back(xv);
   yvTraj_.emplace_back(yv);
   zvTraj_.emplace_back(zv);
-}
-
-hyperslabParams Particle::makeParameters(int pi, int d, char pv) {
-  hyperslabParams myParams;
-
-  myParams.start[0] = d;  // x,y,z
-  myParams.start[1] = (pv == 'p') ? 0 : 1;  // position or velocity
-  myParams.start[2] = 0;  // time
-  myParams.start[3] = pi;  // particle index
-
-  myParams.count[0] = 1;  // Just 1 dimension
-  myParams.count[1] = 1;  // Just position or velocity
-  myParams.count[2] = xTraj_.size();  // All of time
-  myParams.count[3] = 1;  // Just 1 particle
-
-  myParams.stride[0] = 1;
-  myParams.stride[1] = 1;
-  myParams.stride[2] = 1;
-  myParams.stride[3] = 1;
-
-  return myParams;
-}
-
-float Particle::ITlim(int n, int k) {
-  // Solution of:
-  // \frac{1}{2} (-3) a_0 e F n (n+1)-\frac{c h R_{\infty }}{(n+1)^2}=\frac{3}{2} a_0 e F k n-\frac{c h R_{\infty }}{n^2}
-
-  // ITlim = \frac{2 c h (2 n+1) R_{\infty }}{3 a_0 e n^3 (n+1)^2 (k+n+1)}
-  return Fit*(1 + 2*n)/(n*n*n*(1 + n)*(1 + n)*(1 + k + n));
-}
-
-float Particle::ITlim() {
-  return ITlim(n_,k_);
 }

@@ -1,3 +1,4 @@
+
 #ifndef MYFUNC_INCLUDE_GUARD
 #define MYFUNC_INCLUDE GUARD
 
@@ -6,26 +7,23 @@
 #include <sys/sysinfo.h>
 #include <libconfig.h++>
 
-#ifndef N_DIMENSIONS
-#define N_DIMENSIONS 3
-#endif
-
 #ifndef N_TYPES
 #define N_TYPES 4
 #endif
 
 using namespace std;
 
-#include "myStructs.h"
+#include "Containers.h"
+#include "PhysicalConstants.h"
 
 // Global variables
 extern float timeStep, duration, maxVoltage, sigmaX, sigmaY, sigmaZ, temperature, targetVel, targetVelPrecision;
 extern bool normDist, storeCollisions, storeTrajectories, inglisTeller;
 extern int nParticles, n, k;
 extern string outDir;
-extern params config;
-extern accelerationSchemes scheme;
-extern kDists kDist;
+extern Containers::params config;
+extern Containers::accelerationSchemes scheme;
+extern Containers::kDists kDist;
 
 // Uses libconfig++ to read in my config file
 void readConfig(const string confFilePath) {
@@ -43,7 +41,7 @@ void readConfig(const string confFilePath) {
   config.z = config.nz - 2;
   config.datDirectory = c["espace"]["dat_directory"].c_str();
   config.paName = c["espace"]["pa_name"].c_str();
-  config.spaceSize = config.x * config.y * config.z * N_DIMENSIONS;
+  config.spaceSize = config.x * config.y * config.z * Physics::N_DIMENSIONS;
 
   timeStep = c["simulation"]["time_step"];
   duration = c["simulation"]["duration"];
@@ -125,7 +123,7 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
     dataDims[3] = nParticlesOfType[type];  // Particle
     dataDims[2] = nTimeSteps + 1;  // Time
     dataDims[1] = 2;  // Position and velocity
-    dataDims[0] = N_DIMENSIONS;  // x, y, z
+    dataDims[0] = Physics::N_DIMENSIONS;  // x, y, z
 
     hsize_t scalarDims[1]; // For neutralisation times and k-values
     scalarDims[0] = nParticlesOfType[type];
@@ -172,7 +170,7 @@ void writeHDF5(vector<Particle> &particles, const string &outFilePath,
     memDims[0] = thisParams.count[2];
     H5::DataSpace memSpace = H5::DataSpace(1, memDims);
 
-    for (int d = 0; d < N_DIMENSIONS; ++d) {
+    for (int d = 0; d < Physics::N_DIMENSIONS; ++d) {
       thisParams.start[0] = d;
 
       thisParams.start[1] = 0;  // Position

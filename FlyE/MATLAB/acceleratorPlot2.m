@@ -6,8 +6,9 @@ ntimes = s{2};
 ntimes = ntimes + 1;
 events = nan(length(ntimes),3);
 
-if (n2plot == -1)
-    n2plot = length(sz(:,2));
+nInFile = length(sz(:,2));
+if (n2plot == -1 || n2plot > nInFile)
+    n2plot = nInFile;
 end
 
 afterx = nan(size(sx));

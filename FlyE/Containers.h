@@ -5,10 +5,12 @@
  *      Author: jamie
  */
 
-#ifndef MYSTRUCTS_H_
-#define MYSTRUCTS_H_
+#ifndef CONTAINERS_H_
+#define CONTAINERS_H_
 
 #include <H5Cpp.h>
+
+namespace Containers {
 
 struct params {  // Holds the variables for the setup of the environment
   int nElectrodes;
@@ -28,4 +30,5 @@ enum kDists {
   Uniform, Single, Triangle
 };
 
-#endif /* MYSTRUCTS_H_ */
+}
+#endif /* CONTAINERS_H_ */
