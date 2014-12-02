@@ -10,10 +10,10 @@ SmartField::SmartField(std::vector<std::shared_ptr<Electrode> > electrodes)
 }
 
 blitz::TinyVector<float, 3> SmartField::at(int x, int y, int z) {
-  blitz::TinyVector<float, 3> point;
+  blitz::TinyVector<float, 3> point(0.0);
 
   for (auto &electrode : electrodes_) {
-    point += electrode->getVoltage() * electrode->operator()(x, y, z);
+    point += electrode->getVoltage() * (*electrode)(x, y, z);
   }
 
   return point;

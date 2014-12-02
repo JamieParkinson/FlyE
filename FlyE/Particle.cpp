@@ -1,6 +1,8 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <cmath>
+#include <algorithm>
 
 #include "Particle.h"
 #include "PhysicalConstants.h"
@@ -119,8 +121,18 @@ std::vector<float> Particle::getLoc() {
   return r_;
 }
 
+std::vector<int> Particle::getIntLoc() {
+  std::vector<int> intR(3);
+  std::transform(r_.begin(), r_.end(), intR.begin(), [](const float &r) -> int { return round(r); });
+  return intR;
+}
+
 float Particle::getLoc(int d) {
   return r_[d];
+}
+
+int Particle::getIntLoc(int d) {
+  return static_cast<int>(round(r_[d]));
 }
 
 std::vector<float> Particle::getVel() {
@@ -140,11 +152,6 @@ bool Particle::succeeded() {
 }
 
 void Particle::collide() {
-  collided_ = true;
-  forget();
-}
-
-void Particle::collideAndStore() {
   collided_ = true;
   memorise();
 }

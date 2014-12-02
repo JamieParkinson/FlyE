@@ -87,8 +87,6 @@ std::vector<float> ExponentialScheme::getVoltages(int t) {
     section_++;
   }
 
-  // TODO better methods for filling vectors with same number
-
   float voltage = maxVoltage_
       * (exp(timeConstant_ * (tSeconds - startRampTime_)) - 1)
       / (exp(timeConstant_ * deltaT_) - 1);
@@ -134,8 +132,8 @@ std::vector<float> MovingTrapScheme::getVoltages(int t) {
       / (offTime_ * sectionWidth_ * trapWidth_);
 
   std::vector<int> listOfEs(nElectrodes_);
-  std::iota(listOfEs.begin(), listOfEs.end(), 0);  // Create range 0:1:nElectrodes_
-  // Transform into something like 0 0 0 0 1 1 1 1 2 2 2 2 etc
+  std::iota(listOfEs.begin(), listOfEs.end(), 4);  // Create range 4:1:nElectrodes_
+  // Transform into something like 1 1 1 1 2 2 2 2 3 3 3 3 etc
   std::transform(
       listOfEs.begin(), listOfEs.end(), listOfEs.begin(),
       [](const int &e) -> int {return floor(e/Physics::N_IN_SECTION);});
@@ -145,7 +143,7 @@ std::vector<float> MovingTrapScheme::getVoltages(int t) {
       listOfEs.begin(),
       listOfEs.end(),
       voltages_.begin(),
-      [&](const int &e) -> float {return maxVoltage_ * cos((M_PI * (((e / 4) + 1) % 6) / 3) - phase);});
+      [&](const int &e) -> float {return maxVoltage_ * cos((M_PI * (e % 6) / 3) - phase);});
 
   return voltages_;
 }

@@ -1,5 +1,7 @@
 #include "AntiHydrogen.h"
 
+#include <cmath>
+
 #include "PhysicalConstants.h"
 
 AntiHydrogen::AntiHydrogen(float x, float y, float z, float vx, float vy,
@@ -17,6 +19,8 @@ AntiHydrogen::AntiHydrogen(float x, float y, float z, float vx, float vy,
       ITlim_(
           Physics::Fit * (1 + 2 * n)
               / (n * n * n * (1 + n) * (1 + n) * (1 + k + n))),
+
+      ionisationLim_(Physics::Fion * pow(n_, -4)),
 
       ionised_(false),
       neutralised_(-1) {
@@ -45,11 +49,15 @@ void AntiHydrogen::ionise() {
 }
 
 int AntiHydrogen::isDead() {
-  return (collided_) ? 1 : (neutralised_) ? 2 : 0;
+  return (collided_) ? 1 : (ionised_) ? 2 : 0;
 }
 
 float AntiHydrogen::ITlim() {
   return ITlim_;
+}
+
+float AntiHydrogen::ionisationLim() {
+  return ionisationLim_;
 }
 
 int AntiHydrogen::k() {

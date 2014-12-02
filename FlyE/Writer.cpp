@@ -1,6 +1,7 @@
 #include "Writer.h"
 
 #include "PhysicalConstants.h"
+#include "ezETAProgressBar.hpp"
 
 Writer::Writer(std::string &fileName, Simulator *simulator)
     : simulator_(simulator),
@@ -12,7 +13,9 @@ Writer::Writer(std::string &fileName, Simulator *simulator)
               .nCollided, simulator_->statsStorage_.nIonised, (int) simulator_
               ->particles_.size() - simulator_->statsStorage_.nSucceeded
               - simulator_->statsStorage_.nCollided
-              - simulator_->statsStorage_.nIonised }) {
+              - simulator_->statsStorage_.nIonised }),
+      ntimeVecs_(4),
+      kVecs_(4) {
   fType_.setOrder(H5T_ORDER_LE);  // Little endian
   iType_.setOrder(H5T_ORDER_LE);
 
@@ -26,7 +29,6 @@ Writer::Writer(std::string &fileName, Simulator *simulator)
           2;
   dChunkDims[3] = 1;
   dPropList_.setChunk(4, dChunkDims);  // Set up chunking - MASSIVE performance increase
-
 }
 
 hsize_t *Writer::startParams(int dimension, int phaseCoord, int particleIndex) {
@@ -104,7 +106,13 @@ void Writer::writeParticles() {
   stride[2] = 1;
   stride[3] = 1;
 
+  std::cout << "Writing data file (" << outFile_->getFileName() << ")..." << std::endl;
+
+  ez::ezETAProgressBar writerBar(static_cast<int>(simulator_->particles_.size()));
+  writerBar.start();
+
   for (AntiHydrogen &particle : simulator_->particles_) {  // Look through particles
+    ++writerBar;
     if (particle.succeeded()) {  // Determine particle type
       pType = 0;
     } else if (particle.isDead()) {
@@ -151,6 +159,7 @@ void Writer::writeParticles() {
     kDSets_[type]->write(kVecs_[type].data(), iType_);
   }
 
+  std::cout << std::endl;
+
   delete outFile_;
-  delete simulator_;
 }

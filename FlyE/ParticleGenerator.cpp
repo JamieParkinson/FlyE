@@ -1,11 +1,10 @@
-#include "ParticleGenerator.h"
+/*#include "ParticleGenerator.h"
 
 #include <random>
 
 #include "PhysicalConstants.h"
 
-typedef std::normal_distribution<float> float_n_dist;
-typedef std::uniform_real_distribution<float> float_u_dist;
+
 
 template<class PType>
 ParticleGenerator<PType>::ParticleGenerator(
@@ -99,3 +98,4 @@ template<class PType>
 std::vector<PType>& ParticleGenerator<PType>::getParticles() {
   return particles_;
 }
+*/

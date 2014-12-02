@@ -1,9 +1,6 @@
 #include "ElectrodeLocator.h"
 #include "Electrode.h"
 
-ElectrodeLocator::ElectrodeLocator() {
-}
-
 ElectrodeLocator::ElectrodeLocator(Electrode &electrode)
     : blitz::Array<bool, 3>(!electrode.extractComponent(float(), 1, 3)) { // Definitely witchcraft
 }

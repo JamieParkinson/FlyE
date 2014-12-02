@@ -27,6 +27,7 @@ void Electrode::applyVoltage(float voltage) {
 void Electrode::import(std::shared_ptr<AcceleratorConfig> config) {
   this->resize(config->x(), config->y(), config->z());
 
+#pragma omp parallel for
   for (int x = 0; x < config->x(); ++x) {  // Layers (excluding nx-th and first)
 
     std::string piece;

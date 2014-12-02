@@ -109,7 +109,7 @@ ParticlesConfig::ParticlesConfig(INIReader &reader) {
 }
 
 void ParticlesConfig::populate(INIReader &reader) {
-  nParticles_ = reader.GetInteger("simulation", "n_particles", 50000);
+  nParticles_ = static_cast<int>(reader.GetReal("simulation", "n_particles", 50000));
   k_ = reader.GetInteger("particles", "k", 20);
   kDist_ = reader.Get("particles", "k_dist", "single");
   n_ = reader.GetInteger("particles", "n", 25);

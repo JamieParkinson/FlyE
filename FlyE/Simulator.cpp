@@ -4,12 +4,14 @@
 
 #include "PhysicalConstants.h"
 #include "Writer.h" // Agh, circular dependency
+#include "ezETAProgressBar.hpp"
 
+// Output operator for SimulationNumbers
 std::ostream& operator <<(std::ostream& out, SimulationNumbers &simNums) {
   out << "Number of successful particles: " << simNums.nSucceeded
       << "\nNumber of collided particles: " << simNums.nCollided
       << "\nNumber of ionised particles: " << simNums.nIonised
-      << "\nNumber of neutralised particles: " << simNums.nNeutralised;
+      << "\nNumber of neutralised particles: " << simNums.nNeutralised << "\n";
   return out;
 }
 
@@ -28,27 +30,28 @@ Simulator::Simulator(AcceleratorGeometry &geometry,
 
   if (simulationConfig_->accelerationScheme() == "trap") {
 
+    // Ignore any error here; the last argument is an implementation-specific off switch for experimental STL parallelism
     int avgK = std::accumulate(
         particles_.begin(), particles_.end(), 0,
-        [](int total, AntiHydrogen &particle) {return total + particle.k();}, __gnu_parallel::sequential_tag())
-        / particles_.size();
+        [](int total, AntiHydrogen &particle) {return total + particle.k();},
+        __gnu_parallel::sequential_tag()) / particles_.size();
 
     voltageScheme_ = new MovingTrapScheme(simulationConfig_->maxVoltage(),  // Max voltage
         acceleratorConfig_->nElectrodes(),  // Number of electrodes
-        sectionWidth,  // Section width
+        sectionWidth,  // Section width,
         simulationConfig_->timeStep(),  // Time step
         simulationConfig_->targetVel(),  // Target velocity
         avgK);  // Average k
   } else if (simulationConfig_->accelerationScheme() == "instantaneous") {
     voltageScheme_ = new InstantaneousScheme(particles_[0],  // Synchronous particle
         simulationConfig_->maxVoltage(),  // Max voltage
-        acceleratorConfig_->nElectrodes(),  // Number of electroes
+        acceleratorConfig_->nElectrodes(),  // Number of electrodes
         sectionWidth,  // Section width
         simulationConfig_->timeStep());  // Time step
   } else if (simulationConfig_->accelerationScheme() == "exponential") {
     voltageScheme_ = new ExponentialScheme(particles_[0],  // Synchronous particle
         simulationConfig_->maxVoltage(),  // Max voltage
-        acceleratorConfig_->nElectrodes(),  // Number of electroes
+        acceleratorConfig_->nElectrodes(),  // Number of electrodes
         sectionWidth,  // Section width
         simulationConfig_->timeStep());  // Time step
   }
@@ -68,16 +71,19 @@ void Simulator::run() {
 
   ElectrodeLocator locator = geometry_.electrodeLocations();
 
-  for (int t = 0; t < nTimeSteps; ++t) {
+  std::cout << "Running simulation..." << std::endl;
+  ez::ezETAProgressBar timeBar(nTimeSteps);
+  timeBar.start();
+
+  for (int t = 0; t < nTimeSteps; ++t, ++timeBar) {
 #pragma omp parallel for schedule( guided, 3 ) reduction( +:nCollided, nIonised, nSucceeded, nNeutralised ) // Particularly good parallelisation
     for (auto particle = particles_.begin(); particle < particles_.end();
         ++particle) {
-      if (particle->isDead() || particle->succeeded())
+      if (particle->isDead() || particle->succeeded()) {
         continue;  // Check to see if the particle is alive
+      }
 
-      std::vector<int> rndLoc = { static_cast<int>(round(particle->getLoc(0))),  // Get closest gridpoints
-          static_cast<int>(round(particle->getLoc(1))), static_cast<int>(round(
-              particle->getLoc(2))) };
+      std::vector<int> rndLoc = particle->getIntLoc();
 
       float mag = field_.magnitudeAt(rndLoc[0], rndLoc[1], rndLoc[2]);
 
@@ -86,11 +92,16 @@ void Simulator::run() {
               || rndLoc[1] >= acceleratorConfig_->y() - 1)
           || locator.existsAt(rndLoc[0], rndLoc[1], rndLoc[2])) {
         particle->collide();
+
+        if (!storageConfig_->storeCollisions()) {
+          particle->forget();
+        }
+
         ++nCollided;
         continue;
       }  // Exploit the fact that |E| is 0 in electrodes to detect collisions
 
-      if (mag >= (Physics::Fion / pow(particle->n(), 4))) {
+      if (mag >= particle->ionisationLim()) {
         particle->ionise();
         ++nIonised;
         continue;
@@ -149,6 +160,8 @@ void Simulator::run() {
   statsStorage_.nSucceeded = nSucceeded;
   statsStorage_.nIonised = nIonised;
   statsStorage_.nNeutralised = nNeutralised;
+
+  std::cout << std::endl;
 }
 
 SimulationNumbers Simulator::getBasicStats() {

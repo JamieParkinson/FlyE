@@ -103,12 +103,25 @@ class Particle {
    */
   std::vector<float> getLoc();
 
+  /** @brief Returns the vector {x,y,z} rounded to an integer grid
+   *
+   * @return The vector {x,y,z} rounded to an integer grid
+   */
+  std::vector<int> getIntLoc();
+
   /** Return component d of {x,y,z}
    *
-   * @param d component to get (x = 0, y = 1, z = 2)
+   * @param d Component to get (x = 0, y = 1, z = 2)
    * @return Component d of (x, y, z)
    */
   float getLoc(int d);
+
+  /** Return component d of {x,y,z} rounded to an integer grid
+   *
+   * @param d Component to get (x = 0, y = 1, z = 2)
+   * @return Component d of {x,y,z} rounded to an integer grid
+   */
+  int getIntLoc(int d);
 
   /** @brief Return the vector {vx,vy,vz}
    *
@@ -137,14 +150,11 @@ class Particle {
    */
   bool succeeded();
 
-  /** @brief Call a collision event and throw the track away
+  /** @brief Call a collision event
    *
    * Sets the collided_ int to 1
    */
   void collide();
-
-  /** @brief Call a collision event and don't throw it away */
-  void collideAndStore();
 
   /** @brief Call a success event
    *

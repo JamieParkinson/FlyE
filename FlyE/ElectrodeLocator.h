@@ -11,12 +11,6 @@ class Electrode;
  */
 class ElectrodeLocator : public blitz::Array<bool, 3> {
  public:
-  /** @brief Blank constructor */
-  ElectrodeLocator();
-  /**
-   * @brief Construct an ElectrodeLocator from an Electrode
-   * @param electrode The electrode to locate
-   */
   ElectrodeLocator(Electrode &electrode);
 
   /** @brief For construction from a shared_ptr to an Electrode

@@ -17,17 +17,17 @@ ConfigLoader::ConfigLoader(std::string configFilePath)
 }
 
 std::shared_ptr<AcceleratorConfig> ConfigLoader::getAcceleratorConfig() {
-  return std::move(accelConf_);
+  return accelConf_;
 }
 
 std::shared_ptr<ParticlesConfig> ConfigLoader::getParticlesConfig() {
-  return std::move(particlesConf_);
+  return particlesConf_;
 }
 
 std::shared_ptr<SimulationConfig> ConfigLoader::getSimulationConfig() {
-  return std::move(simConf_);
+  return simConf_;
 }
 
 std::shared_ptr<StorageConfig> ConfigLoader::getStorageConfig() {
-  return std::move(storageConf_);
+  return storageConf_;
 }

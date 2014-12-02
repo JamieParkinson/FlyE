@@ -67,7 +67,7 @@ class MovingTrapScheme : public VoltageScheme {
   static constexpr int trapWidth_ = 6;
   float targetVel_;
   float offTime_;
-  static constexpr int nOscillations_ = 3; // Experimental
+  static constexpr int nOscillations_ = 4; // Experimental
 
   static float frequency(int k, float V);
 

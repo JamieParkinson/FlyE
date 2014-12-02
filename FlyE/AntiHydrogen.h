@@ -14,6 +14,7 @@ class AntiHydrogen : public Particle {
   int k_; //!< Stark quantum number
   float mu_; //!< Dipole moment
   float ITlim_; //!< Inglis-Teller limit
+  float ionisationLim_; //! Ionisation limit
 
   bool ionised_; //!< Whether the particle has ionised
   int neutralised_; //! Neutralisation time. -1 if not neutralised.
@@ -77,6 +78,12 @@ class AntiHydrogen : public Particle {
    * @return The Inglis-Teller limit of this particle
    */
   float ITlim();
+
+  /** @brief Gets the ionisation field limit
+   *
+   * @return The ionisation limit of this particle
+   */
+  float ionisationLim();
 
   /** @brief Gets the value of k
    *
