@@ -20,7 +20,7 @@ float VectorField::vectorMagnitude(blitz::TinyVector<float, 3> vec) {
 }
 
 float VectorField::magnitudeAt(int x, int y, int z) {
-  return vectorMagnitude(this->operator()(x, y, z));
+  return vectorMagnitude((*this)(x, y, z));
 }
 
 float VectorField::gradientXat(int x, int y, int z) {

@@ -25,5 +25,5 @@ int main(int argc, char* argv[]) {
   SimulationNumbers stats = mySimulator.getBasicStats();
   std::cout << stats << std::endl;
 
-  mySimulator.write("/home/jamie/FlyEfiles/out.h5");
+  mySimulator.write("/home/jamie/FlyEfiles/outSUM.h5");
 }

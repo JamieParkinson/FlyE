@@ -8,7 +8,7 @@
  *
  * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
  */
-class SmartField {
+class SmartField : public VectorField {
  protected:
   std::vector< std::shared_ptr<Electrode> > electrodes_; //!< All of the electrodes in an AcceleratorGeometry
 

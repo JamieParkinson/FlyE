@@ -33,6 +33,17 @@ SmartField AcceleratorGeometry::makeSmartField() {
   return SmartField(electrodes_);
 }
 
+VectorField AcceleratorGeometry::makeVectorField() {
+  VectorField thisField(*electrodes_[0]);
+
+#pragma omp parallel for
+  for (auto electrode = electrodes_.begin() + 1; electrode < electrodes_.end(); ++electrode) {
+    thisField += *(*electrode) * (*electrode)->getVoltage();
+  }
+
+  return thisField;
+}
+
 ElectrodeLocator AcceleratorGeometry::electrodeLocations() {
   ElectrodeLocator locator(electrodes_[0]);
 

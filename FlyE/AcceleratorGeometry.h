@@ -42,6 +42,12 @@ class AcceleratorGeometry {
    */
   SmartField makeSmartField();
 
+  /** @brief Sums all the Electrodes and returns the superposed field
+   *
+   * @return The total field in the accelerator
+   */
+  VectorField makeVectorField();
+
   /** @brief Returns an ElectrodeLocator for everything in the accelerator
    *
    * @return ElectrodeLocator for *all* electrodes
