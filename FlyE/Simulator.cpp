@@ -33,8 +33,7 @@ Simulator::Simulator(AcceleratorGeometry &geometry,
     // Ignore any error here; the last argument is an implementation-specific off switch for experimental STL parallelism
     int avgK = std::accumulate(
         particles_.begin(), particles_.end(), 0,
-        [](int total, AntiHydrogen &particle) {return total + particle.k();},
-        __gnu_parallel::sequential_tag()) / particles_.size();
+        [](int total, AntiHydrogen &particle) {return total + particle.k();}, __gnu_parallel::sequential_tag()) / particles_.size();
 
     voltageScheme_ = new MovingTrapScheme(simulationConfig_->maxVoltage(),  // Max voltage
         acceleratorConfig_->nElectrodes(),  // Number of electrodes
@@ -85,8 +84,6 @@ void Simulator::run() {
 
       std::vector<int> rndLoc = particle->getIntLoc();
 
-      float mag = field_.magnitudeAt(rndLoc[0], rndLoc[1], rndLoc[2]);
-
       if ((rndLoc[0] <= 1 || rndLoc[1] <= 1 || rndLoc[2] <= 1)
           || (rndLoc[0] >= acceleratorConfig_->x() - 1
               || rndLoc[1] >= acceleratorConfig_->y() - 1)
@@ -99,7 +96,9 @@ void Simulator::run() {
 
         ++nCollided;
         continue;
-      }  // Exploit the fact that |E| is 0 in electrodes to detect collisions
+      }
+
+      float mag = field_.magnitudeAt(rndLoc[0], rndLoc[1], rndLoc[2]);
 
       if (mag >= particle->ionisationLim()) {
         particle->ionise();
@@ -118,6 +117,8 @@ void Simulator::run() {
         ++nSucceeded;
         continue;
       }  // If particle makes it to the far end
+
+      particle->checkMaxField(mag); // Storing max field encountered
 
       float dEx = field_.gradientXat(rndLoc[0], rndLoc[1], rndLoc[2]);  // Field gradients
       float dEy = field_.gradientYat(rndLoc[0], rndLoc[1], rndLoc[2]);

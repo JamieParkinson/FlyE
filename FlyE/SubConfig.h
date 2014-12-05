@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+#include <memory>
 #include "inih/cpp/INIReader.h"
 
 /**@brief Abstract class which the config data containers inherit from
@@ -12,7 +14,13 @@
  * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
  */
 class SubConfig {
+ protected:
+  /** @brief Acts on an ostream to give formatted contents of member variables */
+  virtual void printOn(std::ostream &out) = 0;  //!< Java-inspired method to print out the data in the object.
+
  public:
+  friend std::ostream& operator <<(std::ostream &out, SubConfig &subConf);
+
   virtual ~SubConfig();
 
   /** @brief Populates the member variables of the object using the data in the INIReader object
@@ -20,12 +28,6 @@ class SubConfig {
    * @param reader An INIReader object, usually supplied by constructor
    */
   virtual void populate(INIReader &reader) = 0;
-
-  /** @brief Returns a string with formatted contents of member variables
-   *
-   * @return A string with formatted contents of member variables
-   */
-  virtual std::string toString() = 0;  //!< Java-inspired method to print out the data in the object.
 };
 
 /** @brief For storing configuration data pertaining to the accelerator geometry */
@@ -36,6 +38,9 @@ class AcceleratorConfig : public SubConfig {
   int x_, y_, z_;  ///@}
   std::string datDirectory_;  //!< Directory in which the E-Field .dat files are stored
   std::string PAname_;  //!< prefix for EXSIMECK-named files
+
+  //!< @copydoc SubConfig::printOn()
+  void printOn(std::ostream &out);
 
  public:
   /** @brief Generates the object using the INIReader
@@ -48,11 +53,7 @@ class AcceleratorConfig : public SubConfig {
   //!< @copydoc SubConfig::populate()
   void populate(INIReader &reader);
 
-  //!< @copydoc SubConfig::toString()
-  std::string toString();
-
   // Getters
-
   /** @brief Directory in which the E-Field .dat files are stored */
   const std::string& datDirectory() const;
 
@@ -82,6 +83,9 @@ class SimulationConfig : public SubConfig {
   std::string accelerationScheme_;  //!< Scheme for acceleration: trap, inst or exp
   bool inglisTeller_;  //!< Whether to neutralise the dipole moment of particles past the I-T limit
 
+  //!< @copydoc SubConfig::printOn()
+  void printOn(std::ostream &out);
+
  public:
   /** @brief Generates the object using the INIReader
    *
@@ -92,9 +96,6 @@ class SimulationConfig : public SubConfig {
 
   //!< @copydoc SubConfig::populate()
   void populate(INIReader &reader);
-
-  //!< @copydoc SubConfig::toString()
-  std::string toString();
 
   // Getters
 
@@ -129,6 +130,9 @@ class ParticlesConfig : public SubConfig {
   int n_;  //!< Principal quantum number of all particles
   int k_;  //!< If kDist is single, then use this value
 
+  //!< @copydoc SubConfig::printOn()
+  void printOn(std::ostream &out);
+
  public:
   /** @brief Generates the object using the INIReader
    *
@@ -139,9 +143,6 @@ class ParticlesConfig : public SubConfig {
 
   //!< @copydoc SubConfig::populate()
   void populate(INIReader &reader);
-
-  //!< @copydoc SubConfig::toString()
-  std::string toString();
 
   // Getters
 
@@ -173,23 +174,23 @@ class ParticlesConfig : public SubConfig {
 /** @brief For storing configuration data pertaining to the storage of simulation results */
 class StorageConfig : public SubConfig {
  protected:
-  std::string outDir_; //!< The directory to write output files to
-  bool storeTrajectories_; //!< Whether to store the full particle trajectories or just endpoints
-  bool storeCollisions_; //!< Whether to store any data of particles that collide
+  std::string outDir_;  //!< The directory to write output files to
+  bool storeTrajectories_;  //!< Whether to store the full particle trajectories or just endpoints
+  bool storeCollisions_;  //!< Whether to store any data of particles that collide
+
+  //!< @copydoc SubConfig::printOn()
+  void printOn(std::ostream &out);
 
  public:
   /** @brief Generates the object using the INIReader
-    *
-    * @param reader An INIReader object, usually supplied by ConfigLoader
-    * @return ParticlesConfig object
-    */
+   *
+   * @param reader An INIReader object, usually supplied by ConfigLoader
+   * @return ParticlesConfig object
+   */
   StorageConfig(INIReader &reader);
 
   //!< @copydoc SubConfig::populate()
   void populate(INIReader &reader);
-
-  //!< @copydoc SubConfig::toString()
-  std::string toString();
 
   /** @brief The directory to write output files to */
   const std::string& outDir() const;

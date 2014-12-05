@@ -7,6 +7,7 @@ SmartField::SmartField() {
 
 SmartField::SmartField(std::vector<std::shared_ptr<Electrode> > electrodes)
     : electrodes_(electrodes) {
+  magnitudeMemory_.reserve(electrodes_[0]->numElements());
 }
 
 blitz::TinyVector<float, 3> SmartField::at(int x, int y, int z) {
@@ -24,7 +25,15 @@ blitz::TinyVector<float, 3> SmartField::operator ()(int x, int y, int z) {
 }
 
 float SmartField::magnitudeAt(int x, int y, int z) {
-  return VectorField::vectorMagnitude(this->at(x, y, z));
+ tuple3D t = std::make_tuple(x, y, z);
+
+ if (magnitudeMemory_.count(t) == 0) {
+#pragma omp critical
+   {
+     magnitudeMemory_.insert({{t, VectorField::vectorMagnitude(this->at(x, y, z))}});
+   }
+ }
+ return magnitudeMemory_.at(t);
 }
 
 float SmartField::gradientXat(int x, int y, int z) {

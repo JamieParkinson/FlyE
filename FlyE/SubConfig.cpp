@@ -4,6 +4,11 @@
 
 SubConfig::~SubConfig() {}
 
+std::ostream& operator <<(std::ostream &out, SubConfig &subConf) {
+  subConf.printOn(out);
+  return out;
+}
+
 AcceleratorConfig::AcceleratorConfig(INIReader &reader) {
   populate(reader);
 }
@@ -17,7 +22,7 @@ void AcceleratorConfig::populate(INIReader &reader) {
   z_ = reader.GetInteger("accelerator", "z", 200) - 2;
 }
 
-std::string AcceleratorConfig::toString() {
+void AcceleratorConfig::printOn(std::ostream &out) {
   std::stringstream str;
 
   str << "Accelerator Config: \n";
@@ -26,7 +31,7 @@ std::string AcceleratorConfig::toString() {
   str << "Number of electrodes: " << nElectrodes_ << "\n";
   str << "Dimensions (x, y, z): (" << x_ << ", " << y_ << ", " << z_ << ")";
 
-  return str.str();
+  out << str.str();
 }
 
 const std::string& AcceleratorConfig::datDirectory() const {
@@ -66,7 +71,7 @@ void SimulationConfig::populate(INIReader &reader) {
   timeStep_ = (float) reader.GetReal("simulation", "time_step", 1e-6);
 }
 
-std::string SimulationConfig::toString() {
+void SimulationConfig::printOn(std::ostream &out) {
   std::stringstream str;
 
   str << "Simulation Config: \n";
@@ -77,7 +82,7 @@ std::string SimulationConfig::toString() {
   str << "Target velocity: " << targetVel_ << "\n";
   str << (inglisTeller_) ? "Using Inglis-Teller limit" : "Not using Inglis-Teller limit";
 
-  return str.str();
+  out << str.str();
 }
 
 const std::string& SimulationConfig::accelerationScheme() const {
@@ -120,7 +125,7 @@ void ParticlesConfig::populate(INIReader &reader) {
   temperature_ = (float) reader.GetReal("particles", "temperature", 1.0);
 }
 
-std::string ParticlesConfig::toString() {
+void ParticlesConfig::printOn(std::ostream &out) {
   std::stringstream str;
 
   str << "Particles Config: \n";
@@ -142,7 +147,7 @@ std::string ParticlesConfig::toString() {
 
   str << "n: " << n_;
 
-  return str.str();
+  out << str.str();
 }
 
 int ParticlesConfig::nParticles() const {
@@ -191,7 +196,7 @@ void StorageConfig::populate(INIReader &reader) {
   storeTrajectories_ = reader.GetBoolean("storage", "store_trajectories", true);
 }
 
-std::string StorageConfig::toString() {
+void StorageConfig::printOn(std::ostream &out) {
   std::stringstream str;
 
   str << "Storage Config: \n";
@@ -199,7 +204,7 @@ std::string StorageConfig::toString() {
   str << (storeCollisions_) ? "Storing collisions\n" : "Not storing collisions\n";
   str << (storeTrajectories_) ? "Storing trajectories" : "Not storing trajectories";
 
-  return str.str();
+  out << str.str();
 }
 
 const std::string& StorageConfig::outDir() const {

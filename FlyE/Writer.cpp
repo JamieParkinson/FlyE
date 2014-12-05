@@ -13,9 +13,7 @@ Writer::Writer(std::string &fileName, Simulator *simulator)
               .nCollided, simulator_->statsStorage_.nIonised, (int) simulator_
               ->particles_.size() - simulator_->statsStorage_.nSucceeded
               - simulator_->statsStorage_.nCollided
-              - simulator_->statsStorage_.nIonised }),
-      ntimeVecs_(4),
-      kVecs_(4) {
+              - simulator_->statsStorage_.nIonised }) {
   fType_.setOrder(H5T_ORDER_LE);  // Little endian
   iType_.setOrder(H5T_ORDER_LE);
 
@@ -72,26 +70,34 @@ void Writer::initializeSetsAndSpaces() {
     hsize_t scalarDims[1];  // For neutralisation times and k-values
     scalarDims[0] = nParticlesOfType_[type];
 
-    dSpaces_.emplace_back(4, dataDims);
-    ntimeDSpaces_.emplace_back(1, scalarDims);
-    kDSpaces_.emplace_back(1, scalarDims);
+    trajectoryDSpaces_.emplace_back(4, dataDims);
 
-    ntimeVecs_[type].reserve(nParticlesOfType_[type]);
-    kVecs_[type].reserve(nParticlesOfType_[type]);
+    nTimes_.dSpaces.emplace_back(1, scalarDims);
+    ks_.dSpaces.emplace_back(1, scalarDims);
+    maxFields_.dSpaces.emplace_back(1, scalarDims);
 
-    dSets_.emplace_back(
+    nTimes_.vecs[type].reserve(nParticlesOfType_[type]);
+    ks_.vecs[type].reserve(nParticlesOfType_[type]);
+    maxFields_.vecs[type].reserve(nParticlesOfType_[type]);
+
+    trajectoryDSets_.emplace_back(
         std::make_shared<H5::DataSet>(
             outFile_->createDataSet("/" + typeNames_[type] + "/data", fType_,
-                                    dSpaces_[type], dPropList_)));  // Initialise dataset
-    ntimeDSets_.emplace_back(
+                                    trajectoryDSpaces_[type], dPropList_)));  // Initialise dataset
+    nTimes_.dSets.emplace_back(
         std::make_shared<H5::DataSet>(
             outFile_->createDataSet("/" + typeNames_[type] + "/neutralTimes",
-                                    iType_, ntimeDSpaces_[type])));
+                                    iType_, nTimes_.dSpaces[type])));
 
-    kDSets_.emplace_back(
+    ks_.dSets.emplace_back(
         std::make_shared<H5::DataSet>(
             outFile_->createDataSet("/" + typeNames_[type] + "/ks", iType_,
-                                    kDSpaces_[type])));
+                                    ks_.dSpaces[type])));
+
+    maxFields_.dSets.emplace_back(
+        std::make_shared<H5::DataSet>(
+            outFile_->createDataSet("/" + typeNames_[type] + "/maxFields",
+                                    fType_, maxFields_.dSpaces[type])));
   }
 
   delete typeGroup;
@@ -106,9 +112,11 @@ void Writer::writeParticles() {
   stride[2] = 1;
   stride[3] = 1;
 
-  std::cout << "Writing data file (" << outFile_->getFileName() << ")..." << std::endl;
+  std::cout << "Writing data file (" << outFile_->getFileName() << ")..."
+            << std::endl;
 
-  ez::ezETAProgressBar writerBar(static_cast<int>(simulator_->particles_.size()));
+  ez::ezETAProgressBar writerBar(
+      static_cast<int>(simulator_->particles_.size()));
   writerBar.start();
 
   for (AntiHydrogen &particle : simulator_->particles_) {  // Look through particles
@@ -125,7 +133,7 @@ void Writer::writeParticles() {
       continue;
     }
 
-    H5::DataSpace fileSpace = dSpaces_[pType];
+    H5::DataSpace fileSpace = trajectoryDSpaces_[pType];
 
     hsize_t *count = countParams(particle);
 
@@ -137,26 +145,30 @@ void Writer::writeParticles() {
       hsize_t *start = startParams(d, 0, pTypeCounts_[pType]);
 
       fileSpace.selectHyperslab(H5S_SELECT_SET, count, start, stride);
-      dSets_[pType]->write(particle.recallLoc(d).data(), fType_, memSpace,
-                           fileSpace);
+      trajectoryDSets_[pType]->write(particle.recallLoc(d).data(), fType_,
+                                     memSpace, fileSpace);
 
       start[1] = 1;  // Velocity
       fileSpace.selectHyperslab(H5S_SELECT_SET, count, start, stride);
-      dSets_[pType]->write(particle.recallVel(d).data(), fType_, memSpace,
-                           fileSpace);
+      trajectoryDSets_[pType]->write(particle.recallVel(d).data(), fType_,
+                                     memSpace, fileSpace);
     }
 
     ++pTypeCounts_[pType];  // Increase out count of this particle type
 
-    ntimeVecs_[pType].emplace_back(particle.neutralisationTime());  // Store ntime
-    kVecs_[pType].emplace_back(particle.k());  // Store k
+    nTimes_.vecs[pType].emplace_back(particle.neutralisationTime());  // Store ntime
+    ks_.vecs[pType].emplace_back(particle.k());  // Store k
+    maxFields_.vecs[pType].emplace_back(particle.maxField());  // Store max |E| encountered
 
     particle.forget();  // Clear the memory of the particle we just dealt with
   }
 
   for (int type = 0; type < 4; ++type) {  // Write neutralisation times & k-values
-    ntimeDSets_[type]->write(ntimeVecs_[type].data(), iType_);
-    kDSets_[type]->write(kVecs_[type].data(), iType_);
+    if (nParticlesOfType_[type] <= 0) continue; // Skip empties
+
+    nTimes_.dSets[type]->write(nTimes_.vecs[type].data(), iType_);
+    ks_.dSets[type]->write(ks_.vecs[type].data(), iType_);
+    maxFields_.dSets[type]->write(maxFields_.vecs[type].data(), fType_);
   }
 
   std::cout << std::endl;

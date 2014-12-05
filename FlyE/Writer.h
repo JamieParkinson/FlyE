@@ -3,6 +3,16 @@
 #include <H5Cpp.h>
 #include "Simulator.h"
 
+template<typename T>
+struct HDF5Container1D {
+  std::vector< std::shared_ptr<H5::DataSet> > dSets;
+  std::vector<H5::DataSpace> dSpaces;
+  std::vector< std::vector<T> > vecs;
+
+  HDF5Container1D() : vecs(4) {
+  }
+};
+
 class Writer {
  protected:
   Simulator *simulator_;
@@ -16,18 +26,14 @@ class Writer {
       "Remaining" };
   std::vector<int> nParticlesOfType_;
 
-  std::vector<std::shared_ptr<H5::DataSet> > dSets_;  // Storing datasets
-  std::vector<std::shared_ptr<H5::DataSet> > ntimeDSets_;  // For neutralisation times
-  std::vector<std::shared_ptr<H5::DataSet> > kDSets_;  // For k-values
+  std::vector<std::shared_ptr<H5::DataSet> > trajectoryDSets_;  // Storing datasets
+  std::vector<H5::DataSpace> trajectoryDSpaces_;  // Storing dataspaces
 
-  std::vector<H5::DataSpace> dSpaces_;  // Storing dataspaces
-  std::vector<H5::DataSpace> ntimeDSpaces_;  // For neutralisation times
-  std::vector<H5::DataSpace> kDSpaces_;  // For k-values
+  HDF5Container1D<int> nTimes_;
+  HDF5Container1D<int> ks_;
+  HDF5Container1D<float> maxFields_;
 
-  std::vector< std::vector<int> > ntimeVecs_;  // For neutralisation time vectors
-  std::vector< std::vector<int> > kVecs_;  // For k-value vectors
-
-  std::vector<int> pTypeCounts_ = { 0, 0, 0, 0, 0 };  // Particle type counters
+  std::vector<int> pTypeCounts_ = { 0, 0, 0, 0 };  // Particle type counters
 
   static hsize_t *startParams(int dimension, int phaseCoord, int particleIndex);
   static hsize_t *countParams(Particle &particle);

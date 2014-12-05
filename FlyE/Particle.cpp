@@ -11,7 +11,8 @@ Particle::Particle(float x, float y, float z, float vx, float vy, float vz)
     : r_( { x, y, z }),
       v_( { vx, vy, vz }),
       collided_(false),
-      succeeded_(false) {
+      succeeded_(false),
+      maxField_(std::numeric_limits<float>::min()) {
   memorise();
 }
 
@@ -175,4 +176,12 @@ void Particle::cutDownMemory() {
   xvTraj_.emplace_back(xv);
   yvTraj_.emplace_back(yv);
   zvTraj_.emplace_back(zv);
+}
+
+float Particle::maxField() {
+  return maxField_;
+}
+
+void Particle::checkMaxField(float magnitude) {
+  if (magnitude > maxField_) maxField_ = magnitude;
 }

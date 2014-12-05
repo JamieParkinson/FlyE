@@ -21,6 +21,8 @@ class Particle {
   bool collided_; //!< Whether the particle has collided
   bool succeeded_; //!< Whether the particle has reached the end of the accelerator
 
+  float maxField_; //!< The maximum E-Field magnitude that the particle encountered
+
  public:
   /** @brief Constructor to set initial position and velocity
    *
@@ -161,4 +163,17 @@ class Particle {
    * Sets the succeeded_ bool to true
    */
   void succeed();
+
+
+  /** @brief Gets the maximum |E| that the particle encountered
+   *
+   * @return The maximum |E| that the particle encountered
+   */
+  float maxField();
+
+  /** @brief Checks to see if the field given is greater than the previous max
+   *
+   * @param magnitude An E-field magnitude
+   */
+  void checkMaxField(float magnitude);
 };
