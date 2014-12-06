@@ -1,3 +1,8 @@
+/**@file ParticleGenerator.h
+ * @brief This file contains the ParticleGenerator class
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 
 #include <memory>
@@ -11,8 +16,13 @@
 #include "IntegerDistribution.h"
 #include "PhysicalConstants.h"
 
+/** @brief The standard (MT19937) mersenne twister RNG */
 typedef std::mt19937 mersenne_twister;
+
+/** @brief Normal distribution of floats */
 typedef std::normal_distribution<float> float_n_dist;
+
+/** @brief Uniform distribution of floats */
 typedef std::uniform_real_distribution<float> float_u_dist;
 
 template<class PType>
@@ -92,6 +102,9 @@ std::vector<PType>& ParticleGenerator<PType>::getParticles() {
   return particles_;
 }
 
+/** @brief Template specialisation for the AntiHydrogen generator
+ * @copydoc ParticleGenerator<PType>::generateSynchronousParticle()
+ */
 template<> void
 ParticleGenerator<AntiHydrogen>::generateSynchronousParticle(
     int x, int y, int z, int vx, int vy, int vz) {
@@ -99,6 +112,9 @@ ParticleGenerator<AntiHydrogen>::generateSynchronousParticle(
                           particlesConfig_->k());
 }
 
+/** @brief Template specialisation for the AntiHydrogen generator
+ * @copydoc ParticleGenerator<PType>::generateNormDist()
+ */
 template<> void
 ParticleGenerator<AntiHydrogen>::generateNormDist(
     mersenne_twister generator, float sigmaV, int sectionWidth,
@@ -121,6 +137,9 @@ ParticleGenerator<AntiHydrogen>::generateNormDist(
 
 }
 
+/** @brief Template specialisation for the AntiHydrogen generator
+ * @copydoc ParticleGenerator<PType>::generateUniformDist()
+ */
 template<> void
 ParticleGenerator<AntiHydrogen>::generateUniformDist(
     mersenne_twister generator, float sigmaV, int sectionWidth,
@@ -154,6 +173,9 @@ ParticleGenerator<AntiHydrogen>::generateUniformDist(
   }
 }
 
+/** @brief Template specialisation for the AntiHydrogen generator
+ * @copydoc ParticleGenerator<PType>::generateParticles()
+ */
 template<> void
 ParticleGenerator<AntiHydrogen>::generateParticles() {
   float sigmaV = sqrt(

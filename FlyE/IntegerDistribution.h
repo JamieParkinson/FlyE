@@ -1,7 +1,15 @@
+/**@file IntegerDistribution.h
+ * @brief This file contains the (abstract) IntegerDistribution class and all its subclasses
+ *
+ * The subclasses are: UniformDistribution, SingleDistribution and TriangleDistribution
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 
 #include <random> // C++11 RNGs
 
+//!< The standard (MT19937) mersenne twister RNG
 typedef std::mt19937 mersenne_twister;
 
 /** @brief A wrapper class for some C++11 RNGs

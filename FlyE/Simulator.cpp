@@ -9,9 +9,16 @@
 // Output operator for SimulationNumbers
 std::ostream& operator <<(std::ostream& out, SimulationNumbers &simNums) {
   out << "Number of successful particles: " << simNums.nSucceeded
-      << "\nNumber of collided particles: " << simNums.nCollided
-      << "\nNumber of ionised particles: " << simNums.nIonised
-      << "\nNumber of neutralised particles: " << simNums.nNeutralised << "\n";
+      << " (" << 100.0 * simNums.nSucceeded / static_cast<float>(simNums.nParticles) << "%)\n"
+
+      << "Number of collided particles: " << simNums.nCollided
+      << " (" << 100.0 * simNums.nCollided / static_cast<float>(simNums.nParticles) << "%)\n"
+
+      << "Number of ionised particles: " << simNums.nIonised
+      << " (" << 100.0 * simNums.nIonised / static_cast<float>(simNums.nParticles) << "%)\n"
+
+      << "Number of neutralised particles: " << simNums.nNeutralised << "\n"
+      << " (" << 100.0 * simNums.nNeutralised / static_cast<float>(simNums.nParticles) << "%)\n";
   return out;
 }
 

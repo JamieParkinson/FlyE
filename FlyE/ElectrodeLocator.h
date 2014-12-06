@@ -1,3 +1,10 @@
+/**@file ElectrodeLocator.h
+ * @brief This file contains the ElectrodeLocator class
+ *
+ * ElectrodeLocator is derived from a 3D Blitz++ array of bools
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 
 #include <memory>
@@ -11,6 +18,10 @@ class Electrode;
  */
 class ElectrodeLocator : public blitz::Array<bool, 3> {
  public:
+  /** @brief Constructs an ElectrodeLocator from an Electrode
+   *
+   * @param electrode An Electrode, the location of which will be determined
+   */
   ElectrodeLocator(Electrode &electrode);
 
   /** @brief For construction from a shared_ptr to an Electrode

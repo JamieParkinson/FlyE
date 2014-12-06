@@ -103,13 +103,13 @@ MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
                                    float targetVel, int k)
     : VoltageScheme(maxVoltage, nElectrodes, sectionWidth, timeStep),
       targetVel_(targetVel),
-      offTime_(0.5 * nOscillations_ / frequency(k, maxVoltage)) {
+      offTime_(0.5 * nOscillations_ / frequency(k)) {
 }
 
-float MovingTrapScheme::frequency(int k, float v) {
+float MovingTrapScheme::frequency(int k) {
   // Copied out of Mathematica, in turn copied from MATLAB. See ManifoldIntersect.nb and freqScript.m
   return 0.0454669
-      * (59321.0 + sqrt(-1.999753439e9 + 3.033655172413793e6 * k * v));
+      * (59321.0 + sqrt(-1.999753439e9 + 3.033655172413793e6 * k * maxVoltage_));
 }
 
 bool MovingTrapScheme::isActive(int t) {

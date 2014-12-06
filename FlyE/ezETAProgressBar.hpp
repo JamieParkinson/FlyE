@@ -17,9 +17,6 @@ v2.0.2 20130123 rob Switched over to C++11 timer facilities
 #include <string>
 #include <sstream>
 #include <chrono>
-#include <cstdio>
-#include <cstring>
-#include <cassert>
 
 #ifdef WIN32
 #include <windows.h>

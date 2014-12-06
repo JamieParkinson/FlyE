@@ -1,3 +1,10 @@
+/**@file SubConfig.h
+ * @brief This file contains the SubConfig class, and its subclasses
+ *
+ * The subclasses of SubConfig are: AcceleratorConfig, ParticlesConfig, SimulationConfig and StorageConfig
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 
 #include <ostream>
@@ -19,6 +26,12 @@ class SubConfig {
   virtual void printOn(std::ostream &out) = 0;  //!< Java-inspired method to print out the data in the object.
 
  public:
+  /** @brief For pretty printing the config data
+   *
+   * @param out Any output-stream object (ie cout)
+   * @param subConf Any SubConfig object (or derived classes)
+   * @return An ostream containing the pretty-printed data
+   */
   friend std::ostream& operator <<(std::ostream &out, SubConfig &subConf);
 
   virtual ~SubConfig();

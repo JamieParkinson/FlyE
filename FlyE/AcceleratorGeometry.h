@@ -1,3 +1,8 @@
+/** @file AcceleratorGeometry.h
+ *  @brief This file contains the AcceleratorGeometry class
+ *
+ *  @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 
 #include <memory>
@@ -54,5 +59,9 @@ class AcceleratorGeometry {
    */
   ElectrodeLocator electrodeLocations();
 
+  /** @brief Returns a shared_ptr to the AcceleratorConfig instance associated with this geometry
+   *
+   * @return A shared_ptr to the AcceleratorConfig instance associated with this geometry
+   */
   std::shared_ptr<AcceleratorConfig> getAcceleratorConfig();
 };

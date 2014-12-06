@@ -1,3 +1,10 @@
+/**@file VectorField.h
+ * @brief This file contains the VectorField class
+ *
+ * VectorField is derived from a 3D Blitz++ array of 3D float TinyVectors
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 
 #include <blitz/array-impl.h>

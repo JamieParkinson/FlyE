@@ -1,3 +1,10 @@
+/** @file AntiHydrogen.h
+ * @brief This file contains the AntiHydrogen class
+ *
+ * AntiHydrogen is a subclass of Particle
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 #include "Particle.h"
 
@@ -17,7 +24,7 @@ class AntiHydrogen : public Particle {
   float ionisationLim_; //!< Ionisation limit
 
   bool ionised_; //!< Whether the particle has ionised
-  int neutralised_; //! Neutralisation time. -1 if not neutralised.
+  int neutralised_; //!< Neutralisation time. -1 if not neutralised.
 
  public:
   /** @brief Constructor for starting initial position/velocity and quantum numbers

@@ -1,3 +1,8 @@
+/**@file Particle.h
+ * @brief This file contains the Particle class
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 
 #include <vector>
@@ -87,9 +92,9 @@ class Particle {
 
   /** @brief Set the velocity
      *
-     * @param x x-component
-     * @param y y-component
-     * @param z z-component
+     * @param vx x-component
+     * @param vy y-component
+     * @param vz z-component
      */
   void setVel(float vx, float vy, float vz);
 

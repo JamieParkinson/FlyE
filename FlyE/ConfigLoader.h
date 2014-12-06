@@ -1,7 +1,5 @@
-/** @brief A class for loading a config file and storing its contents appropriately.
- *
- * The class uses the inih library - https://code.google.com/p/inih/ - to load and parse config files.
- * Configuration data is stored in appropriate structs for each domain of usagem, and getters for (pointers to) this data are provided.
+/** @file ConfigLoader.h
+ * @brief This file contains the ConfigLoader class
  *
  * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
  */
@@ -9,6 +7,13 @@
 #include <memory>
 
 #include "SubConfig.h"
+/** @brief A class for loading a config file and storing its contents appropriately.
+ *
+ * The class uses the inih library - https://code.google.com/p/inih/ - to load and parse config files.
+ * Configuration data is stored in appropriate structs for each domain of usagem, and getters for (pointers to) this data are provided.
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 class ConfigLoader {
  private:
   std::string configFilePath_; /** Path to config file. @see ConfigLoader() */

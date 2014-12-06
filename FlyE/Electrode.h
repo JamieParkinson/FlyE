@@ -1,3 +1,10 @@
+/** @file Electrode.h
+ * @brief This file contains the Electrode class
+ *
+ * Electrode is a subclass of VectorField
+ *
+ * @author Jamie Parkinson <jamie.parkinson.12@ucl.ac.uk>
+ */
 #pragma once
 
 #include <blitz/tinyvec2.h>
@@ -54,6 +61,10 @@ class Electrode : public VectorField {
    */
   void applyVoltage(float voltage);
 
+  /** @brief Gets the voltage that is currently applied to this Electrode
+   *
+   * @return The voltage that is currently applied to this Electrode
+   */
   float getVoltage();
 };
 

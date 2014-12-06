@@ -4,7 +4,6 @@
 #include "inih/cpp/INIReader.h"
 
 #include "PhysicalConstants.h"
-#include "Containers.h"
 
 ConfigLoader::ConfigLoader(std::string configFilePath)
     : configFilePath_(configFilePath) {
