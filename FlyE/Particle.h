@@ -6,6 +6,9 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
+
+#include "tupleDefs.h"
 
 /** @brief Basic/generic particle class
  *
@@ -15,8 +18,8 @@
  */
 class Particle {
  protected:
-  std::vector<float> r_; //!< Position
-  std::vector<float> v_; //!< Velocity
+  tuple3Dfloat r_; //!< Position
+  tuple3Dint v_; //!< Velocity
 
   ///@{ @brief Contain the trajectory coordinates
   std::vector<float> xTraj_, yTraj_, zTraj_;
@@ -84,11 +87,11 @@ class Particle {
    */
   void setLoc(float x, float y, float z);
 
-  /** @brief Set the location with a location vector
+  /** @brief Set the location with a location tuple
    *
-   * @param loc (x,y,z) vector
+   * @param loc (x,y,z) tuple
    */
-  void setLoc(std::vector<float> &loc);
+  void setLoc(tuple3Dfloat &loc);
 
   /** @brief Set the velocity
      *
@@ -98,50 +101,47 @@ class Particle {
      */
   void setVel(float vx, float vy, float vz);
 
-  /** @brief Set the velocity with a velocity vector
+  /** @brief Set the velocity with a velocity tuple
    *
-   * @param vel (vx, vy, vz vector)
+   * @param vel (vx, vy, vz) tuple
    */
-  void setVel(std::vector<float> &vel);
+  void setVel(tuple3Dfloat &vel);
 
-  /** @brief Return the vector {x,y,z}
+  /** @brief Return the tuple {x,y,z}
    *
-   * @return The vector (x, y, z)
+   * @return The tuple (x, y, z)
    */
-  std::vector<float> getLoc();
+  tuple3Dfloat getLoc();
 
-  /** @brief Returns the vector {x,y,z} rounded to an integer grid
+  /** @brief Returns the location in the templated dimension d
+   * Template parameter d = 0 for x, d = 1 for y, d = 2 for z
+   * @return The current d-location of the Particle
+   */
+  template<int d>
+  float getLocDim() {
+    return std::get<d>(r_);
+  }
+
+  /** @brief Returns the tuple {x,y,z} rounded to an integer grid
    *
-   * @return The vector {x,y,z} rounded to an integer grid
+   * @return The tuple {x,y,z} rounded to an integer grid
    */
-  std::vector<int> getIntLoc();
+  tuple3Dint getIntLoc();
 
-  /** Return component d of {x,y,z}
+  /** @brief Return the tuple {vx,vy,vz}
    *
-   * @param d Component to get (x = 0, y = 1, z = 2)
-   * @return Component d of (x, y, z)
+   * @return The tuple (vx, vy, vz)
    */
-  float getLoc(int d);
+  tuple3Dfloat getVel();
 
-  /** Return component d of {x,y,z} rounded to an integer grid
-   *
-   * @param d Component to get (x = 0, y = 1, z = 2)
-   * @return Component d of {x,y,z} rounded to an integer grid
+  /** @brief Returns the velocity in the templated dimension d
+   * Template parameter d = 0 for x, d = 1 for y, d = 2 for z
+   * @return The current d-velocity of the Particle
    */
-  int getIntLoc(int d);
-
-  /** @brief Return the vector {vx,vy,vz}
-   *
-   * @return The vector (vx, vy, vz)
-   */
-  std::vector<float> getVel();
-
-  /** Return component d of {vx,vy,vz}
-    *
-    * @param d component to get (vx = 0, vy = 1, vz = 2)
-    * @return Component d of (vx, vy, vz)
-    */
-  float getVel(int d);
+  template<int d>
+  float getVelDim() {
+    return std::get<d>(v_);
+  }
 
   /** @brief Whether the particle has collided
    *

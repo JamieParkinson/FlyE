@@ -17,7 +17,7 @@ std::ostream& operator <<(std::ostream& out, SimulationNumbers &simNums) {
       << "Number of ionised particles: " << simNums.nIonised
       << " (" << 100.0 * simNums.nIonised / static_cast<float>(simNums.nParticles) << "%)\n"
 
-      << "Number of neutralised particles: " << simNums.nNeutralised << "\n"
+      << "Number of neutralised particles: " << simNums.nNeutralised
       << " (" << 100.0 * simNums.nNeutralised / static_cast<float>(simNums.nParticles) << "%)\n";
   return out;
 }
@@ -31,6 +31,8 @@ Simulator::Simulator(AcceleratorGeometry &geometry,
       simulationConfig_(simulationConfig),
       acceleratorConfig_(geometry.getAcceleratorConfig()),
       storageConfig_(storageConfig) {
+
+  statsStorage_.nParticles = static_cast<int>(particles_.size());
 
   int sectionWidth = Physics::N_IN_SECTION * acceleratorConfig_->z() /  // Section width
       acceleratorConfig_->nElectrodes();
@@ -89,12 +91,12 @@ void Simulator::run() {
         continue;  // Check to see if the particle is alive
       }
 
-      std::vector<int> rndLoc = particle->getIntLoc();
+      tuple3Dint rndLoc = particle->getIntLoc();
 
-      if ((rndLoc[0] <= 1 || rndLoc[1] <= 1 || rndLoc[2] <= 1)
-          || (rndLoc[0] >= acceleratorConfig_->x() - 1
-              || rndLoc[1] >= acceleratorConfig_->y() - 1)
-          || locator.existsAt(rndLoc[0], rndLoc[1], rndLoc[2])) {
+      if ((std::get<0>(rndLoc) <= 1 || std::get<1>(rndLoc) <= 1 || std::get<2>(rndLoc) <= 1)
+          || (std::get<0>(rndLoc) >= acceleratorConfig_->x() - 1
+              || std::get<1>(rndLoc) >= acceleratorConfig_->y() - 1)
+          || locator.existsAt(rndLoc)) {
         particle->collide();
 
         if (!storageConfig_->storeCollisions()) {
@@ -105,7 +107,7 @@ void Simulator::run() {
         continue;
       }
 
-      float mag = field_.magnitudeAt(rndLoc[0], rndLoc[1], rndLoc[2]);
+      float mag = field_.magnitudeAt(rndLoc);
 
       if (mag >= particle->ionisationLim()) {
         particle->ionise();
@@ -119,7 +121,7 @@ void Simulator::run() {
         ++nNeutralised;
       }  // Neutralise is field is past the Inglis-Teller limit
 
-      if (rndLoc[2] >= acceleratorConfig_->z()) {
+      if (std::get<2>(rndLoc) >= acceleratorConfig_->z()) {
         particle->succeed();
         ++nSucceeded;
         continue;
@@ -127,30 +129,30 @@ void Simulator::run() {
 
       particle->checkMaxField(mag); // Storing max field encountered
 
-      float dEx = field_.gradientXat(rndLoc[0], rndLoc[1], rndLoc[2]);  // Field gradients
-      float dEy = field_.gradientYat(rndLoc[0], rndLoc[1], rndLoc[2]);
-      float dEz = field_.gradientZat(rndLoc[0], rndLoc[1], rndLoc[2]);
+      float dEx = field_.gradientXat(rndLoc);  // Field gradients
+      float dEy = field_.gradientYat(rndLoc);
+      float dEz = field_.gradientZat(rndLoc);
 
       float ax = dEx * particle->mu() / Physics::mH;  // Accelerations
       float ay = dEy * particle->mu() / Physics::mH;
       float az = dEz * particle->mu() / Physics::mH;
 
       particle->setVel(
-          particle->getVel(0) + ax * simulationConfig_->timeStep(),  // Accelerate it
-          particle->getVel(1) + ay * simulationConfig_->timeStep(),
-          particle->getVel(2) + az * simulationConfig_->timeStep());
+          particle->getVelDim<0>() + ax * simulationConfig_->timeStep(),  // Accelerate it
+          particle->getVelDim<1>() + ay * simulationConfig_->timeStep(),
+          particle->getVelDim<2>() + az * simulationConfig_->timeStep());
 
       particle->setLoc(
-          particle->getLoc(0)
-              + (particle->getVel(0) * simulationConfig_->timeStep()
+          particle->getLocDim<0>()
+              + (particle->getVelDim<0>() * simulationConfig_->timeStep()
                   + 0.5 * ax * pow(simulationConfig_->timeStep(), 2))
                   * Physics::MM_M_CORRECTION,  // Move it
-          particle->getLoc(1)
-              + (particle->getVel(1) * simulationConfig_->timeStep()
+          particle->getLocDim<1>()
+              + (particle->getVelDim<1>() * simulationConfig_->timeStep()
                   + 0.5 * ay * pow(simulationConfig_->timeStep(), 2))
                   * Physics::MM_M_CORRECTION,
-          particle->getLoc(2)
-              + (particle->getVel(2) * simulationConfig_->timeStep()
+          particle->getLocDim<2>()
+              + (particle->getVelDim<2>() * simulationConfig_->timeStep()
                   + 0.5 * az * pow(simulationConfig_->timeStep(), 2))
                   * Physics::MM_M_CORRECTION);
 

@@ -10,6 +10,8 @@
 #include <memory>
 #include <blitz/array-impl.h>
 
+#include "tupleDefs.h"
+
 class Electrode;
 
 /** @brief A class for finding the physical location of electrodes in an E-Field
@@ -40,4 +42,11 @@ class ElectrodeLocator : public blitz::Array<bool, 3> {
    * @return true if it does exist at the point, false otherwise
    */
   bool existsAt(int x, int y, int z);
+
+  /**
+   * @brief Checks to see if the electrode exists at a given point
+   * @param r A tuple of 3 integers (x, y, z)
+   * @return true if it does exist at the point, false otherwise
+   */
+  bool existsAt(const tuple3Dint &r);
 };

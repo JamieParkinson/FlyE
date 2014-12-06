@@ -41,7 +41,7 @@ InstantaneousScheme::InstantaneousScheme(Particle &synchronousParticle,
 }
 
 bool InstantaneousScheme::isActive(int t) {
-  return (synchronousParticle_.getLoc(2) >= section_ * sectionWidth_
+  return (synchronousParticle_.getLocDim<2>() >= section_ * sectionWidth_
       && section_ < nElectrodes_ / Physics::N_IN_SECTION);
 }
 
@@ -69,18 +69,18 @@ bool ExponentialScheme::isActive(int t) {
 std::vector<float> ExponentialScheme::getVoltages(int t) {
   float tSeconds = timeStep_ * t;
 
-  if (synchronousParticle_.getLoc(2) >= section_ * sectionWidth_
+  if (synchronousParticle_.getLocDim<2>() >= section_ * sectionWidth_
       && section_ < nElectrodes_ / Physics::N_IN_SECTION) {  // Use synchronous particle to switch electrodes, if it's past this section but not past the end
 
-    float syncAccel = (synchronousParticle_.getVel(2)
+    float syncAccel = (synchronousParticle_.getVelDim<2>()
         - synchronousParticle_.recallVel(startRampTime_ / timeStep_, 2))
         / (tSeconds - startRampTime_);  // Extrapolate particle accel.
     startRampTime_ = tSeconds;  // Update the last crossing time
 
     // Increase v until roughly when the next electrode is switched on: deltaT is the time the voltage increases for. Just a solution of const. accel. equations.
-    deltaT_ = (-synchronousParticle_.getVel(2)
+    deltaT_ = (-synchronousParticle_.getVelDim<2>()
         + sqrt(
-            pow(synchronousParticle_.getVel(2), 2)
+            pow(synchronousParticle_.getVelDim<2>(), 2)
                 + 2 * syncAccel * sectionWidth_ / Physics::MM_M_CORRECTION))
         / syncAccel;
 

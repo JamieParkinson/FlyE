@@ -8,8 +8,8 @@
 #include "PhysicalConstants.h"
 
 Particle::Particle(float x, float y, float z, float vx, float vy, float vz)
-    : r_( { x, y, z }),
-      v_( { vx, vy, vz }),
+    : r_(std::make_tuple(x, y, z)),
+      v_(std::make_tuple(vx, vy, vz)),
       collided_(false),
       succeeded_(false),
       maxField_(std::numeric_limits<float>::min()) {
@@ -21,13 +21,13 @@ void Particle::memorise() {
    rTrajectory_.emplace_back( getLoc(d) );
    vTrajectory_.emplace_back( getVel(d) );
    }*/
-  xTraj_.emplace_back(r_[0]);
-  yTraj_.emplace_back(r_[1]);
-  zTraj_.emplace_back(r_[2]);
+  xTraj_.emplace_back(std::get<0>(r_));
+  yTraj_.emplace_back(std::get<1>(r_));
+  zTraj_.emplace_back(std::get<2>(r_));
 
-  xvTraj_.emplace_back(v_[0]);
-  yvTraj_.emplace_back(v_[1]);
-  zvTraj_.emplace_back(v_[2]);
+  xvTraj_.emplace_back(std::get<0>(v_));
+  yvTraj_.emplace_back(std::get<1>(v_));
+  zvTraj_.emplace_back(std::get<2>(v_));
 }
 
 void Particle::forget() {
@@ -103,45 +103,33 @@ float Particle::recallVel(int i, int d) {
 }
 
 void Particle::setLoc(float x, float y, float z) {
-  r_ = {x,y,z};
+  r_ = std::make_tuple(x, y, z);
 }
 
-void Particle::setLoc(std::vector<float> &loc) {
+void Particle::setLoc(tuple3Dfloat &loc) {
   r_ = loc;
 }
 
 void Particle::setVel(float vx, float vy, float vz) {
-  v_ = {vx,vy,vz};
+  v_ = std::make_tuple(vx, vy, vz);
 }
 
-void Particle::setVel(std::vector<float> &vel) {
+void Particle::setVel(tuple3Dfloat &vel) {
   v_ = vel;
 }
 
-std::vector<float> Particle::getLoc() {
+tuple3Dfloat Particle::getLoc() {
   return r_;
 }
 
-std::vector<int> Particle::getIntLoc() {
-  std::vector<int> intR(3);
-  std::transform(r_.begin(), r_.end(), intR.begin(), [](const float &r) -> int { return round(r); });
-  return intR;
+tuple3Dint Particle::getIntLoc() {
+  return std::make_tuple(static_cast<int>(round(std::get<0>(r_))),
+                         static_cast<int>(round(std::get<1>(r_))),
+                         static_cast<int>(round(std::get<2>(r_))));
 }
 
-float Particle::getLoc(int d) {
-  return r_[d];
-}
-
-int Particle::getIntLoc(int d) {
-  return static_cast<int>(round(r_[d]));
-}
-
-std::vector<float> Particle::getVel() {
+tuple3Dfloat Particle::getVel() {
   return v_;
-}
-
-float Particle::getVel(int d) {
-  return v_[d];
 }
 
 int Particle::isDead() {
