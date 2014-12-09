@@ -25,28 +25,7 @@ int main(int argc, char* argv[]) {
   SimulationNumbers stats = mySimulator->getBasicStats();
   std::cout << stats << std::endl;
 
-  mySimulator->write("/home/jamie/FlyEfiles/out1.h5");
-
-  ConfigLoader my2ndConfig("/home/jamie/git/FlyE/FlyE/flyE2.conf");
-
-  std::cout << *my2ndConfig.getParticlesConfig() << std::endl;
-
-  ParticleGenerator<AntiHydrogen> my2ndGenerator(
-      my2ndConfig.getParticlesConfig(), myConfig.getAcceleratorConfig());
-  my2ndGenerator.generateParticles();
-  particles = my2ndGenerator.getParticles();
-
-  delete mySimulator;
-  mySimulator = new Simulator(myAccelerator, particles,
-                              my2ndConfig.getSimulationConfig(),
-                              my2ndConfig.getStorageConfig());
-
-  mySimulator->run();
-
-  SimulationNumbers stats2 = mySimulator->getBasicStats();
-  std::cout << stats2 << std::endl;
-
-  mySimulator->write("/home/jamie/FlyEfiles/out2.h5");
+  mySimulator->write("/home/jamie/FlyEfiles/out1t.h5");
 
   delete mySimulator;
 }

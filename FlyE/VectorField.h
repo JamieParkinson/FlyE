@@ -11,6 +11,9 @@
 #include <blitz/tinyvec2.h>
 #include <memory>
 #include <vector>
+#include <tuple>
+
+#include "tupleDefs.h"
 
 /**
  * @brief A general 3D vector field class, with basic operators
@@ -45,6 +48,13 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
    */
   VectorField(const VectorField &vec);
 
+  /** @brief Needed to be able to use tuples for access
+   *
+   * @param r A tuple of 3 integers (x, y, z)
+   * @return A TinyVector<float, 3> of the field at the given point
+   */
+  blitz::TinyVector<float, 3> at(tuple3Dint r);
+
   /** @brief Magnitude of the vector field at a point
    *
    * @see vectorMagnitude()
@@ -58,10 +68,12 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
 
   /** @brief Magnitude of the vector field at a point
    *
-   * @param intLoc A vector of size 3, containing (x, y, z)
+   * @see vectorMagnitude()
+   *
+   * @param r A tuple of 3 integers (x, y, z)
    * @return The magnitude of the field at the point (x,y,z)
    */
-  float magnitudeAt(std::vector<int> intLoc);
+  float magnitudeAt(tuple3Dint r);
 
   ///@{
   /** @brief Gradients in each direction
@@ -74,6 +86,17 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
   float gradientXat(int x, int y, int z);
   float gradientYat(int x, int y, int z);
   float gradientZat(int x, int y, int z);
+  ///@}
+
+  ///@{
+  /** @brief Gradients in each direction
+   * @name Gradients
+   * @param r A tuple of 3 integers (x, y, z)
+   * @return The gradient of the magnitude of the field at the given point
+   */
+  float gradientXat(tuple3Dint r);
+  float gradientYat(tuple3Dint r);
+  float gradientZat(tuple3Dint r);
   ///@}
 
   /** @brief For adding together std::vectors of shared_ptr<VectorField>s

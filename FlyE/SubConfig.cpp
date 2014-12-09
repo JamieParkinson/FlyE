@@ -114,7 +114,7 @@ ParticlesConfig::ParticlesConfig(INIReader &reader) {
 }
 
 void ParticlesConfig::populate(INIReader &reader) {
-  nParticles_ = static_cast<int>(reader.GetReal("simulation", "n_particles", 50000));
+  nParticles_ = static_cast<int>(reader.GetReal("particles", "n_particles", 50000));
   k_ = reader.GetInteger("particles", "k", 20);
   kDist_ = reader.Get("particles", "k_dist", "single");
   n_ = reader.GetInteger("particles", "n", 25);
@@ -194,6 +194,7 @@ void StorageConfig::populate(INIReader &reader) {
   outDir_ = reader.Get("storage", "output_dir", "~");
   storeCollisions_ = reader.GetBoolean("storage", "store_collisions", true);
   storeTrajectories_ = reader.GetBoolean("storage", "store_trajectories", true);
+  compression_ = reader.GetInteger("storage", "compression", 0);
 }
 
 void StorageConfig::printOn(std::ostream &out) {
@@ -217,4 +218,8 @@ bool StorageConfig::storeTrajectories() const {
 
 bool StorageConfig::storeCollisions() const {
   return storeCollisions_;
+}
+
+int StorageConfig::compression() const {
+  return compression_;
 }
