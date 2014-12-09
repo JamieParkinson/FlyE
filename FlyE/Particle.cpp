@@ -106,7 +106,7 @@ void Particle::setLoc(float x, float y, float z) {
   r_ = std::make_tuple(x, y, z);
 }
 
-void Particle::setLoc(tuple3Dfloat &loc) {
+void Particle::setLoc(tuple3Dfloat loc) {
   r_ = loc;
 }
 
@@ -114,7 +114,7 @@ void Particle::setVel(float vx, float vy, float vz) {
   v_ = std::make_tuple(vx, vy, vz);
 }
 
-void Particle::setVel(tuple3Dfloat &vel) {
+void Particle::setVel(tuple3Dfloat vel) {
   v_ = vel;
 }
 

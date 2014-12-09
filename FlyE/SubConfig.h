@@ -190,6 +190,7 @@ class StorageConfig : public SubConfig {
   std::string outDir_;  //!< The directory to write output files to
   bool storeTrajectories_;  //!< Whether to store the full particle trajectories or just endpoints
   bool storeCollisions_;  //!< Whether to store any data of particles that collide
+  int compression_; //!< Integer from 0-9 sets compression level. 0 is no compression.
 
   //!< @copydoc SubConfig::printOn()
   void printOn(std::ostream &out);
@@ -213,4 +214,7 @@ class StorageConfig : public SubConfig {
 
   /** @brief Whether to store any data of particles that collide */
   bool storeCollisions() const;
+
+  /** @brief Integer from 0-9 sets compression level. 0 is no compression. */
+  int compression() const;
 };

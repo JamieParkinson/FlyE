@@ -1,6 +1,7 @@
 #include "VoltageScheme.h"
 
 #include <algorithm>
+#include <iostream>
 
 #include "Particle.h"
 #include "PhysicalConstants.h"

@@ -84,7 +84,8 @@ void Simulator::run() {
   timeBar.start();
 
   for (int t = 0; t < nTimeSteps; ++t, ++timeBar) {
-#pragma omp parallel for schedule( guided, 3 ) reduction( +:nCollided, nIonised, nSucceeded, nNeutralised ) // Particularly good parallelisation
+// Particularly good parallelisation
+#pragma omp parallel for schedule( guided, 3 ) reduction( +:nCollided, nIonised, nSucceeded, nNeutralised )
     for (auto particle = particles_.begin(); particle < particles_.end();
         ++particle) {
       if (particle->isDead() || particle->succeeded()) {

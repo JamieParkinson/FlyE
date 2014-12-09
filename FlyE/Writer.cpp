@@ -27,6 +27,10 @@ Writer::Writer(std::string &fileName, Simulator *simulator)
           2;
   dChunkDims[3] = 1;
   dPropList_.setChunk(4, dChunkDims);  // Set up chunking - MASSIVE performance increase
+
+  if (simulator_->storageConfig_->compression() > 0) {
+    dPropList_.setDeflate(simulator_->storageConfig_->compression()); // Turn on compression
+  }
 }
 
 hsize_t *Writer::startParams(int dimension, int phaseCoord, int particleIndex) {
@@ -119,12 +123,13 @@ void Writer::writeParticles() {
       static_cast<int>(simulator_->particles_.size()));
   writerBar.start();
 
-  for (AntiHydrogen &particle : simulator_->particles_) {  // Look through particles
+  for (auto particle = simulator_->particles_.begin();
+      particle < simulator_->particles_.end(); ++particle) {  // Look through particles
     ++writerBar;
-    if (particle.succeeded()) {  // Determine particle type
+    if (particle->succeeded()) {  // Determine particle type
       pType = 0;
-    } else if (particle.isDead()) {
-      pType = particle.isDead();
+    } else if (particle->isDead()) {
+      pType = particle->isDead();
     } else {
       pType = 3;
     }
@@ -135,7 +140,7 @@ void Writer::writeParticles() {
 
     H5::DataSpace fileSpace = trajectoryDSpaces_[pType];
 
-    hsize_t *count = countParams(particle);
+    hsize_t *count = countParams(*particle);
 
     hsize_t memDims[1];
     memDims[0] = count[2];
@@ -145,26 +150,34 @@ void Writer::writeParticles() {
       hsize_t *start = startParams(d, 0, pTypeCounts_[pType]);
 
       fileSpace.selectHyperslab(H5S_SELECT_SET, count, start, stride);
-      trajectoryDSets_[pType]->write(particle.recallLoc(d).data(), fType_,
-                                     memSpace, fileSpace);
+#pragma omp critical
+      {
+        trajectoryDSets_[pType]->write(particle->recallLoc(d).data(), fType_,
+                                       memSpace, fileSpace);
+      }
 
       start[1] = 1;  // Velocity
       fileSpace.selectHyperslab(H5S_SELECT_SET, count, start, stride);
-      trajectoryDSets_[pType]->write(particle.recallVel(d).data(), fType_,
-                                     memSpace, fileSpace);
+#pragma omp critical
+      {
+        trajectoryDSets_[pType]->write(particle->recallVel(d).data(), fType_,
+                                       memSpace, fileSpace);
+      }
     }
 
+#pragma omp atomic
     ++pTypeCounts_[pType];  // Increase out count of this particle type
 
-    nTimes_.vecs[pType].emplace_back(particle.neutralisationTime());  // Store ntime
-    ks_.vecs[pType].emplace_back(particle.k());  // Store k
-    maxFields_.vecs[pType].emplace_back(particle.maxField());  // Store max |E| encountered
+    nTimes_.vecs[pType].emplace_back(particle->neutralisationTime());  // Store ntime
+    ks_.vecs[pType].emplace_back(particle->k());  // Store k
+    maxFields_.vecs[pType].emplace_back(particle->maxField());  // Store max |E| encountered
 
-    particle.forget();  // Clear the memory of the particle we just dealt with
+    particle->forget();  // Clear the memory of the particle we just dealt with
   }
 
   for (int type = 0; type < 4; ++type) {  // Write neutralisation times & k-values
-    if (nParticlesOfType_[type] <= 0) continue; // Skip empties
+    if (nParticlesOfType_[type] <= 0)
+      continue;  // Skip empties
 
     nTimes_.dSets[type]->write(nTimes_.vecs[type].data(), iType_);
     ks_.dSets[type]->write(ks_.vecs[type].data(), iType_);

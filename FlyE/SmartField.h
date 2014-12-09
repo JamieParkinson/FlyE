@@ -73,8 +73,8 @@ class SmartField {
    * @return A TinyVector of the field at the given point
    */
   ///@{
-  blitz::TinyVector<float, 3> at(const tuple3Dint &r);
-  blitz::TinyVector<float, 3> operator ()(const tuple3Dint &r);
+  blitz::TinyVector<float, 3> at(tuple3Dint r);
+  blitz::TinyVector<float, 3> operator ()(tuple3Dint r);
   ///@}
 
   /** @brief The magnitude of the field at a point
@@ -86,14 +86,12 @@ class SmartField {
    */
   float magnitudeAt(int x, int y, int z);
 
-  /** @brief Magnitude of the vector field at a point
+  /** @brief The magnitude of the field at a point
    *
-   * @see vectorMagnitude()
-   *
-   * @param r A tuple of 3 integers (x, y, z)
-   * @return The magnitude of the field at the point (x,y,z)
+   * @param r A 3D integer tuple (x, y, z)
+   * @return The magnitude of the field at the given point
    */
-  float magnitudeAt(const tuple3Dint &r);
+  float magnitudeAt(tuple3Dint r);
 
   /** @brief The gradient of the magnitude of the field at a point
    *
@@ -114,8 +112,8 @@ class SmartField {
    * @param r A tuple of 3 integers (x, y, z)
    * @return The gradient of the magnitude of the field at the given point
    */
-  float gradientXat(const tuple3Dint &r);
-  float gradientYat(const tuple3Dint &r);
-  float gradientZat(const tuple3Dint &r);
+  float gradientXat(tuple3Dint r);
+  float gradientYat(tuple3Dint r);
+  float gradientZat(tuple3Dint r);
   ///@}
 };

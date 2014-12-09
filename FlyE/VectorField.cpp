@@ -15,7 +15,7 @@ VectorField::VectorField(const VectorField &vec)
 
 // Other useful methods
 
-blitz::TinyVector<float, 3> VectorField::at(const tuple3Dint &r) {
+blitz::TinyVector<float, 3> VectorField::at(tuple3Dint r) {
   return (*this)(std::get<0>(r), std::get<1>(r), std::get<2>(r));
 }
 
@@ -28,7 +28,7 @@ float VectorField::magnitudeAt(int x, int y, int z) {
   return vectorMagnitude((*this)(x, y, z));
 }
 
-float VectorField::magnitudeAt(const tuple3Dint &r) {
+float VectorField::magnitudeAt(tuple3Dint r) {
   return vectorMagnitude((*this)(std::get<0>(r), std::get<1>(r), std::get<2>(r)));
 }
 
@@ -37,7 +37,7 @@ float VectorField::gradientXat(int x, int y, int z) {
       * (magnitudeAt(x + 1, y, z) - magnitudeAt(x - 1, y, z));
 }
 
-float VectorField::gradientXat(const tuple3Dint &r) {
+float VectorField::gradientXat(tuple3Dint r) {
   return gradientXat(std::get<0>(r), std::get<1>(r), std::get<2>(r));
 }
 
@@ -46,7 +46,7 @@ float VectorField::gradientYat(int x, int y, int z) {
       * (magnitudeAt(x, y + 1, z) - magnitudeAt(x, y - 1, z));
 }
 
-float VectorField::gradientYat(const tuple3Dint &r) {
+float VectorField::gradientYat(tuple3Dint r) {
   return gradientYat(std::get<0>(r), std::get<1>(r), std::get<2>(r));
 }
 
@@ -55,6 +55,6 @@ float VectorField::gradientZat(int x, int y, int z) {
       * (magnitudeAt(x, y, z + 1) - magnitudeAt(x, y, z - 1));
 }
 
-float VectorField::gradientZat(const tuple3Dint &r) {
+float VectorField::gradientZat(tuple3Dint r) {
   return gradientZat(std::get<0>(r), std::get<1>(r), std::get<2>(r));
 }

@@ -53,7 +53,7 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
    * @param r A tuple of 3 integers (x, y, z)
    * @return A TinyVector<float, 3> of the field at the given point
    */
-  blitz::TinyVector<float, 3> at(const tuple3Dint &r);
+  blitz::TinyVector<float, 3> at(tuple3Dint r);
 
   /** @brief Magnitude of the vector field at a point
    *
@@ -73,7 +73,7 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
    * @param r A tuple of 3 integers (x, y, z)
    * @return The magnitude of the field at the point (x,y,z)
    */
-  float magnitudeAt(const tuple3Dint &r);
+  float magnitudeAt(tuple3Dint r);
 
   ///@{
   /** @brief Gradients in each direction
@@ -94,9 +94,9 @@ class VectorField : public blitz::Array<blitz::TinyVector<float, 3>, 3> {
    * @param r A tuple of 3 integers (x, y, z)
    * @return The gradient of the magnitude of the field at the given point
    */
-  float gradientXat(const tuple3Dint &r);
-  float gradientYat(const tuple3Dint &r);
-  float gradientZat(const tuple3Dint &r);
+  float gradientXat(tuple3Dint r);
+  float gradientYat(tuple3Dint r);
+  float gradientZat(tuple3Dint r);
   ///@}
 
   /** @brief For adding together std::vectors of shared_ptr<VectorField>s

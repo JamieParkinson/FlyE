@@ -17,14 +17,24 @@
  */
 class AntiHydrogen : public Particle {
  protected:
-  int n_; //!< Principal quantum number
-  int k_; //!< Stark quantum number
-  float mu_; //!< Dipole moment
-  float ITlim_; //!< Inglis-Teller limit
-  float ionisationLim_; //!< Ionisation limit
+  int n_;  //!< Principal quantum number
+  int k_;  //!< Stark quantum number
+  float mu_;  //!< Dipole moment
+  /** @brief Inglis-Teller limit
+   * Solution of:
+   *
+   * \f[
+   * -\frac{3}{2} a_0 e F n (n+1)-\frac{ R_{\infty} h c }{(n+1)^2}=\frac{3}{2} a_0 e F k n-\frac{R_{\infty } h c}{n^2}
+   * \f]
+   * \f[
+   * lim_{IT} = \frac{2 c h (2 n+1) R_{\infty }}{3 a_0 e n^3 (n+1)^2 (k+n+1)}
+   * \f]
+   */
+  float ITlim_;
+  float ionisationLim_;  //!< Ionisation limit
 
-  bool ionised_; //!< Whether the particle has ionised
-  int neutralised_; //!< Neutralisation time. -1 if not neutralised.
+  bool ionised_;  //!< Whether the particle has ionised
+  int neutralised_;  //!< Neutralisation time. -1 if not neutralised.
 
  public:
   /** @brief Constructor for starting initial position/velocity and quantum numbers
@@ -38,7 +48,8 @@ class AntiHydrogen : public Particle {
    * @param n Principal quantum number
    * @param k Stark quantum number
    */
-  AntiHydrogen(float x, float y, float z, float vx, float vy, float vz, int n, int k);
+  AntiHydrogen(float x, float y, float z, float vx, float vy, float vz, int n,
+               int k);
 
   /** Getter for mu_ (dipole moment)
    *

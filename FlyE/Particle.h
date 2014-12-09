@@ -19,7 +19,7 @@
 class Particle {
  protected:
   tuple3Dfloat r_; //!< Position
-  tuple3Dint v_; //!< Velocity
+  tuple3Dfloat v_; //!< Velocity
 
   ///@{ @brief Contain the trajectory coordinates
   std::vector<float> xTraj_, yTraj_, zTraj_;
@@ -91,7 +91,7 @@ class Particle {
    *
    * @param loc (x,y,z) tuple
    */
-  void setLoc(tuple3Dfloat &loc);
+  void setLoc(tuple3Dfloat loc);
 
   /** @brief Set the velocity
      *
@@ -105,7 +105,7 @@ class Particle {
    *
    * @param vel (vx, vy, vz) tuple
    */
-  void setVel(tuple3Dfloat &vel);
+  void setVel(tuple3Dfloat vel);
 
   /** @brief Return the tuple {x,y,z}
    *
