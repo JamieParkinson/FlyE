@@ -191,14 +191,14 @@ ParticleGenerator<AntiHydrogen>::generateParticles() {
     kDist = new SingleDistribution(particlesConfig_->k());
   } else if (particlesConfig_->kDist() == "uniform") {
     kDist = new UniformDistribution(1, particlesConfig_->n() - 1);
-  } else {  // kDist == Triangle
+  } else {
     std::vector<float> kpieces { 0.0, (float) particlesConfig_->n() };
     std::vector<float> kweights { 1, 0 };
     kDist = new TriangleDistribution(kpieces, kweights);
   }
 
   generateSynchronousParticle(0.5 * acceleratorConfig_->x(),
-                              0.5 * acceleratorConfig_->y(), 0.5 * sectionWidth,
+                              0.5 * acceleratorConfig_->y(), 2.5*sectionWidth,
                               0, 0, 0);
 
   std::cout << "Generating " << particlesConfig_->nParticles() << " particles..." << std::endl;

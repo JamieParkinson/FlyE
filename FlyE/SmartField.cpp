@@ -41,7 +41,7 @@ float SmartField::magnitudeAt(int x, int y, int z) {
      magnitudeMemory_.insert({{t, VectorField::vectorMagnitude(this->at(x, y, z))}});
    }
  }
- return magnitudeMemory_.at(t);
+ return magnitudeMemory_[t];
 }
 
 float SmartField::magnitudeAt(tuple3Dint t) {

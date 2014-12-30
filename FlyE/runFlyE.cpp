@@ -1,7 +1,3 @@
-/*
- * At this stage a sort of pseudocode for how I'd like things to look
- */
-
 #include <iostream>
 #include "FlyE.h"
 
@@ -11,21 +7,29 @@ int main(int argc, char* argv[]) {
   AcceleratorGeometry myAccelerator(myConfig.getAcceleratorConfig());
   myAccelerator.importElectrodes();
 
-  ParticleGenerator<AntiHydrogen> myGenerator(myConfig.getParticlesConfig(),
-                                              myConfig.getAcceleratorConfig());
-  myGenerator.generateParticles();
-  std::vector<AntiHydrogen> particles = myGenerator.getParticles();
+  Simulator *mySimulator;
 
-  Simulator *mySimulator = new Simulator(myAccelerator, particles,
-                                         myConfig.getSimulationConfig(),
-                                         myConfig.getStorageConfig());
+  for (float v = 145.0; v < 145.1 ; v += 1.0) {
+    ParticleGenerator<AntiHydrogen> myGenerator(
+        myConfig.getParticlesConfig(), myConfig.getAcceleratorConfig());
+    myGenerator.generateParticles();
+    std::vector<AntiHydrogen> particles = myGenerator.getParticles();
 
-  mySimulator->run();
+    std::shared_ptr<SimulationConfig> simConf = myConfig.getSimulationConfig();
+    simConf->setMaxVoltage(v);
 
-  SimulationNumbers stats = mySimulator->getBasicStats();
-  std::cout << stats << std::endl;
+    mySimulator = new Simulator(myAccelerator, particles,
+                                simConf,
+                                myConfig.getStorageConfig());
 
-  mySimulator->write("/home/jamie/FlyEfiles/out1t.h5");
 
-  delete mySimulator;
+    mySimulator->run();
+
+    SimulationNumbers stats = mySimulator->getBasicStats();
+    std::cout << stats << std::endl;
+
+    mySimulator->write(
+        "/home/jamie/FlyEfiles/out" + std::to_string(static_cast<int>(v))
+            + ".h5");
+  }
 }

@@ -90,4 +90,10 @@ class Simulator {
    * @param fileName The path to write simulation data to
    */
   void write(std::string fileName);
+
+  /** @brief Setter for simulation configuration pointer
+   *
+   * @param simulationConfig Simulation config pointer
+   */
+  void setSimulatorConfig(std::shared_ptr<SimulationConfig> simulationConfig);
 };

@@ -47,12 +47,13 @@ def writePAname(name): # Writes the PA file name to PA_FILE_NAME in the cfg file
 	
 def writeFlyEconf():
 	flyEconf = open(outputDir+'../flyE.conf','w')
-	flyEconf.write('''N_ELECTRODES=\t%i
-X_DIMENSION=\t%i
-Y_DIMENSION=\t%i
-Z_DIMENSION=\t%i
-DAT_DIRECTORY=\t%s
-PA_NAME=\t%s''' % (nElectrodes,nx,ny,nz,outputDir,paName))
+	flyEconf.write('''[accelerator]
+n_electrodes = %i
+x = %i
+y = %i
+z = %i
+dat_directory = %s
+pa_name = %s''' % (nElectrodes,nx,ny,nz,outputDir,paName))
 	return 1
 	
 setInits()

@@ -1,8 +1,10 @@
 #include <sstream>
+#include <iostream>
 
 #include "SubConfig.h"
 
-SubConfig::~SubConfig() {}
+SubConfig::~SubConfig() {
+}
 
 std::ostream& operator <<(std::ostream &out, SubConfig &subConf) {
   subConf.printOn(out);
@@ -64,6 +66,16 @@ SimulationConfig::SimulationConfig(INIReader &reader) {
 
 void SimulationConfig::populate(INIReader &reader) {
   accelerationScheme_ = reader.Get("simulation", "accel_scheme", "trap");
+  if (accelerationScheme_ != "exponential" && accelerationScheme_ != "trap"
+      && accelerationScheme_ != "instantaneous") {
+    try {
+      throw "Invalid value for acceleration scheme!";
+    } catch (const char* e) {
+      std::cout << e << std::endl;
+      std::terminate();
+    }
+  }
+
   duration_ = (float) reader.GetReal("simulation", "duration", 6e-4);
   inglisTeller_ = reader.GetBoolean("simulation", "inglis_teller", false);
   maxVoltage_ = (float) reader.GetReal("simulation", "max_voltage", 100);
@@ -80,7 +92,12 @@ void SimulationConfig::printOn(std::ostream &out) {
   str << "Acceleration scheme: " << accelerationScheme_ << "\n";
   str << "Max voltage: " << maxVoltage_ << "\n";
   str << "Target velocity: " << targetVel_ << "\n";
-  str << (inglisTeller_) ? "Using Inglis-Teller limit" : "Not using Inglis-Teller limit";
+
+#pragma GCC diagnostic push // Makes g++ shut up about these ternary operators supposedly having no effect
+#pragma GCC diagnostic ignored "-Wunused-value"
+  str << (inglisTeller_) ?
+      "Using Inglis-Teller limit" : "Not using Inglis-Teller limit";
+#pragma GCC diagnostic pop
 
   out << str.str();
 }
@@ -109,14 +126,48 @@ float SimulationConfig::timeStep() const {
   return timeStep_;
 }
 
+void SimulationConfig::setAccelerationScheme(const std::string &scheme) {
+  accelerationScheme_ = scheme;
+}
+
+void SimulationConfig::setDuration(float duration) {
+  duration_ = duration;
+}
+
+void SimulationConfig::setInglisTeller(bool inglisTeller) {
+  inglisTeller_ = inglisTeller;
+}
+
+void SimulationConfig::setMaxVoltage(float maxVoltage) {
+  maxVoltage_ = maxVoltage;
+}
+
+void SimulationConfig::setTargetVel(float targetVel) {
+  targetVel_ = targetVel;
+}
+
+void SimulationConfig::setTimeStep(float timeStep) {
+  timeStep_ = timeStep;
+}
+
 ParticlesConfig::ParticlesConfig(INIReader &reader) {
   populate(reader);
 }
 
 void ParticlesConfig::populate(INIReader &reader) {
-  nParticles_ = static_cast<int>(reader.GetReal("particles", "n_particles", 50000));
+  nParticles_ = static_cast<int>(reader.GetReal("particles", "n_particles",
+                                                50000));
   k_ = reader.GetInteger("particles", "k", 20);
   kDist_ = reader.Get("particles", "k_dist", "single");
+  if (kDist_ != "single" && kDist_ != "uniform" && kDist_ != "triangle") {
+    try {
+      throw "Invalid k distribution value!";
+    } catch (const char* e) {
+      std::cout << e << std::endl;
+      std::terminate();
+    }
+  }
+
   n_ = reader.GetInteger("particles", "n", 25);
   normDist_ = reader.GetBoolean("particles", "norm_dist", false);
   sigmaX_ = (float) reader.GetReal("particles", "sigma_x", 0.5);
@@ -202,8 +253,14 @@ void StorageConfig::printOn(std::ostream &out) {
 
   str << "Storage Config: \n";
   str << "Output directory: " << outDir_ << "\n";
-  str << (storeCollisions_) ? "Storing collisions\n" : "Not storing collisions\n";
-  str << (storeTrajectories_) ? "Storing trajectories" : "Not storing trajectories";
+
+#pragma GCC diagnostic push // Makes g++ shut up about these ternary operators supposedly having no effect
+#pragma GCC diagnostic ignored "-Wunused-value"
+  str << (storeCollisions_) ?
+      "Storing collisions\n" : "Not storing collisions\n";
+  str << (storeTrajectories_) ?
+      "Storing trajectories" : "Not storing trajectories";
+#pragma GCC diagnostic pop
 
   out << str.str();
 }

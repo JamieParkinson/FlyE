@@ -14,7 +14,7 @@ AntiHydrogen::AntiHydrogen(float x, float y, float z, float vx, float vy,
           Physics::Fit * (1 + 2 * n)
               / (n * n * n * (1 + n) * (1 + n) * (1 + k + n))),
 
-      ionisationLim_(Physics::Fion * pow(n_, -4)),
+      ionisationLim_(Physics::Fion / pow(n_, 4)),
 
       ionised_(false),
       neutralised_(-1) {

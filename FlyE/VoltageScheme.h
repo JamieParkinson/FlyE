@@ -111,7 +111,7 @@ class InstantaneousScheme : public SynchronousParticleScheme {
 class ExponentialScheme : public SynchronousParticleScheme {
  protected:
   static constexpr int timeConstant_ = 1000.0; //!< The time constant of the exponential increase
-  float deltaT_ = 0.0; //!< The estimated time until the particle will enter the next section
+  float deltaT_ = std::numeric_limits<float>::max(); //!< The estimated time until the particle will enter the next section
   float startRampTime_ = 0.0; //!< The time at which the current section was activated
 
  public:

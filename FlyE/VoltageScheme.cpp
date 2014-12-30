@@ -64,7 +64,7 @@ ExponentialScheme::ExponentialScheme(Particle &synchronousParticle,
 }
 
 bool ExponentialScheme::isActive(int t) {
-  return (deltaT_ != 0.0 && t * timeStep_ <= (startRampTime_ + deltaT_));
+  return (t * timeStep_ <= (startRampTime_ + deltaT_));
 }
 
 std::vector<float> ExponentialScheme::getVoltages(int t) {

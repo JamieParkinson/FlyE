@@ -86,7 +86,10 @@ class AcceleratorConfig : public SubConfig {
   int z() const;
 };
 
-/** @brief For storing configuration data pertaining to the nature of the simulation */
+/** @brief For storing configuration data pertaining to the nature of the simulation
+ *
+ * Setters are provided because these variables can be changed without having to regenerate particles etc
+ */
 class SimulationConfig : public SubConfig {
  protected:
   float timeStep_;  //!< Timestep to use in simulation (s)
@@ -129,6 +132,42 @@ class SimulationConfig : public SubConfig {
 
   /** @brief Timestep to use in simulation (s) */
   float timeStep() const;
+
+  /** @brief Setter for acceleration scheme
+   *
+   * @param scheme String representing scheme: "trap", "exp" or "inst"
+   */
+  void setAccelerationScheme(const std::string &scheme);
+
+  /** @brief Setter for simulation duration
+   *
+   * @param duration Time to simulate for
+   */
+  void setDuration(float duration);
+
+  /** @brief Setter for whether to neutralise particles past the I-T limit
+   *
+   * @param inglisTeller True if neutralising particles
+   */
+  void setInglisTeller(bool inglisTeller);
+
+  /** @brief Setter for maximum voltage to apply to electrodes
+   *
+   * @param maxVoltage Maximum voltage to apply to electrodes
+   */
+  void setMaxVoltage(float maxVoltage);
+
+  /** @brief Setter for the target velocity of particles
+   *
+   * @param targetVel Target velocity of particles
+   */
+  void setTargetVel(float targetVel);
+
+  /** @brief Setter for the simulation time step
+   *
+   * @param timeStep Time step to simulate with
+   */
+  void setTimeStep(float timeStep);
 };
 
 /** @brief For storing configuration data pertaining to the particles in the simulation */

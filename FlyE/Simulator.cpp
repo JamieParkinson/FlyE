@@ -162,7 +162,7 @@ void Simulator::run() {
     }
     // Update field
     if (voltageScheme_->isActive(t)) {
-      geometry_.applyElectrodeVoltages(voltageScheme_->getVoltages(t));
+      geometry_.applyElectrodeVoltages(voltageScheme_->getVoltages(t+1));
       field_ = geometry_.makeSmartField();
     }
   }
@@ -183,4 +183,8 @@ void Simulator::write(std::string fileName) {
   Writer writer(fileName, this);
   writer.initializeSetsAndSpaces();
   writer.writeParticles();
+}
+
+void Simulator::setSimulatorConfig(std::shared_ptr<SimulationConfig> simulationConfig) {
+  simulationConfig_ = simulationConfig;
 }
