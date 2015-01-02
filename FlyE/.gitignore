@@ -1,4 +1,6 @@
 /html/
 /latex/
 /Release/*
+*~
 !/Release/**.mk
+!/Release/makefile
