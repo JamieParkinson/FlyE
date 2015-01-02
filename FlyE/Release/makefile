@@ -23,6 +23,9 @@ endif
 ifneq ($(strip $(CC_DEPS)),)
 -include $(CC_DEPS)
 endif
+ifneq ($(strip $(DOX_DEPS)),)
+-include $(DOX_DEPS)
+endif
 ifneq ($(strip $(CPP_DEPS)),)
 -include $(CPP_DEPS)
 endif
@@ -45,13 +48,13 @@ all: FlyE
 FlyE: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -o "FlyE" $(OBJS) $(USER_OBJS) $(LIBS) -fopenmp -lconfig++ -flto -L/usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/libhdf5_hl_cpp.a /usr/lib/x86_64-linux-gnu/libhdf5_cpp.a /usr/lib/x86_64-linux-gnu/libhdf5_hl.a /usr/lib/x86_64-linux-gnu/libhdf5.a -Wl,-Bsymbolic-functions -Wl,-z,relro -lpthread -lz -ldl -lm
+	g++ -o "FlyE" $(OBJS) $(USER_OBJS) $(LIBS) -fopenmp -flto -L/usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/libhdf5_hl_cpp.a /usr/lib/x86_64-linux-gnu/libhdf5_cpp.a /usr/lib/x86_64-linux-gnu/libhdf5_hl.a /usr/lib/x86_64-linux-gnu/libhdf5.a -Wl,-Bsymbolic-functions -Wl,-z,relro -lpthread -lz -ldl -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) FlyE
+	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(DOX_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) FlyE
 	-@echo ' '
 
 .PHONY: all clean dependents

@@ -4,3 +4,4 @@
 *~
 !/Release/**.mk
 !/Release/makefile
+/Release/

@@ -94,7 +94,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1159806110" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
 							<tool commandLinePattern="${COMMAND} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} ${FLAGS}" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1006753812" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
-								<option id="gnu.cpp.link.option.flags.1429617777" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-fopenmp -lconfig++ -flto -L/usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/libhdf5_hl_cpp.a /usr/lib/x86_64-linux-gnu/libhdf5_cpp.a /usr/lib/x86_64-linux-gnu/libhdf5_hl.a /usr/lib/x86_64-linux-gnu/libhdf5.a -Wl,-Bsymbolic-functions -Wl,-z,relro -lpthread -lz -ldl -lm" valueType="string"/>
+								<option id="gnu.cpp.link.option.flags.1429617777" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-fopenmp -flto -L/usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/libhdf5_hl_cpp.a /usr/lib/x86_64-linux-gnu/libhdf5_cpp.a /usr/lib/x86_64-linux-gnu/libhdf5_hl.a /usr/lib/x86_64-linux-gnu/libhdf5.a -Wl,-Bsymbolic-functions -Wl,-z,relro -lpthread -lz -ldl -lm" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1866140473" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
