@@ -1,7 +1,12 @@
 /html/
 /latex/
-/Release/*
+/Release/**/*.d
+/Release/**/*.o
+/Release/**/**/*.d
+/Release/**/**/*.o
+/Release/*.d
+/Release/*.o
+/Release/FlyE
 *~
 !/Release/**.mk
 !/Release/makefile
-/Release/
