@@ -87,7 +87,8 @@
  * * `particles`
  *   * `n_particles` - Number of particle to generate for the simulation (integer).
  *   * `norm_dist` - Whether to spread the particles uniformly at the start of the accelerator, or in a normal distribution (boolean).
- *     * `sigma_x/y/z` - If `norm_dist` is `true`, then these control the size of the distribution (millimetres, float).
+ *   * `dist_radius` - The radius of the distribution of particles - if norm_dist is true, then the radial standard deviation.
+ *   * `dist_length` - the length of the distribution of particles - if norm_dist is true, then the axial standard deviation.
  *   * `temperature` - The temperature of the distribution of particles (kelvin, float).
  *   * `n` - The principal quantum number of the particles (integer).
  *   * `k_dist` - How to distribute the values of k, the Stark quantum number. Can be one of the following: (string)
@@ -100,6 +101,15 @@
  *   * `store_trajectories` - Whether to store the complete trajectories of the particles, or just their start and end locations/velocities (boolean).
  *   * `store_collisions` - Whether to store any data at all for particles which collide with the accelerator geometry (boolean).
  *   * `compression` - The level of GZIP compression to apply in the HDF5 output files (1-9, where 9 is max compression. integer).
+ *
+ *   ## Use on Amazon Web Services
+ *
+ *   The easiest way to get FlyE running on an EC2 instance with an Ubuntu AMI is to run these commands:
+ *
+ *   * Install everything we need with `sudo apt-get install git gcc g++ libhdf5-dev libblitz-dev`
+ *   * Clone the git remote repository off of GitHub: `git clone [*.git remote url]`
+ *   * `cd` into the Release directory and run `make`
+ *
  */
 #include "ConfigLoader.h"
 #include "AcceleratorGeometry.h"

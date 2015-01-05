@@ -120,9 +120,9 @@ ParticleGenerator<AntiHydrogen>::generateNormDist(
     mersenne_twister generator, float sigmaV, int sectionWidth,
     IntegerDistribution *kDist) {
 
-  float_n_dist x_dist(acceleratorConfig_->x() / 2, particlesConfig_->sigmaX());  // Center at start of cylinder
-  float_n_dist y_dist(acceleratorConfig_->y() / 2, particlesConfig_->sigmaY());
-  float_n_dist z_dist(2.25 * sectionWidth, particlesConfig_->sigmaZ());  // Should mean most particles are in the cylinder (~0.27% are outside)
+  float_n_dist x_dist(acceleratorConfig_->x() / 2, particlesConfig_->distRadius());  // Center at start of cylinder
+  float_n_dist y_dist(acceleratorConfig_->y() / 2, particlesConfig_->distRadius());
+  float_n_dist z_dist(2.25 * sectionWidth, particlesConfig_->distLength());  // Should mean most particles are in the cylinder (~0.27% are outside)
   float_n_dist v_dist(0, sigmaV);
 
   ez::ezETAProgressBar particlesBar(particlesConfig_->nParticles() - 1);
@@ -155,8 +155,7 @@ ParticleGenerator<AntiHydrogen>::generateUniformDist(
 
   for (int i = 0; i < particlesConfig_->nParticles() - 1; ++i, ++particlesBar) {  // Generate particles
     float p_theta = 2 * M_PI * uniform_dist(generator);
-    float p_r = (0.5 * acceleratorConfig_->y() - 5)
-        * sqrt(uniform_dist(generator));
+    float p_r = particlesConfig_->distRadius() * sqrt(uniform_dist(generator));
     float v_r = 2 * sigmaV * pow(uniform_dist(generator), 1 / 3.);
     float vx = muller_dist(generator);
     float vy = muller_dist(generator);
@@ -166,7 +165,7 @@ ParticleGenerator<AntiHydrogen>::generateUniformDist(
 
     particles_.emplace_back(p_r * cos(p_theta) + 0.5 * acceleratorConfig_->x(),
                             p_r * sin(p_theta) + 0.5 * acceleratorConfig_->y(),
-                            sectionWidth * (3 * uniform_dist(generator) + 1),
+                            sectionWidth + particlesConfig_->distLength() * uniform_dist(generator),
                             v_r * muller_factor * vx, v_r * muller_factor * vy,
                             v_r * muller_factor * vz, particlesConfig_->n(),
                             (*kDist)(generator));
