@@ -1,11 +1,16 @@
-dataDirectory = '/home/jamie/FlyEfiles/'
-finalSpeedsData = zeros(10,2);
+dataDirectory = '/home/jamie/FlyEfiles/ExponentialVoltageRuns/'
+fileSpeedsData = zeros(56,2);
 
-for v = 50:1:64
-    filename = [dataDirectory 'out' int2str(v) '.h5'];
-    [succeeded, ~, ~] = importHDF5tree(filename);
+files = dir([dataDirectory '*.h5']);
+i = 1;
+
+for file = files'
+    file.name
+    v = str2num(cell2mat(regexp(file.name,'[0-9]*(?=\.h5)','match')));
+    [succeeded, ~, ~] = importHDF5tree([dataDirectory file.name]);
     succeeded = succeeded{1};
     
     meanFinalSpeed = mean(lastNonZeros(succeeded(:,:,2,3)))
-    finalSpeedsData(v-49, :) = [v meanFinalSpeed];
+    finalSpeedsData(i, :) = [v meanFinalSpeed];
+    i = i + 1;
 end

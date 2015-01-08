@@ -165,7 +165,7 @@ ParticleGenerator<AntiHydrogen>::generateUniformDist(
 
     particles_.emplace_back(p_r * cos(p_theta) + 0.5 * acceleratorConfig_->x(),
                             p_r * sin(p_theta) + 0.5 * acceleratorConfig_->y(),
-                            sectionWidth + particlesConfig_->distLength() * uniform_dist(generator),
+                            sectionWidth*0.75 + particlesConfig_->distLength()*(0.5 + uniform_dist(generator)), // Offset 3/4 of a section from the start
                             v_r * muller_factor * vx, v_r * muller_factor * vy,
                             v_r * muller_factor * vz, particlesConfig_->n(),
                             (*kDist)(generator));
