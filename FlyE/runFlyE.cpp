@@ -2,34 +2,34 @@
 #include "FlyE.h"
 
 int main(int argc, char* argv[]) {
-  ConfigLoader myConfig("/home/jamie/git/FlyE/FlyE/flyE.conf");
+  ConfigLoader myConfig1K("/home/ubuntu/config-files/flyE1K.conf");
+  ConfigLoader myConfig100mK("/home/ubuntu/config-files/flyE100mK.conf");
 
-  AcceleratorGeometry myAccelerator(myConfig.getAcceleratorConfig());
+  AcceleratorGeometry myAccelerator(myConfig1K.getAcceleratorConfig());  // Same geometry for both
   myAccelerator.importElectrodes();
 
   Simulator *mySimulator;
 
-  for (float v = 145.0; v < 145.1 ; v += 1.0) {
-    ParticleGenerator<AntiHydrogen> myGenerator(
-        myConfig.getParticlesConfig(), myConfig.getAcceleratorConfig());
-    myGenerator.generateParticles();
-    std::vector<AntiHydrogen> particles = myGenerator.getParticles();
+  ParticleGenerator<AntiHydrogen> generator1K(
+      myConfig1K.getParticlesConfig(), myConfig1K.getAcceleratorConfig());
+  ParticleGenerator<AntiHydrogen> generator100mK(
+      myConfig100mK.getParticlesConfig(), myConfig100mK.getAcceleratorConfig());
 
-    std::shared_ptr<SimulationConfig> simConf = myConfig.getSimulationConfig();
-    simConf->setMaxVoltage(v);
+  // 1K run
+  mySimulator = new Simulator(myAccelerator, generator1K.getParticles(),
+                              myConfig1K.getSimulationConfig(),
+                              myConfig1K.getStorageConfig());
+  mySimulator->run();
+  SimulationNumbers stats1K = mySimulator->getBasicStats();
+  std::cout << stats1K << std::endl;
+  mySimulator->write("/home/ubuntu/1Kdata.h5");
 
-    mySimulator = new Simulator(myAccelerator, particles,
-                                simConf,
-                                myConfig.getStorageConfig());
-
-
-    mySimulator->run();
-
-    SimulationNumbers stats = mySimulator->getBasicStats();
-    std::cout << stats << std::endl;
-
-    mySimulator->write(
-        "/home/jamie/FlyEfiles/out" + std::to_string(static_cast<int>(v))
-            + ".h5");
-  }
+  // 100mK run
+  mySimulator = new Simulator(myAccelerator, generator100mK.getParticles(),
+                              myConfig100mK.getSimulationConfig(),
+                              myConfig100mK.getStorageConfig());
+  mySimulator->run();
+  SimulationNumbers stats100mK = mySimulator->getBasicStats();
+  std::cout << stats100mK << std::endl;
+  mySimulator->write("/home/ubuntu/100mKdata.h5");
 }
