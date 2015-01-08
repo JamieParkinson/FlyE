@@ -16,7 +16,9 @@ int main(int argc, char* argv[]) {
       myConfig100mK.getParticlesConfig(), myConfig100mK.getAcceleratorConfig());
 
   // 1K run
-  mySimulator = new Simulator(myAccelerator, generator1K.getParticles(),
+  generator1K.generateParticles();
+  std::vector<AntiHydrogen> particles1K = generator1K.getParticles();
+  mySimulator = new Simulator(myAccelerator, particles1K,
                               myConfig1K.getSimulationConfig(),
                               myConfig1K.getStorageConfig());
   mySimulator->run();
@@ -25,7 +27,9 @@ int main(int argc, char* argv[]) {
   mySimulator->write("/home/ubuntu/1Kdata.h5");
 
   // 100mK run
-  mySimulator = new Simulator(myAccelerator, generator100mK.getParticles(),
+  generator100mK.generateParticles();
+  std::vector<AntiHydrogen> particles100mK = generator100mK.getParticles();
+  mySimulator = new Simulator(myAccelerator, particles100mK,
                               myConfig100mK.getSimulationConfig(),
                               myConfig100mK.getStorageConfig());
   mySimulator->run();
