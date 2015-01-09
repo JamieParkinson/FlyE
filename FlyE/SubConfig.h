@@ -225,7 +225,6 @@ class ParticlesConfig : public SubConfig {
 /** @brief For storing configuration data pertaining to the storage of simulation results */
 class StorageConfig : public SubConfig {
  protected:
-  std::string outDir_;  //!< The directory to write output files to
   bool storeTrajectories_;  //!< Whether to store the full particle trajectories or just endpoints
   bool storeCollisions_;  //!< Whether to store any data of particles that collide
   int compression_; //!< Integer from 0-9 sets compression level. 0 is no compression.
@@ -243,9 +242,6 @@ class StorageConfig : public SubConfig {
 
   //!< @copydoc SubConfig::populate()
   void populate(INIReader &reader);
-
-  /** @brief The directory to write output files to */
-  const std::string& outDir() const;
 
   /** @brief Whether to store the full particle trajectories or just endpoints */
   bool storeTrajectories() const;

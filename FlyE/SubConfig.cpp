@@ -234,7 +234,6 @@ StorageConfig::StorageConfig(INIReader &reader) {
 }
 
 void StorageConfig::populate(INIReader &reader) {
-  outDir_ = reader.Get("storage", "output_dir", "~");
   storeCollisions_ = reader.GetBoolean("storage", "store_collisions", true);
   storeTrajectories_ = reader.GetBoolean("storage", "store_trajectories", true);
   compression_ = reader.GetInteger("storage", "compression", 0);
@@ -244,7 +243,6 @@ void StorageConfig::printOn(std::ostream &out) {
   std::stringstream str;
 
   str << "Storage Config: \n";
-  str << "Output directory: " << outDir_ << "\n";
 
 #pragma GCC diagnostic push // Makes g++ shut up about these ternary operators supposedly having no effect
 #pragma GCC diagnostic ignored "-Wunused-value"
@@ -255,10 +253,6 @@ void StorageConfig::printOn(std::ostream &out) {
 #pragma GCC diagnostic pop
 
   out << str.str();
-}
-
-const std::string& StorageConfig::outDir() const {
-  return outDir_;
 }
 
 bool StorageConfig::storeTrajectories() const {

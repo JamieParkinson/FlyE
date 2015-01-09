@@ -6,7 +6,7 @@ i = 1;
 
 for file = files'
     file.name
-    v = str2num(cell2mat(regexp(file.name,'[0-9]*(?=\.h5)','match')));
+    v = str2num(cell2mat(regexp(file.name,'[0-9]*(?=\.h5)','match')))
     [succeeded, ~, ~] = importHDF5tree([dataDirectory file.name]);
     succeeded = succeeded{1};
     

@@ -97,7 +97,6 @@
  *     * 'triangle' - Values of k are distributed between 1 and (n-1) according to a triangle distribution which is maximum at (n-1).
  *   * `k` - If `k_dist` is 'single', then all particles have this value of k.
  * * `storage`
- *   * `output_dir` - The directory in which to write the output files (string).
  *   * `store_trajectories` - Whether to store the complete trajectories of the particles, or just their start and end locations/velocities (boolean).
  *   * `store_collisions` - Whether to store any data at all for particles which collide with the accelerator geometry (boolean).
  *   * `compression` - The level of GZIP compression to apply in the HDF5 output files (1-9, where 9 is max compression. integer).
