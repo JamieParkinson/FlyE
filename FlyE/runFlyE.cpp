@@ -2,38 +2,36 @@
 #include "FlyE.h"
 
 int main(int argc, char* argv[]) {
-  ConfigLoader myConfig1K("/home/ubuntu/config-files/flyE1K.conf");
-  ConfigLoader myConfig100mK("/home/ubuntu/config-files/flyE100mK.conf");
+  std::string confDirectory = "/home/ubuntu/config-files/";
+  std::string outDirectory = "/mnt/storage/data/";
 
-  AcceleratorGeometry myAccelerator(myConfig1K.getAcceleratorConfig());  // Same geometry for both
-  myAccelerator.importElectrodes();
+  // List of config file names
+  std::vector<std::string> confNames =
+      { "exp1K", "exp100mK", "trap1K", "trap100mK", "fullDist1K",
+          "uniformStark", "triangleStark", "inglisTeller" };
 
-  Simulator *mySimulator;
+  // Only load the geometry once
+  ConfigLoader geometryLoader(confDirectory + confNames[0] + ".conf");
+  AcceleratorGeometry accelerator(geometryLoader.getAcceleratorConfig());
+  accelerator.importElectrodes();
 
-  ParticleGenerator<AntiHydrogen> generator1K(
-      myConfig1K.getParticlesConfig(), myConfig1K.getAcceleratorConfig());
-  ParticleGenerator<AntiHydrogen> generator100mK(
-      myConfig100mK.getParticlesConfig(), myConfig100mK.getAcceleratorConfig());
+  // Loop config files
+  for (auto confName : confNames) {
+    std::cout << "Running from config file: " << confName << std::endl;
+    ConfigLoader loader(confDirectory + confName + ".conf");
 
-  // 1K run
-  generator1K.generateParticles();
-  std::vector<AntiHydrogen> particles1K = generator1K.getParticles();
-  mySimulator = new Simulator(myAccelerator, particles1K,
-                              myConfig1K.getSimulationConfig(),
-                              myConfig1K.getStorageConfig());
-  mySimulator->run();
-  SimulationNumbers stats1K = mySimulator->getBasicStats();
-  std::cout << stats1K << std::endl;
-  mySimulator->write("/home/ubuntu/1Kdata.h5");
+    ParticleGenerator<AntiHydrogen> generator(loader.getParticlesConfig(),
+                                              loader.getAcceleratorConfig());
+    generator.generateParticles();
 
-  // 100mK run
-  generator100mK.generateParticles();
-  std::vector<AntiHydrogen> particles100mK = generator100mK.getParticles();
-  mySimulator = new Simulator(myAccelerator, particles100mK,
-                              myConfig100mK.getSimulationConfig(),
-                              myConfig100mK.getStorageConfig());
-  mySimulator->run();
-  SimulationNumbers stats100mK = mySimulator->getBasicStats();
-  std::cout << stats100mK << std::endl;
-  mySimulator->write("/home/ubuntu/100mKdata.h5");
+    Simulator simulator(accelerator, generator.getParticles(),
+                        loader.getSimulationConfig(),
+                        loader.getStorageConfig());
+
+    simulator.run();
+    SimulationNumbers stats = simulator.getBasicStats();
+    std::cout << stats << std::endl;
+
+    simulator.write(outDirectory + confName + ".h5"); // Enforce naming convention automatically
+  }
 }
