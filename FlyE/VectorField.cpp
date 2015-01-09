@@ -33,7 +33,7 @@ float VectorField::magnitudeAt(tuple3Dint r) {
 }
 
 float VectorField::gradientXat(int x, int y, int z) {
-  return 0.5 * Physics::MM_M_CORRECTION
+  return 0.5 * Physics::MM_M_FACTOR
       * (magnitudeAt(x + 1, y, z) - magnitudeAt(x - 1, y, z));
 }
 
@@ -42,7 +42,7 @@ float VectorField::gradientXat(tuple3Dint r) {
 }
 
 float VectorField::gradientYat(int x, int y, int z) {
-  return 0.5 * Physics::MM_M_CORRECTION
+  return 0.5 * Physics::MM_M_FACTOR
       * (magnitudeAt(x, y + 1, z) - magnitudeAt(x, y - 1, z));
 }
 
@@ -51,7 +51,7 @@ float VectorField::gradientYat(tuple3Dint r) {
 }
 
 float VectorField::gradientZat(int x, int y, int z) {
-  return 0.5 * Physics::MM_M_CORRECTION
+  return 0.5 * Physics::MM_M_FACTOR
       * (magnitudeAt(x, y, z + 1) - magnitudeAt(x, y, z - 1));
 }
 

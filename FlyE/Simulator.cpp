@@ -147,15 +147,15 @@ void Simulator::run() {
           particle->getLocDim<0>()
               + (particle->getVelDim<0>() * simulationConfig_->timeStep()
                   + 0.5 * ax * pow(simulationConfig_->timeStep(), 2))
-                  * Physics::MM_M_CORRECTION,  // Move it
+                  * Physics::MM_M_FACTOR,  // Move it
           particle->getLocDim<1>()
               + (particle->getVelDim<1>() * simulationConfig_->timeStep()
                   + 0.5 * ay * pow(simulationConfig_->timeStep(), 2))
-                  * Physics::MM_M_CORRECTION,
+                  * Physics::MM_M_FACTOR,
           particle->getLocDim<2>()
               + (particle->getVelDim<2>() * simulationConfig_->timeStep()
                   + 0.5 * az * pow(simulationConfig_->timeStep(), 2))
-                  * Physics::MM_M_CORRECTION);
+                  * Physics::MM_M_FACTOR);
 
       if (storageConfig_->storeTrajectories())
         particle->memorise();  // Commit to memory

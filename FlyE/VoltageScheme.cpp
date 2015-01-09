@@ -82,7 +82,7 @@ std::vector<float> ExponentialScheme::getVoltages(int t) {
     deltaT_ = (-synchronousParticle_.getVelDim<2>()
         + sqrt(
             pow(synchronousParticle_.getVelDim<2>(), 2)
-                + 2 * syncAccel * sectionWidth_ / Physics::MM_M_CORRECTION))
+                + 2 * syncAccel * sectionWidth_ / Physics::MM_M_FACTOR))
         / syncAccel;
 
     section_++;
@@ -129,7 +129,7 @@ std::vector<float> MovingTrapScheme::getVoltages(int t) {
     return voltages_;
   }
 
-  float phase = pow(tSeconds, 2) * M_PI * targetVel_ * Physics::MM_M_CORRECTION
+  float phase = pow(tSeconds, 2) * M_PI * targetVel_ * Physics::MM_M_FACTOR
       / (offTime_ * sectionWidth_ * trapWidth_);
 
   std::vector<int> listOfEs(nElectrodes_);

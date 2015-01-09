@@ -60,7 +60,7 @@ void Electrode::import(std::shared_ptr<AcceleratorConfig> config) {
           y = 0;
           std::stringstream linestream(line);
           while (getline(linestream, piece, '\t')) {  // Tabs (ie cells)
-            thisDimension(x, y, z) = Physics::SIMION_CORRECTION * stod(piece);  // Ugly access to overloaded parentheses
+            thisDimension(x, y, z) = Physics::SIMION_MULTIPLIER * stod(piece);  // Ugly access to overloaded parentheses
             ++y;
           }
         }
