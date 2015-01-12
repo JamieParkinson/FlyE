@@ -86,9 +86,13 @@
  *   * `inglis_teller` - Whether to neutralise the electric dipole moment of particles if the field is greater than their Inglis-Teller limit (boolean).
  * * `particles`
  *   * `n_particles` - Number of particle to generate for the simulation (integer).
- *   * `norm_dist` - Whether to spread the particles uniformly at the start of the accelerator, or in a normal distribution (boolean).
- *   * `dist_radius` - The radius of the distribution of particles - if norm_dist is true, then the radial standard deviation.
- *   * `dist_length` - the length of the distribution of particles - if norm_dist is true, then the axial standard deviation.
+ *   * `position_dist` - How to distribute the particles in space. Can be one of the following: (string)
+ *     * 'full' - Particles are uniformly distributed throughout the entire initial phase space.
+ *     * 'uniform' - Particles are distributed uniformly in a cylinder described by the variables below.
+ *     * 'normal' - Particles are distributed normally in a cloud described by the variables below.
+ *   * `v_normal_dist` - Whether to distribute the velocities as a gaussian or as a uniform sphere (bool).
+ *   * `r_dist_radius` - The radius of the distribution of particles - if norm_dist is true, then the radial standard deviation.
+ *   * `r_dist_length` - the length of the distribution of particles - if norm_dist is true, then the axial standard deviation.
  *   * `temperature` - The temperature of the distribution of particles (kelvin, float).
  *   * `n` - The principal quantum number of the particles (integer).
  *   * `k_dist` - How to distribute the values of k, the Stark quantum number. Can be one of the following: (string)
@@ -100,6 +104,28 @@
  *   * `store_trajectories` - Whether to store the complete trajectories of the particles, or just their start and end locations/velocities (boolean).
  *   * `store_collisions` - Whether to store any data at all for particles which collide with the accelerator geometry (boolean).
  *   * `compression` - The level of GZIP compression to apply in the HDF5 output files (1-9, where 9 is max compression. integer).
+ *
+ *   ## Output file specification
+ *
+ *   Output files are written in the HDF5 scienfic data format. The hierarchy inside this files is as follows.
+ *
+ *   #### Groups
+ *   * 'Succeeded' - for particles which reach the end of the accelerator.
+ *   * 'Collided' - for particles which collide with the accelerator geometry.
+ *   * 'Ionised' - for particles which are ionised in the course of the simulation.
+ *   * 'Remaining' - for particles which were still active at the end of the simulation.
+ *
+ *   #### Datasets
+ *   * 'data' - A 4D array of the particle trajectories. This is arranged like so:
+ *     * 1st dimension - Index of particle.
+ *     * 2nd dimension - Timestep index. If trajectories are not being stored, then 1 is initial and 2 is final.
+ *     * 3rd dimension - Phase axis: 1 for location, 2 for velocity.
+ *     * 4th dimension - Cartesian axis - 1 for x, 2 for y, 3 for z.
+ *   * 'neutralTimes' - The times at which particles' dipole moments were neutralised. -1 if never neutralised.
+ *   * 'ks' - The k-values of the particles.
+ *   * 'maxFields' - The maximum |E| encountered by the particles.
+ *
+ *   So an example address in the file would be '/Succeeded/data' for the trajectories of successful particles.
  *
  *   ## Use on Amazon Web Services
  *
