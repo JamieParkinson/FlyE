@@ -39,25 +39,37 @@ class ParticleGenerator {
   std::shared_ptr<AcceleratorConfig> acceleratorConfig_;  //!< Holds configuration data for the geometry; necessary for putting particles in the right places
   std::vector<PType> particles_;  //!< The vector of particles which will be created
 
+  /** @brief Generates a radially uniform distribution of velocities with radius v_r
+   *
+   * @param generator An instance of std::mt19937
+   * @param v_r Standard deviation of particle velocity (from temperature)
+   * @return A tuple of 3 floats - (vx, vy, vz)
+   */
+  tuple3Dfloat generateUniformVels(float sigmaV, mersenne_twister generator);
+
   /** @brief Generates normally distributed particles
    *
    * @param generator An instance of std::mt19937
    * @param sigmaV Standard deviation of particle velocity (from temperature)
+   * @param normVels Whether the velocities are normally distributed
    * @param sectionWidth The width of one section of the accelerator
    * @param kDist A pointer to an IntegerDistribution
    */
   void generateNormDist(mersenne_twister generator, float sigmaV,
-                        int sectionWidth, IntegerDistribution *kDist);
+                        bool normVels, int sectionWidth,
+                        IntegerDistribution *kDist);
 
   /** @brief Generates uniformly distributed particles
    *
    * @param generator An instance of std::mt19937
    * @param sigmaV Standard deviation of particle velocity (from temperature)
+   * @param normVels Whether the velocities are normally distributed
    * @param sectionWidth The width of one section of the accelerator
    * @param kDist A pointer to an IntegerDistribution
    */
   void generateUniformDist(mersenne_twister generator, float sigmaV,
-                           int sectionWidth, IntegerDistribution *kDist);
+                           bool normVels, int sectionWidth,
+                           IntegerDistribution *kDist);
 
  public:
   /** @brief Constructs a ParticleGenerator from the given configuration objects
@@ -102,11 +114,29 @@ std::vector<PType>& ParticleGenerator<PType>::getParticles() {
   return particles_;
 }
 
+template<class PType>
+tuple3Dfloat ParticleGenerator<PType>::generateUniformVels(
+    float sigmaV, mersenne_twister generator) {
+  float_u_dist uniform_dist(0, 1);
+  float v_r = 2 * sigmaV * pow(uniform_dist(generator), 1 / 3.);
+
+  // Using (a modified version of) the method described by Muller (1959) to generate spherical velocity dist.
+  float_n_dist muller_dist(0, v_r);
+
+  float x = muller_dist(generator);
+  float y = muller_dist(generator);
+  float z = muller_dist(generator);
+
+  float muller_factor = pow(pow(x, 2) + pow(y, 2) + pow(z, 2), -0.5);
+
+  return std::make_tuple(x * muller_factor, y * muller_factor,
+                         z * muller_factor);
+}
+
 /** @brief Template specialisation for the AntiHydrogen generator
  * @copydoc ParticleGenerator<PType>::generateSynchronousParticle()
  */
-template<> void
-ParticleGenerator<AntiHydrogen>::generateSynchronousParticle(
+template<> void ParticleGenerator<AntiHydrogen>::generateSynchronousParticle(
     int x, int y, int z, int vx, int vy, int vz) {
   particles_.emplace_back(x, y, z, vx, vy, vz, particlesConfig_->n(),
                           particlesConfig_->k());
@@ -115,13 +145,14 @@ ParticleGenerator<AntiHydrogen>::generateSynchronousParticle(
 /** @brief Template specialisation for the AntiHydrogen generator
  * @copydoc ParticleGenerator<PType>::generateNormDist()
  */
-template<> void
-ParticleGenerator<AntiHydrogen>::generateNormDist(
-    mersenne_twister generator, float sigmaV, int sectionWidth,
-    IntegerDistribution *kDist) {
+template<> void ParticleGenerator<AntiHydrogen>::generateNormDist(
+    mersenne_twister generator, float sigmaV, bool normVels,
+    int sectionWidth, IntegerDistribution *kDist) {
 
-  float_n_dist x_dist(acceleratorConfig_->x() / 2, particlesConfig_->distRadius());  // Center at start of cylinder
-  float_n_dist y_dist(acceleratorConfig_->y() / 2, particlesConfig_->distRadius());
+  float_n_dist x_dist(acceleratorConfig_->x() / 2,
+                      particlesConfig_->distRadius());  // Center at start of cylinder
+  float_n_dist y_dist(acceleratorConfig_->y() / 2,
+                      particlesConfig_->distRadius());
   float_n_dist z_dist(2.25 * sectionWidth, particlesConfig_->distLength());  // Should mean most particles are in the cylinder (~0.27% are outside)
   float_n_dist v_dist(0, sigmaV);
 
@@ -129,9 +160,15 @@ ParticleGenerator<AntiHydrogen>::generateNormDist(
   particlesBar.start();
 
   for (int i = 0; i < particlesConfig_->nParticles() - 1; ++i, ++particlesBar) {  // Generate particles
+    tuple3Dfloat velocities =
+        (!normVels) ?
+            generateUniformVels(sigmaV, generator) :
+            std::make_tuple(v_dist(generator), v_dist(generator),
+                            v_dist(generator));
+
     particles_.emplace_back(x_dist(generator), y_dist(generator),
-                            z_dist(generator), v_dist(generator),
-                            v_dist(generator), v_dist(generator),
+                            z_dist(generator), std::get<0>(velocities),
+                            std::get<1>(velocities), std::get<2>(velocities),
                             particlesConfig_->n(), (*kDist)(generator));
   }
 
@@ -140,15 +177,12 @@ ParticleGenerator<AntiHydrogen>::generateNormDist(
 /** @brief Template specialisation for the AntiHydrogen generator
  * @copydoc ParticleGenerator<PType>::generateUniformDist()
  */
-template<> void
-ParticleGenerator<AntiHydrogen>::generateUniformDist(
-    mersenne_twister generator, float sigmaV, int sectionWidth,
-    IntegerDistribution *kDist) {
+template<> void ParticleGenerator<AntiHydrogen>::generateUniformDist(
+    mersenne_twister generator, float sigmaV, bool normVels,
+    int sectionWidth, IntegerDistribution *kDist) {
 
   float_u_dist uniform_dist(0, 1);
-  float_n_dist muller_dist(0, 1);  // Using (a modified version of) the method described by Muller (1959) to generate spherical velocity dist.
-
-  muller_dist(generator);
+  float_n_dist muller_dist(0, 1);
 
   ez::ezETAProgressBar particlesBar(particlesConfig_->nParticles() - 1);
   particlesBar.start();
@@ -156,27 +190,27 @@ ParticleGenerator<AntiHydrogen>::generateUniformDist(
   for (int i = 0; i < particlesConfig_->nParticles() - 1; ++i, ++particlesBar) {  // Generate particles
     float p_theta = 2 * M_PI * uniform_dist(generator);
     float p_r = particlesConfig_->distRadius() * sqrt(uniform_dist(generator));
-    float v_r = 2 * sigmaV * pow(uniform_dist(generator), 1 / 3.);
-    float vx = muller_dist(generator);
-    float vy = muller_dist(generator);
-    float vz = muller_dist(generator);
 
-    float muller_factor = pow(pow(vx, 2) + pow(vy, 2) + pow(vz, 2), -0.5);
+    tuple3Dfloat velocities =
+        (!normVels) ?
+            generateUniformVels(sigmaV, generator) :
+            std::make_tuple(sigmaV*muller_dist(generator), sigmaV*muller_dist(generator),
+                            sigmaV*muller_dist(generator));
 
-    particles_.emplace_back(p_r * cos(p_theta) + 0.5 * acceleratorConfig_->x(),
-                            p_r * sin(p_theta) + 0.5 * acceleratorConfig_->y(),
-                            sectionWidth*0.75 + particlesConfig_->distLength()*(0.5 + uniform_dist(generator)), // Offset 3/4 of a section from the start
-                            v_r * muller_factor * vx, v_r * muller_factor * vy,
-                            v_r * muller_factor * vz, particlesConfig_->n(),
-                            (*kDist)(generator));
+    particles_.emplace_back(
+        p_r * cos(p_theta) + 0.5 * acceleratorConfig_->x(),
+        p_r * sin(p_theta) + 0.5 * acceleratorConfig_->y(),
+        sectionWidth * 0.75
+            + particlesConfig_->distLength() * (0.5 + uniform_dist(generator)),  // Offset 3/4 of a section from the start
+        std::get<0>(velocities), std::get<1>(velocities),
+        std::get<2>(velocities), particlesConfig_->n(), (*kDist)(generator));
   }
 }
 
 /** @brief Template specialisation for the AntiHydrogen generator
  * @copydoc ParticleGenerator<PType>::generateParticles()
  */
-template<> void
-ParticleGenerator<AntiHydrogen>::generateParticles() {
+template<> void ParticleGenerator<AntiHydrogen>::generateParticles() {
   float sigmaV = sqrt(
       2 * (particlesConfig_->temperature() * Physics::kb / Physics::FWHMfactor)
           / Physics::mH);  // Std dev of velocity
@@ -197,15 +231,16 @@ ParticleGenerator<AntiHydrogen>::generateParticles() {
   }
 
   generateSynchronousParticle(0.5 * acceleratorConfig_->x(),
-                              0.5 * acceleratorConfig_->y(), 2.5*sectionWidth,
+                              0.5 * acceleratorConfig_->y(), 2.5 * sectionWidth,
                               0, 0, 0);
 
-  std::cout << "Generating " << particlesConfig_->nParticles() << " particles..." << std::endl;
+  std::cout << "Generating " << particlesConfig_->nParticles()
+            << " particles..." << std::endl;
 
-  if (particlesConfig_->normDist())
-    generateNormDist(generator, sigmaV, sectionWidth, kDist);
+  if (particlesConfig_->positionDist() == "normal")
+    generateNormDist(generator, sigmaV, particlesConfig_->vNormDist(), sectionWidth, kDist);
   else
-    generateUniformDist(generator, sigmaV, sectionWidth, kDist);
+    generateUniformDist(generator, sigmaV, particlesConfig_->vNormDist(), sectionWidth, kDist);
 
   std::cout << std::endl;
 }

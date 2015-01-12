@@ -9,9 +9,11 @@ Writer::Writer(std::string &fileName, Simulator *simulator)
       fType_(H5::PredType::NATIVE_FLOAT),
       iType_(H5::PredType::NATIVE_INT),
       nParticlesOfType_(  // Don't look at this, it's awful
-          { simulator_->statsStorage_.nSucceeded, simulator_->statsStorage_
-              .nCollided, simulator_->statsStorage_.nIonised, (int) simulator_
-              ->particles_.size() - simulator_->statsStorage_.nSucceeded
+          { simulator_->statsStorage_.nSucceeded,
+              (simulator_->storageConfig_->storeCollisions()) ?
+                  simulator_->statsStorage_.nCollided : 0, simulator_->statsStorage_
+              .nIonised, (int) simulator_->particles_.size()
+              - simulator_->statsStorage_.nSucceeded
               - simulator_->statsStorage_.nCollided
               - simulator_->statsStorage_.nIonised }) {
   fType_.setOrder(H5T_ORDER_LE);  // Little endian
@@ -29,7 +31,7 @@ Writer::Writer(std::string &fileName, Simulator *simulator)
   dPropList_.setChunk(4, dChunkDims);  // Set up chunking - MASSIVE performance increase
 
   if (simulator_->storageConfig_->compression() > 0) {
-    dPropList_.setDeflate(simulator_->storageConfig_->compression()); // Turn on compression
+    dPropList_.setDeflate(simulator_->storageConfig_->compression());  // Turn on compression
   }
 }
 

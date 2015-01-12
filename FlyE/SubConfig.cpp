@@ -169,7 +169,7 @@ void ParticlesConfig::populate(INIReader &reader) {
   }
 
   n_ = reader.GetInteger("particles", "n", 25);
-  normDist_ = reader.GetBoolean("particles", "norm_dist", false);
+  positionDist_ = reader.GetBoolean("particles", "position_dist", "full");
   distRadius_ = (float) reader.GetReal("particles", "dist_radius", 0.5);
   distLength_ = (float) reader.GetReal("particles", "dist_length", 5);
   temperature_ = (float) reader.GetReal("particles", "temperature", 1.0);
@@ -182,7 +182,9 @@ void ParticlesConfig::printOn(std::ostream &out) {
   str << "Number of particles: " << nParticles_ << "\n";
   str << "Temperature: " << temperature_ << "\n";
 
-  std::string dimensionString = (normDist_) ? "standard deviation" : "size";
+  str << "Type of particle distribution: " << positionDist_ << "\n";
+
+  std::string dimensionString = (positionDist_ != "normal") ? "standard deviation" : "size";
   str << "Radial " << dimensionString << "of particle distribution: " << distRadius_ << "\n";
   str << "Axial " << dimensionString << "of particle distribution: " << distLength_ << "\n";
 
@@ -213,8 +215,8 @@ int ParticlesConfig::n() const {
   return n_;
 }
 
-bool ParticlesConfig::normDist() const {
-  return normDist_;
+std::string ParticlesConfig::positionDist() const {
+  return positionDist_;
 }
 
 float ParticlesConfig::distRadius() const {
@@ -223,6 +225,10 @@ float ParticlesConfig::distRadius() const {
 
 float ParticlesConfig::distLength() const {
   return distLength_;
+}
+
+bool ParticlesConfig::vNormDist() const {
+  return vNormDist_;
 }
 
 float ParticlesConfig::temperature() const {

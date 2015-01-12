@@ -105,6 +105,7 @@
  *
  *   The easiest way to get FlyE running on an EC2 instance with an Ubuntu AMI is to run these commands:
  *
+ *   * Update repositories with `sudo apt-get update`
  *   * Install everything we need with `sudo apt-get install git gcc g++ make libhdf5-dev libblitz-dev`
  *   * Clone the git remote repository from GitHub: `git clone [*.git remote url]`
  *   * `cd` into the Release directory and run `make`

@@ -174,9 +174,10 @@ class SimulationConfig : public SubConfig {
 class ParticlesConfig : public SubConfig {
  protected:
   int nParticles_;  //!< Number of particles in the simulation
-  bool normDist_;  //!< Whether the particles are to be normally distributed
+  std::string positionDist_;  //!< How the particles are distributed - uniform, fullspace, normal
   ///@{ @brief The size of the distribution of particles (mm). If normally distributed, then the standard deviations.
   float distRadius_, distLength_;  ///@}
+  bool vNormDist_; //!< Whether the particle velocities will be uniformly or normally distributed
   float temperature_;  //!< Temperature of initial particle cloud
   std::string kDist_;  //!< Distribution of k-values: single, uniform or triangle
   int n_;  //!< Principal quantum number of all particles
@@ -210,13 +211,16 @@ class ParticlesConfig : public SubConfig {
   /** @brief Principal quantum number of all particles */
   int n() const;
 
-  /** @brief Whether the particles are to be normally distributed */
-  bool normDist() const;
+  /** @brief How the particles are distributed - uniform, fullspace, normal */
+  std::string positionDist() const;
 
   ///@{ @return The dimensions of the distribution of particles
   float distRadius() const;
   float distLength() const;
   ///@}
+
+  /** @brief Whether the particle velocities will be uniformly or normally distributed */
+  bool vNormDist() const;
 
   /** @brief Temperature of initial particle cloud */
   float temperature() const;
