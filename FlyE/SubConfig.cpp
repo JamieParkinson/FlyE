@@ -169,7 +169,7 @@ void ParticlesConfig::populate(INIReader &reader) {
   }
 
   n_ = reader.GetInteger("particles", "n", 25);
-  positionDist_ = reader.GetBoolean("particles", "position_dist", "full");
+  positionDist_ = reader.Get("particles", "position_dist", "full");
   distRadius_ = (float) reader.GetReal("particles", "dist_radius", 0.5);
   distLength_ = (float) reader.GetReal("particles", "dist_length", 5);
   temperature_ = (float) reader.GetReal("particles", "temperature", 1.0);

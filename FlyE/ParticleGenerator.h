@@ -122,7 +122,7 @@ tuple3Dfloat ParticleGenerator<PType>::generateUniformVels(
   float v_r = 2 * sigmaV * pow(uniform_dist(generator), 1 / 3.);
 
   // Using (a modified version of) the method described by Muller (1959) to generate spherical velocity dist.
-  float_n_dist muller_dist(0, v_r);
+  float_n_dist muller_dist(0, 1);
 
   float x = muller_dist(generator);
   float y = muller_dist(generator);
@@ -130,8 +130,8 @@ tuple3Dfloat ParticleGenerator<PType>::generateUniformVels(
 
   float muller_factor = pow(pow(x, 2) + pow(y, 2) + pow(z, 2), -0.5);
 
-  return std::make_tuple(x * muller_factor, y * muller_factor,
-                         z * muller_factor);
+  return std::make_tuple(x * v_r * muller_factor, y * v_r * muller_factor,
+                         z * v_r * muller_factor);
 }
 
 /** @brief Template specialisation for the AntiHydrogen generator
@@ -183,11 +183,11 @@ template<> void ParticleGenerator<AntiHydrogen>::generateUniformDist(
     int sectionWidth, IntegerDistribution *kDist, bool full) {
 
   float_u_dist uniform_dist(0, 1);
-  float_n_dist muller_dist(0, 1);
+  float_n_dist v_dist(0, sigmaV);
 
   float radius = (!full) ? particlesConfig_->distRadius() : 0.5*acceleratorConfig_->x() - 5;
   float length = (!full) ? particlesConfig_->distLength() : 3*sectionWidth;
-  float offset = 1.0;
+  float offset = sectionWidth;
 
   ez::ezETAProgressBar particlesBar(particlesConfig_->nParticles() - 1);
   particlesBar.start();
@@ -199,8 +199,8 @@ template<> void ParticleGenerator<AntiHydrogen>::generateUniformDist(
     tuple3Dfloat velocities =
         (!normVels) ?
             generateUniformVels(sigmaV, generator) :
-            std::make_tuple(sigmaV*muller_dist(generator), sigmaV*muller_dist(generator),
-                            sigmaV*muller_dist(generator));
+            std::make_tuple(v_dist(generator), v_dist(generator),
+                            v_dist(generator));
 
     particles_.emplace_back(
         p_r * cos(p_theta) + 0.5 * acceleratorConfig_->x(),
@@ -239,14 +239,15 @@ template<> void ParticleGenerator<AntiHydrogen>::generateParticles() {
                               0, 0, 0);
 
   std::cout << "Generating " << particlesConfig_->nParticles()
-            << " particles..." << std::endl;
+            << " particles..." <<  std::endl;
 
-  if (particlesConfig_->positionDist() == "normal")
+  if (particlesConfig_->positionDist() == "normal") {
     generateNormDist(generator, sigmaV, particlesConfig_->vNormDist(), sectionWidth, kDist);
-  else if (particlesConfig_->positionDist() == "uniform")
+  } else if (particlesConfig_->positionDist() == "uniform") {
     generateUniformDist(generator, sigmaV, particlesConfig_->vNormDist(), sectionWidth, kDist);
-  else if (particlesConfig_->positionDist() == "full")
+  } else if (particlesConfig_->positionDist() == "full") {
     generateUniformDist(generator, sigmaV, false, sectionWidth, kDist, true);
+  }
 
   std::cout << std::endl;
 }

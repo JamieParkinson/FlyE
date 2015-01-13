@@ -2,8 +2,8 @@
 #include "FlyE.h"
 
 int main(int argc, char* argv[]) {
-  std::string confDirectory = "/home/ubuntu/config-files/";
-  std::string outDirectory = "/mnt/storage/data/";
+  std::string confDirectory = "/home/jamie/FlyEfiles/config-files/";
+  std::string outDirectory = "/home/jamie/FlyEfiles/";
 
   // List of config file names
   std::vector<std::string> confNames =
