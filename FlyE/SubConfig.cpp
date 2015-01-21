@@ -172,6 +172,7 @@ void ParticlesConfig::populate(INIReader &reader) {
   positionDist_ = reader.Get("particles", "position_dist", "full");
   distRadius_ = (float) reader.GetReal("particles", "dist_radius", 0.5);
   distLength_ = (float) reader.GetReal("particles", "dist_length", 5);
+  distOffset_ = (float) reader.GetReal("particles", "dist_offset", 22);
   temperature_ = (float) reader.GetReal("particles", "temperature", 1.0);
 }
 
@@ -187,6 +188,7 @@ void ParticlesConfig::printOn(std::ostream &out) {
   std::string dimensionString = (positionDist_ != "normal") ? "standard deviation" : "size";
   str << "Radial " << dimensionString << "of particle distribution: " << distRadius_ << "\n";
   str << "Axial " << dimensionString << "of particle distribution: " << distLength_ << "\n";
+  str << "Offset from start of accelerator: " << distOffset_ << "\n";
 
   str << "Distribution of k: " << kDist_ << "\n";
 
@@ -225,6 +227,10 @@ float ParticlesConfig::distRadius() const {
 
 float ParticlesConfig::distLength() const {
   return distLength_;
+}
+
+float ParticlesConfig::distOffset() const {
+  return distOffset_;
 }
 
 bool ParticlesConfig::vNormDist() const {

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "FlyE.h"
 
 int main(int argc, char* argv[]) {
@@ -10,6 +11,7 @@ int main(int argc, char* argv[]) {
       { "exp1K", "exp100mK", "trap1K", "trap100mK", "fullDist1K",
           "uniformStark", "triangleStark", "inglisTeller" };
 
+  std::reverse(confNames.begin(), confNames.end());
   // Only load the geometry once
   ConfigLoader geometryLoader(confDirectory + confNames[0] + ".conf");
   AcceleratorGeometry accelerator(geometryLoader.getAcceleratorConfig());
@@ -33,5 +35,7 @@ int main(int argc, char* argv[]) {
     std::cout << stats << std::endl;
 
     simulator.write(outDirectory + confName + ".h5"); // Enforce naming convention automatically
+
+    std::cout << "*************************************************************************\n" << std::endl;
   }
 }

@@ -11,8 +11,8 @@ Writer::Writer(std::string &fileName, Simulator *simulator)
       nParticlesOfType_(  // Don't look at this, it's awful
           { simulator_->statsStorage_.nSucceeded,
               (simulator_->storageConfig_->storeCollisions()) ?
-                  simulator_->statsStorage_.nCollided : 0, simulator_->statsStorage_
-              .nIonised, (int) simulator_->particles_.size()
+                  simulator_->statsStorage_.nCollided : 0, simulator_
+              ->statsStorage_.nIonised, (int) simulator_->particles_.size()
               - simulator_->statsStorage_.nSucceeded
               - simulator_->statsStorage_.nCollided
               - simulator_->statsStorage_.nIonised }) {

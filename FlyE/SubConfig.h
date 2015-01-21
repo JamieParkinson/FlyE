@@ -177,6 +177,7 @@ class ParticlesConfig : public SubConfig {
   std::string positionDist_;  //!< How the particles are distributed - uniform, fullspace, normal
   ///@{ @brief The size of the distribution of particles (mm). If normally distributed, then the standard deviations.
   float distRadius_, distLength_;  ///@}
+  float distOffset_; //!< How far to offset the distribution of particles from the start of the accelerator.
   bool vNormDist_; //!< Whether the particle velocities will be uniformly or normally distributed
   float temperature_;  //!< Temperature of initial particle cloud
   std::string kDist_;  //!< Distribution of k-values: single, uniform or triangle
@@ -218,6 +219,9 @@ class ParticlesConfig : public SubConfig {
   float distRadius() const;
   float distLength() const;
   ///@}
+
+  /** @brief How far to offset the distribution of particles from the end of the accelerator */
+  float distOffset() const;
 
   /** @brief Whether the particle velocities will be uniformly or normally distributed */
   bool vNormDist() const;

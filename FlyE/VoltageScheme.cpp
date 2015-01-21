@@ -100,17 +100,22 @@ std::vector<float> ExponentialScheme::getVoltages(int t) {
 }
 
 MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
-                                   int sectionWidth, float timeStep,
+                                   int sectionWidth, float timeStep, float endTime,
                                    float targetVel, int k)
     : VoltageScheme(maxVoltage, nElectrodes, sectionWidth, timeStep),
       targetVel_(targetVel),
-      offTime_(0.5 * nOscillations_ / frequency(k)) {
+      offTime_(std::numeric_limits<float>::min()){
+  for (int n : nOscillations_) {
+    float thisOfftime = 0.5 * n / frequency(k);
+    offTime_ = (thisOfftime > offTime_ && thisOfftime <= endTime) ? thisOfftime : offTime_;
+  }
+  std::cout << "OFF TIME: " << offTime_ << std::endl;
 }
 
 float MovingTrapScheme::frequency(int k) {
   // Copied out of Mathematica, in turn copied from MATLAB. See ManifoldIntersect.nb and freqScript.m
-  return 0.0454669
-      * (59321.0 + sqrt(-1.999753439e9 + 3.033655172413793e6 * k * maxVoltage_));
+  return (1.999753439e9 < 3.033655172413793e6 * k * maxVoltage_) ? 0.0454669
+      * (59321.0 + sqrt(-1.999753439e9 + 3.033655172413793e6 * k * maxVoltage_)) : 2700;
 }
 
 bool MovingTrapScheme::isActive(int t) {

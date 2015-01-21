@@ -59,7 +59,7 @@ CPP_DEPS += \
 %.o: ../%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -o "$@" "$<" -std=c++0x -O3 -march=native -pipe -DBZ_THREADSAFE -D_GLIBCXX_PARALLEL -g -Wall -c -fmessage-length=0 -lblitz -fopenmp -L/usr/lib/x86_64-linux-gnu -Wl,-z,relro -lpthread -lz -ldl -lm -v -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+	g++ -o "$@" "$<" -std=c++0x -O3 -march=native -pipe -DBZ_THREADSAFE -D_GLIBCXX_PARALLEL -flto -g -Wall -c -fmessage-length=0 -lblitz -fopenmp -L/usr/lib/x86_64-linux-gnu -Wl,-z,relro -lpthread -lz -ldl -lm -v -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 	@echo 'Finished building: $<'
 	@echo ' '
 

@@ -38,8 +38,8 @@ greys = cat(1, [0 0 0], repmat(rand(100,1),1,3));
 set(0,'DefaultAxesColorOrder',greys);
 
 hold on
-plot3(sz(1:n2plot,:)',sx(1:n2plot,:)',sy(1:n2plot,:)','LineWidth',0.7);
-plot3(afterz(1:n2plot,:)',afterx(1:n2plot,:)',aftery(1:n2plot,:)','LineWidth',0.7,'Color','red');
+plot3(sz(1:n2plot,:)',sx(1:n2plot,:)',sy(1:n2plot,:)','LineWidth',1);
+plot3(afterz(1:n2plot,:)',afterx(1:n2plot,:)',aftery(1:n2plot,:)','LineWidth',1,'Color','red');
 scatter3(events(:,3), events(:,1), events(:,2), 80, 'blue', '*');
 cyl = surf(cyz,cyx,cyy,'EdgeColor','none','FaceColor','black');
 alpha(cyl,0.05)

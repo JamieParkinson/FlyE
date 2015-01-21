@@ -53,10 +53,11 @@ class ParticleGenerator {
    * @param sigmaV Standard deviation of particle velocity (from temperature)
    * @param normVels Whether the velocities are normally distributed
    * @param sectionWidth The width of one section of the accelerator
+   * @param offset The distance to offset the particle distribution from the (start) end of the accelerator
    * @param kDist A pointer to an IntegerDistribution
    */
   void generateNormDist(mersenne_twister generator, float sigmaV,
-                        bool normVels, int sectionWidth,
+                        bool normVels, int sectionWidth, float offset,
                         IntegerDistribution *kDist);
 
   /** @brief Generates uniformly distributed particles
@@ -65,11 +66,12 @@ class ParticleGenerator {
    * @param sigmaV Standard deviation of particle velocity (from temperature)
    * @param normVels Whether the velocities are normally distributed
    * @param sectionWidth The width of one section of the accelerator
+   * @param offset The distance to offset the particle distribution from the (start) end of the accelerator
    * @param kDist A pointer to an IntegerDistribution
    * @param full Whether to fill the complete phase space (default false)
    */
   void generateUniformDist(mersenne_twister generator, float sigmaV,
-                           bool normVels, int sectionWidth,
+                           bool normVels, int sectionWidth, float offset,
                            IntegerDistribution *kDist, bool full = false);
 
  public:
@@ -95,7 +97,7 @@ class ParticleGenerator {
    * @param vy y-component of particle velocity
    * @param vz z-component of particle velocity
    */
-  void generateSynchronousParticle(int x, int y, int z, int vx, int vy, int vz);
+  void generateSynchronousParticle(float x, float y, float z, float vx, float vy, float vz);
 
   /** @brief Generates particles according to the particles configuration object
    *
@@ -138,7 +140,7 @@ tuple3Dfloat ParticleGenerator<PType>::generateUniformVels(
  * @copydoc ParticleGenerator<PType>::generateSynchronousParticle()
  */
 template<> void ParticleGenerator<AntiHydrogen>::generateSynchronousParticle(
-    int x, int y, int z, int vx, int vy, int vz) {
+    float x, float y, float z, float vx, float vy, float vz) {
   particles_.emplace_back(x, y, z, vx, vy, vz, particlesConfig_->n(),
                           particlesConfig_->k());
 }
@@ -148,13 +150,13 @@ template<> void ParticleGenerator<AntiHydrogen>::generateSynchronousParticle(
  */
 template<> void ParticleGenerator<AntiHydrogen>::generateNormDist(
     mersenne_twister generator, float sigmaV, bool normVels,
-    int sectionWidth, IntegerDistribution *kDist) {
+    int sectionWidth, float offset, IntegerDistribution *kDist) {
 
   float_n_dist x_dist(acceleratorConfig_->x() / 2,
                       particlesConfig_->distRadius());  // Center at start of cylinder
   float_n_dist y_dist(acceleratorConfig_->y() / 2,
                       particlesConfig_->distRadius());
-  float_n_dist z_dist(2.25 * sectionWidth, particlesConfig_->distLength());  // Should mean most particles are in the cylinder (~0.27% are outside)
+  float_n_dist z_dist(2.25*offset, particlesConfig_->distLength());  // Should mean most particles are in the cylinder (~0.27% are outside)
   float_n_dist v_dist(0, sigmaV);
 
   ez::ezETAProgressBar particlesBar(particlesConfig_->nParticles() - 1);
@@ -180,14 +182,13 @@ template<> void ParticleGenerator<AntiHydrogen>::generateNormDist(
  */
 template<> void ParticleGenerator<AntiHydrogen>::generateUniformDist(
     mersenne_twister generator, float sigmaV, bool normVels,
-    int sectionWidth, IntegerDistribution *kDist, bool full) {
+    int sectionWidth, float offset, IntegerDistribution *kDist, bool full) {
 
   float_u_dist uniform_dist(0, 1);
   float_n_dist v_dist(0, sigmaV);
 
   float radius = (!full) ? particlesConfig_->distRadius() : 0.5*acceleratorConfig_->x() - 5;
   float length = (!full) ? particlesConfig_->distLength() : 3*sectionWidth;
-  float offset = sectionWidth;
 
   ez::ezETAProgressBar particlesBar(particlesConfig_->nParticles() - 1);
   particlesBar.start();
@@ -229,24 +230,24 @@ template<> void ParticleGenerator<AntiHydrogen>::generateParticles() {
   } else if (particlesConfig_->kDist() == "uniform") {
     kDist = new UniformDistribution(1, particlesConfig_->n() - 1);
   } else {
-    std::vector<float> kpieces { 0.0, (float) particlesConfig_->n() };
+    std::vector<float> kpieces { 1.0, (float) particlesConfig_->n() };
     std::vector<float> kweights { 1, 0 };
     kDist = new TriangleDistribution(kpieces, kweights);
   }
 
   generateSynchronousParticle(0.5 * acceleratorConfig_->x(),
-                              0.5 * acceleratorConfig_->y(), 2.5 * sectionWidth,
+                              0.5 * acceleratorConfig_->y(), 2.5*sectionWidth,
                               0, 0, 0);
 
   std::cout << "Generating " << particlesConfig_->nParticles()
             << " particles..." <<  std::endl;
 
   if (particlesConfig_->positionDist() == "normal") {
-    generateNormDist(generator, sigmaV, particlesConfig_->vNormDist(), sectionWidth, kDist);
+    generateNormDist(generator, sigmaV, particlesConfig_->vNormDist(), sectionWidth, particlesConfig_->distOffset(), kDist);
   } else if (particlesConfig_->positionDist() == "uniform") {
-    generateUniformDist(generator, sigmaV, particlesConfig_->vNormDist(), sectionWidth, kDist);
+    generateUniformDist(generator, sigmaV, particlesConfig_->vNormDist(), sectionWidth, particlesConfig_->distOffset(), kDist);
   } else if (particlesConfig_->positionDist() == "full") {
-    generateUniformDist(generator, sigmaV, false, sectionWidth, kDist, true);
+    generateUniformDist(generator, sigmaV, false, sectionWidth, sectionWidth, kDist, true);
   }
 
   std::cout << std::endl;

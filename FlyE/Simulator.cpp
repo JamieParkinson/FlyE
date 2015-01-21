@@ -38,7 +38,6 @@ Simulator::Simulator(AcceleratorGeometry &geometry,
       acceleratorConfig_->nElectrodes();
 
   if (simulationConfig_->accelerationScheme() == "trap") {
-
     // Ignore any error here; the last argument is an implementation-specific off switch for experimental STL parallelism
     int avgK = std::accumulate(
         particles_.begin(), particles_.end(), 0,
@@ -48,6 +47,7 @@ Simulator::Simulator(AcceleratorGeometry &geometry,
         acceleratorConfig_->nElectrodes(),  // Number of electrodes
         sectionWidth,  // Section width,
         simulationConfig_->timeStep(),  // Time step
+        simulationConfig_->duration(), // End time
         simulationConfig_->targetVel(),  // Target velocity
         avgK);  // Average k
   } else if (simulationConfig_->accelerationScheme() == "instantaneous") {
@@ -116,8 +116,7 @@ void Simulator::run() {
         continue;
       }  // Ionise if field too strong
 
-      if (mag >= particle->ITlim() && !particle->isNeutralised()
-          && simulationConfig_->inglisTeller()) {
+      if (simulationConfig_->inglisTeller() && mag >= particle->ITlim() && !particle->isNeutralised()) {
         particle->neutralise(t);
         ++nNeutralised;
       }  // Neutralise is field is past the Inglis-Teller limit

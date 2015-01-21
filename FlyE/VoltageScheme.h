@@ -132,7 +132,8 @@ class MovingTrapScheme : public VoltageScheme {
   static constexpr int trapWidth_ = 6; //!< The number of sections that a trap should span
   float targetVel_; //!< The target velocity for the particles (oscillation frequency depends on this)
   float offTime_; //!< The time at which the E-Field should be switched off for the particles to fly freely
-  static constexpr int nOscillations_ = 4; //!< The number of transverse oscillations of the particles before the field is switched off
+  float endTime_; //!< The simulation end time
+  std::vector<int> nOscillations_ = { 6, 5, 4, 3 }; //!< The possible numbers of transverse oscillations of the particles before the field is switched off
 
   /** @brief Gets the frequency of transverse oscillation of particles with Stark quantum number k
    *
@@ -152,10 +153,11 @@ class MovingTrapScheme : public VoltageScheme {
    * @param nElectrodes The number of electrodes to generate voltages for
    * @param sectionWidth The width of a "section" of electrodes in the cylindrical accelerator
    * @param timeStep The time step being used in the simulation
+   * @param endTime The simulation end time
    * @param targetVel The target velocity for the particles to reach
    * @param k The k-value to estimate frequency from. Ideally this will be the average k-value.
    */
-  MovingTrapScheme(float maxVoltage, int nElectrodes, int sectionWidth, float timeStep, float targetVel, int k);
+  MovingTrapScheme(float maxVoltage, int nElectrodes, int sectionWidth, float timeStep, float endTime, float targetVel, int k);
 
   std::vector<float> getInitialVoltages();
 
