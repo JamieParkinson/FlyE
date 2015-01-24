@@ -133,7 +133,6 @@ class MovingTrapScheme : public VoltageScheme {
   float targetVel_; //!< The target velocity for the particles (oscillation frequency depends on this)
   float offTime_; //!< The time at which the E-Field should be switched off for the particles to fly freely
   float endTime_; //!< The simulation end time
-  std::vector<int> nOscillations_ = { 6, 5, 4, 3 }; //!< The possible numbers of transverse oscillations of the particles before the field is switched off
 
   /** @brief Gets the frequency of transverse oscillation of particles with Stark quantum number k
    *
