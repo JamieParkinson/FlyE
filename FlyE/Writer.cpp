@@ -35,6 +35,22 @@ Writer::Writer(std::string &fileName, Simulator *simulator)
   }
 }
 
+Writer::~Writer() {
+  dPropList_.close();
+
+  for (int i = 0; i < 4; ++i) {
+    trajectoryDSpaces_[i].close();
+  }
+
+  nTimes_.close();
+  ks_.close();
+  maxFields_.close();
+
+  trajectoryDSets_.clear();
+
+  delete outFile_;
+}
+
 hsize_t *Writer::startParams(int dimension, int phaseCoord, int particleIndex) {
   static hsize_t start[4];
 
@@ -58,10 +74,8 @@ hsize_t *Writer::countParams(Particle &particle) {
 }
 
 void Writer::initializeSetsAndSpaces() {
-  H5::Group* typeGroup;
-
   for (int type = 0; type < 4; ++type) {  // Initialise all my groups and datasets
-    typeGroup = new H5::Group(outFile_->createGroup("/" + typeNames_[type]));
+    H5::Group typeGroup(outFile_->createGroup("/" + typeNames_[type]));
 
     hsize_t dataDims[4];  // I write these in reverse order because it seems that this is how things turn out in MATLAB
     dataDims[3] = nParticlesOfType_[type];  // Particle
@@ -105,8 +119,6 @@ void Writer::initializeSetsAndSpaces() {
             outFile_->createDataSet("/" + typeNames_[type] + "/maxFields",
                                     fType_, maxFields_.dSpaces[type])));
   }
-
-  delete typeGroup;
 }
 
 void Writer::writeParticles() {
@@ -187,6 +199,4 @@ void Writer::writeParticles() {
   }
 
   std::cout << std::endl;
-
-  delete outFile_;
 }

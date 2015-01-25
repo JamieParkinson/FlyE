@@ -68,6 +68,10 @@ Simulator::Simulator(AcceleratorGeometry &geometry,
   field_ = geometry_.makeSmartField();
 }
 
+Simulator::~Simulator() {
+  delete voltageScheme_;
+}
+
 void Simulator::run() {
   int nTimeSteps = simulationConfig_->duration()
       / simulationConfig_->timeStep();

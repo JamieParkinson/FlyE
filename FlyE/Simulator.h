@@ -76,6 +76,8 @@ class Simulator {
             std::shared_ptr<SimulationConfig> simulationConfig,
             std::shared_ptr<StorageConfig> storageConfig);
 
+  ~Simulator(); //!< Destructor, necessary to delete the pointer to the VoltageScheme
+
   /** @brief Run the simulation! */
   void run();
 

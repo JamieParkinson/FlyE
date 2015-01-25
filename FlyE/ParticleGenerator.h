@@ -250,5 +250,6 @@ template<> void ParticleGenerator<AntiHydrogen>::generateParticles() {
     generateUniformDist(generator, sigmaV, false, sectionWidth, sectionWidth, kDist, true);
   }
 
+  delete kDist;
   std::cout << std::endl;
 }

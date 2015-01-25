@@ -103,9 +103,9 @@ MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
                                    int sectionWidth, float timeStep, float endTime,
                                    float targetVel, int k)
     : VoltageScheme(maxVoltage, nElectrodes, sectionWidth, timeStep),
-      targetVel_(targetVel) {
+      targetVel_(0.83*targetVel) {
 
-  float constantVOffTime = 2 * (sectionWidth * (nElectrodes/Physics::N_IN_SECTION - 1.5)) / (targetVel_ * Physics::MM_M_FACTOR);
+  float constantVOffTime = 2 * (sectionWidth * (nElectrodes/Physics::N_IN_SECTION - 3.5)) / (targetVel_ * Physics::MM_M_FACTOR);
   if (constantVOffTime > endTime) std::cout << "WARNING: You should run this simulation for longer to reach your target velocity!" << std::endl;
 
   std::vector<int> nOscillations(10);
@@ -114,17 +114,15 @@ MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
   for (int n : nOscillations) {
     float thisOffTime = 0.5 * n / frequency(k);
     float thisDiff = std::abs(thisOffTime - constantVOffTime);
-    std::cout << "thisdiff: " << thisDiff << std::endl;
+
     if (thisDiff < diff) {
-      if (thisOffTime >= endTime) {
-        if (thisOffTime - endTime > 0.1 * endTime) continue;
-        thisOffTime = endTime;
-      }
+      if (thisOffTime - endTime > 0.1 * endTime) continue;
+
+      thisOffTime = (thisOffTime > endTime) ? endTime : thisOffTime;
       diff = thisDiff;
       offTime_ = thisOffTime;
     }
   }
-  std::cout << "OFF TIME: " << offTime_ << std::endl;
 }
 
 float MovingTrapScheme::frequency(int k) {

@@ -9,10 +9,10 @@ ConfigLoader::ConfigLoader(std::string configFilePath)
     : configFilePath_(configFilePath) {
   INIReader myReader_(configFilePath);
 
-  accelConf_ = std::shared_ptr<AcceleratorConfig>(new AcceleratorConfig(myReader_));
-  particlesConf_ = std::shared_ptr<ParticlesConfig>(new ParticlesConfig(myReader_));
-  simConf_ = std::shared_ptr<SimulationConfig>(new SimulationConfig(myReader_));
-  storageConf_ = std::shared_ptr<StorageConfig>(new StorageConfig(myReader_));
+  accelConf_ = std::make_shared<AcceleratorConfig>(myReader_);
+  particlesConf_ = std::make_shared<ParticlesConfig>(myReader_);
+  simConf_ = std::make_shared<SimulationConfig>(myReader_);
+  storageConf_ = std::make_shared<StorageConfig>(myReader_);
 }
 
 std::shared_ptr<AcceleratorConfig> ConfigLoader::getAcceleratorConfig() {

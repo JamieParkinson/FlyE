@@ -21,7 +21,14 @@ struct HDF5Container1D {
   std::vector< std::vector<T> > vecs; //!< A vector of vectors of values (of type T)
 
   //!< Construct the container with 4 vectors in vecs
-  HDF5Container1D() : vecs(4){
+  HDF5Container1D() : vecs(4) {}
+
+  //!< Deals with its contents
+  void close() {
+    for (int i = 0; i < 4; ++i) {
+      dSpaces[i].close();
+    }
+    dSets.clear();
   }
 };
 
@@ -77,6 +84,9 @@ class Writer {
    * @param simulator The Simulator to take data from
    */
   Writer(std::string &fileName, Simulator *simulator);
+
+  //!< Terminates all the messy HDF5 pieces nicely
+  ~Writer();
 
   /** @brief Initializes the HDF5 DataSets and DataSpaces to be used in writing */
   void initializeSetsAndSpaces();
