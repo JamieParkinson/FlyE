@@ -30,7 +30,7 @@ The following optimisations are recommended:
 Below is an example of a basic program to run one simulation from one config file, print out some basic statistics from the simulation and write
 the results to an HDF5 file.
 
-```
+```cpp
  #include <iostream>
  #include "FlyE.h"
 
