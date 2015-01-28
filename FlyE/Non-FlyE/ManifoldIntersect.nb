@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     68078,       1805]
-NotebookOptionsPosition[     64269,       1672]
-NotebookOutlinePosition[     64607,       1687]
-CellTagsIndexPosition[     64564,       1684]
+NotebookDataLength[     71287,       1886]
+NotebookOptionsPosition[     67320,       1748]
+NotebookOutlinePosition[     67658,       1763]
+CellTagsIndexPosition[     67615,       1760]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1668,6 +1668,82 @@ Cell[BoxData[
  RowBox[{"Floor", "[", 
   FractionBox["n", "4"], "]"}]], "Output",
  CellChangeTimes->{3.626038082955428*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"fields", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"Import", "[", "\"\</home/jamie/FlyEfiles/fields\>\"", "]"}], "/.", 
+    RowBox[{
+     RowBox[{"{", "}"}], "\[Rule]", 
+     RowBox[{"Sequence", "[", "]"}]}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.631441916934669*^9, 3.631441931451107*^9}, {
+  3.631442393505518*^9, 3.631442398323107*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Animate", "[", 
+  RowBox[{
+   RowBox[{"ListLinePlot", "[", 
+    RowBox[{
+     RowBox[{"fields", "[", 
+      RowBox[{"[", "t", "]"}], "]"}], ",", 
+     RowBox[{"PlotRange", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "198"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"0", ",", "30000"}], "}"}]}], "}"}]}]}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"t", ",", "1", ",", 
+     RowBox[{"Length", "@", "fields"}], ",", "1"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.631441935146126*^9, 3.631441957337874*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`t$$ = 493, Typeset`show$$ = True, 
+    Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{
+      Hold[$CellContext`t$$], 1, 727, 1}}, Typeset`size$$ = {
+    360., {109., 115.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
+    Typeset`skipInitDone$$ = True, $CellContext`t$11000$$ = 0}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {$CellContext`t$$ = 1}, 
+      "ControllerVariables" :> {
+        Hold[$CellContext`t$$, $CellContext`t$11000$$, 0]}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> ListLinePlot[
+        Part[$CellContext`fields, $CellContext`t$$], 
+        PlotRange -> {{0, 198}, {0, 30000}}], 
+      "Specifications" :> {{$CellContext`t$$, 1, 727, 1, 
+         AppearanceElements -> {
+          "ProgressSlider", "PlayPauseButton", "FasterSlowerButtons", 
+           "DirectionButton"}}}, 
+      "Options" :> {
+       ControlType -> Animator, AppearanceElements -> None, DefaultBaseStyle -> 
+        "Animate", DefaultLabelStyle -> "AnimateLabel", SynchronousUpdating -> 
+        True, ShrinkingDelay -> 10.}, "DefaultOptions" :> {}],
+     ImageSizeCache->{407., {144., 151.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Animate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.631441960278618*^9, {3.631442377077362*^9, 3.631442402075048*^9}}]
 }, Open  ]]
 },
 WindowSize->{1855, 1056},
@@ -1710,10 +1786,10 @@ Cell[15058, 372, 275, 8, 54, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[15370, 385, 529, 13, 32, "Input"],
-Cell[15902, 400, 431, 11, 62, "Output"]
+Cell[15902, 400, 431, 11, 37, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[16370, 416, 598, 14, 77, "Input"],
+Cell[16370, 416, 598, 14, 55, "Input"],
 Cell[16971, 432, 383, 12, 56, "Output"],
 Cell[17357, 446, 470, 14, 53, "Output"]
 }, Open  ]],
@@ -1726,7 +1802,7 @@ Cell[19446, 520, 321, 8, 32, "Input"],
 Cell[19770, 530, 523, 15, 53, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[20330, 550, 658, 18, 55, "Input"],
+Cell[20330, 550, 658, 18, 32, "Input"],
 Cell[20991, 570, 3608, 69, 252, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
@@ -1743,12 +1819,12 @@ Cell[27481, 733, 614, 18, 32, "Input"],
 Cell[28098, 753, 625, 21, 32, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[28760, 779, 989, 24, 55, "Input"],
+Cell[28760, 779, 989, 24, 32, "Input"],
 Cell[29752, 805, 1324, 37, 182, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[31113, 847, 1177, 27, 55, "Input"],
-Cell[32293, 876, 668, 11, 77, "Output"]
+Cell[31113, 847, 1177, 27, 32, "Input"],
+Cell[32293, 876, 668, 11, 32, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[32998, 892, 406, 11, 32, "Input"],
@@ -1806,6 +1882,11 @@ Cell[63525, 1642, 277, 8, 49, "Output"]
 Cell[CellGroupData[{
 Cell[63839, 1655, 289, 9, 56, "Input"],
 Cell[64131, 1666, 122, 3, 46, "Output"]
+}, Open  ]],
+Cell[64268, 1672, 377, 9, 32, "Input"],
+Cell[CellGroupData[{
+Cell[64670, 1685, 601, 17, 32, "Input"],
+Cell[65274, 1704, 2030, 41, 345, "Output"]
 }, Open  ]]
 }
 ]

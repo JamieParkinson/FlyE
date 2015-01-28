@@ -91,8 +91,9 @@
  *     * 'uniform' - Particles are distributed uniformly in a cylinder described by the variables below.
  *     * 'normal' - Particles are distributed normally in a cloud described by the variables below.
  *   * `v_normal_dist` - Whether to distribute the velocities as a gaussian or as a uniform sphere (bool).
- *   * `r_dist_radius` - The radius of the distribution of particles - if norm_dist is true, then the radial standard deviation.
- *   * `r_dist_length` - the length of the distribution of particles - if norm_dist is true, then the axial standard deviation.
+ *   * `dist_radius` - The radius of the distribution of particles - if norm_dist is true, then the radial standard deviation.
+ *   * `dist_length` - The length of the distribution of particles - if norm_dist is true, then the axial standard deviation.
+ *   * `dist_offset` - The offset of the particle distribution from the z=0 plane, in mm. (float)
  *   * `temperature` - The temperature of the distribution of particles (kelvin, float).
  *   * `n` - The principal quantum number of the particles (integer).
  *   * `k_dist` - How to distribute the values of k, the Stark quantum number. Can be one of the following: (string)

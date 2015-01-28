@@ -103,7 +103,7 @@ MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
                                    int sectionWidth, float timeStep, float endTime,
                                    float targetVel, int k)
     : VoltageScheme(maxVoltage, nElectrodes, sectionWidth, timeStep),
-      targetVel_(0.83*targetVel) {
+      targetVel_(targetVel) {
 
   float constantVOffTime = 2 * (sectionWidth * (nElectrodes/Physics::N_IN_SECTION - 3.5)) / (targetVel_ * Physics::MM_M_FACTOR);
   if (constantVOffTime > endTime) std::cout << "WARNING: You should run this simulation for longer to reach your target velocity!" << std::endl;
