@@ -123,6 +123,8 @@ MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
       offTime_ = thisOffTime;
     }
   }
+
+  //offTime_ = constantVOffTime;
 }
 
 float MovingTrapScheme::frequency(int k) {

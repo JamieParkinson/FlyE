@@ -42,7 +42,7 @@ class ParticleGenerator {
   /** @brief Generates a radially uniform distribution of velocities with radius v_r
    *
    * @param generator An instance of std::mt19937
-   * @param v_r Standard deviation of particle velocity (from temperature)
+   * @param sigmaV Standard deviation of particle velocity (from temperature)
    * @return A tuple of 3 floats - (vx, vy, vz)
    */
   tuple3Dfloat generateUniformVels(float sigmaV, mersenne_twister generator);
@@ -216,9 +216,7 @@ template<> void ParticleGenerator<AntiHydrogen>::generateUniformDist(
  * @copydoc ParticleGenerator<PType>::generateParticles()
  */
 template<> void ParticleGenerator<AntiHydrogen>::generateParticles() {
-  float sigmaV = sqrt(
-      2 * (particlesConfig_->temperature() * Physics::kb / Physics::FWHMfactor)
-          / Physics::mH);  // Std dev of velocity
+  float sigmaV = sqrt(particlesConfig_->temperature() * Physics::kb / Physics::mH);  // Std dev of velocity
   int sectionWidth = Physics::N_IN_SECTION * acceleratorConfig_->z()
       / acceleratorConfig_->nElectrodes();  // Width of each section of 4 electrodes
 

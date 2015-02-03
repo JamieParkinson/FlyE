@@ -23,7 +23,7 @@ struct HDF5Container1D {
   //!< Construct the container with 4 vectors in vecs
   HDF5Container1D() : vecs(4) {}
 
-  //!< Deals with its contents
+  /** @brief Closes all HDF5 elements */
   void close() {
     for (int i = 0; i < 4; ++i) {
       dSpaces[i].close();
