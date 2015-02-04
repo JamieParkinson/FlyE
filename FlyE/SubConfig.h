@@ -97,6 +97,7 @@ class SimulationConfig : public SubConfig {
   float maxVoltage_;  //!< Maximum voltage that can be applied to electrodes (V)
   float targetVel_;  //!< Velocity to try to accelerate the particles to (m/s)
   std::string accelerationScheme_;  //!< Scheme for acceleration: trap, inst or exp
+  float trap_ramp_time_; //!< The amount of time to ramp up the trap voltage for before it moves
   bool inglisTeller_;  //!< Whether to neutralise the dipole moment of particles past the I-T limit
 
   //!< @copydoc SubConfig::printOn()
@@ -118,6 +119,9 @@ class SimulationConfig : public SubConfig {
   /** @brief Scheme for acceleration: trap, inst or exp */
   const std::string& accelerationScheme() const;
 
+  /** @brief The amount of time to ramp up the trap voltage for before it moves */
+  float trapRampTime() const;
+
   /** @brief Time to run simulation for (s) */
   float duration() const;
 
@@ -138,6 +142,12 @@ class SimulationConfig : public SubConfig {
    * @param scheme String representing scheme: "trap", "exp" or "inst"
    */
   void setAccelerationScheme(const std::string &scheme);
+
+  /** @brief Setter for trap ramp time
+   *
+   * @param rampTime The amount of time to ramp up the trap voltage for before it moves
+   */
+  void setTrapRampTime(float rampTime);
 
   /** @brief Setter for simulation duration
    *

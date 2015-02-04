@@ -75,6 +75,7 @@ void SimulationConfig::populate(INIReader &reader) {
       std::terminate();
     }
   }
+  trap_ramp_time_ = (float) reader.GetReal("simulation", "trap_rame_time", 1e-6);
 
   duration_ = (float) reader.GetReal("simulation", "duration", 6e-4);
   inglisTeller_ = reader.GetBoolean("simulation", "inglis_teller", false);
@@ -90,6 +91,7 @@ void SimulationConfig::printOn(std::ostream &out) {
   str << "Time step: " << timeStep_ << "\n";
   str << "Duration: " << duration_ << "\n";
   str << "Acceleration scheme: " << accelerationScheme_ << "\n";
+  str << "Trap ramp time: " << trap_ramp_time_ << "\n";
   str << "Max voltage: " << maxVoltage_ << "\n";
   str << "Target velocity: " << targetVel_ << "\n";
 
@@ -104,6 +106,10 @@ void SimulationConfig::printOn(std::ostream &out) {
 
 const std::string& SimulationConfig::accelerationScheme() const {
   return accelerationScheme_;
+}
+
+float SimulationConfig::trapRampTime() const {
+  return trap_ramp_time_;
 }
 
 float SimulationConfig::duration() const {
@@ -128,6 +134,10 @@ float SimulationConfig::timeStep() const {
 
 void SimulationConfig::setAccelerationScheme(const std::string &scheme) {
   accelerationScheme_ = scheme;
+}
+
+void SimulationConfig::setTrapRampTime(float rampTime) {
+  trap_ramp_time_ = rampTime;
 }
 
 void SimulationConfig::setDuration(float duration) {
