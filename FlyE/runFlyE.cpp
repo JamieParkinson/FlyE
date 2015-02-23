@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
   std::vector<std::string> confNames =
       { "exp1K", "exp100mK", "trap1K", "trap100mK", "fullDist1K",
           "uniformStark", "triangleStark", "inglisTeller" };
-  //confNames = { "trap1K" };
+  confNames = { "trap1K" , "trap100mK" };
 
   //std::reverse(confNames.begin(), confNames.end());
   // Only load the geometry once

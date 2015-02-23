@@ -1,5 +1,5 @@
 function acceleratorPlot2(filename, n2plot)
-[s, ~, ~] = importHDF5tree(filename);
+[~, ~, ~, s] = importHDF5tree(filename);
 
 [sx,sy,sz] = getTrajectories(s{1});
 ntimes = s{2};

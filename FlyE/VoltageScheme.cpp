@@ -100,14 +100,22 @@ std::vector<float> ExponentialScheme::getVoltages(int t) {
 }
 
 MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
-                                   int sectionWidth, float timeStep, float endTime,
+                                   int sectionWidth, float timeStep,
+                                   float shakeTime, float endTime,
                                    float targetVel, int k)
     : VoltageScheme(maxVoltage, nElectrodes, sectionWidth, timeStep),
-      targetVel_(targetVel) {
+      targetVel_(targetVel),
+      shakeTime_(shakeTime) {
 
-  float constantVOffTime = 2 * (sectionWidth * (nElectrodes/Physics::N_IN_SECTION - 3.5)) / (targetVel_ * Physics::MM_M_FACTOR);
-  if (constantVOffTime > endTime) std::cout << "WARNING: You should run this simulation for longer to reach your target velocity!" << std::endl;
+  float constantVOffTime = 2
+      * (sectionWidth * (nElectrodes / Physics::N_IN_SECTION - 3.5))
+      / (targetVel_ * Physics::MM_M_FACTOR);
+  if (constantVOffTime > endTime)
+    std::cout
+        << "WARNING: You should run this simulation for longer to reach your target velocity!"
+        << std::endl;
 
+  // Tune for transverse oscillation
   std::vector<int> nOscillations(10);
   std::iota(nOscillations.begin(), nOscillations.end(), 1);
   float diff = std::numeric_limits<float>::max();
@@ -116,7 +124,8 @@ MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
     float thisDiff = std::abs(thisOffTime - constantVOffTime);
 
     if (thisDiff < diff) {
-      if (thisOffTime - endTime > 0.1 * endTime) continue;
+      if (thisOffTime - endTime > 0.1 * endTime)
+        continue;
 
       thisOffTime = (thisOffTime > endTime) ? endTime : thisOffTime;
       diff = thisDiff;
@@ -124,13 +133,18 @@ MovingTrapScheme::MovingTrapScheme(float maxVoltage, int nElectrodes,
     }
   }
 
-  //offTime_ = constantVOffTime;
+  // The trap won't be moving at the start
+  offTime_ += shakeTime_;
 }
 
 float MovingTrapScheme::frequency(int k) {
   // Copied out of Mathematica, in turn copied from MATLAB. See ManifoldIntersect.nb and freqScript.m
-  return (1.999753439e9 < 3.033655172413793e6 * k * maxVoltage_) ? 0.0454669
-      * (59321.0 + sqrt(-1.999753439e9 + 3.033655172413793e6 * k * maxVoltage_)) : 2700;
+  return
+      (1.999753439e9 < 3.033655172413793e6 * k * maxVoltage_) ?
+          0.0454669
+              * (59321.0
+                  + sqrt(-1.999753439e9 + 3.033655172413793e6 * k * maxVoltage_)) :
+          2700;
 }
 
 bool MovingTrapScheme::isActive(int t) {
@@ -143,14 +157,23 @@ std::vector<float> MovingTrapScheme::getInitialVoltages() {
 
 std::vector<float> MovingTrapScheme::getVoltages(int t) {
   float tSeconds = t * timeStep_;
+  float voltage = maxVoltage_;
 
+  // If the next step is the point where we turn it off, do that now
   if (tSeconds + timeStep_ >= offTime_) {
     std::fill(voltages_.begin(), voltages_.end(), 0.0);
     return voltages_;
   }
 
-  float phase = pow(tSeconds, 2) * M_PI * targetVel_ * Physics::MM_M_FACTOR
-      / (offTime_ * sectionWidth_ * trapWidth_);
+  // Deal with ramp-up stage
+  float phase;
+  if (tSeconds <= shakeTime_) {
+    voltage = maxVoltage_ * (0.3 + tSeconds * 0.7 / shakeTime_);
+    phase = 0.8 * sin(3 * M_PI * tSeconds / shakeTime_);
+  } else {
+    phase = pow(tSeconds - shakeTime_, 2) * M_PI * targetVel_
+        * Physics::MM_M_FACTOR / (offTime_ * sectionWidth_ * trapWidth_);
+  }
 
   std::vector<int> listOfEs(nElectrodes_);
   std::iota(listOfEs.begin(), listOfEs.end(), 4);  // Create range 4:1:nElectrodes_
@@ -164,7 +187,7 @@ std::vector<float> MovingTrapScheme::getVoltages(int t) {
       listOfEs.begin(),
       listOfEs.end(),
       voltages_.begin(),
-      [&](const int &e) -> float {return maxVoltage_ * cos((M_PI * (e % 6) / 3) - phase);});
+      [&](const int &e) -> float {return voltage * cos((2 * M_PI * (e % trapWidth_) / trapWidth_) - phase);});
 
   return voltages_;
 }

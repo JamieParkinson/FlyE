@@ -47,6 +47,7 @@ Simulator::Simulator(AcceleratorGeometry &geometry,
         acceleratorConfig_->nElectrodes(),  // Number of electrodes
         sectionWidth,  // Section width,
         simulationConfig_->timeStep(),  // Time step
+        simulationConfig_->trapShakeTime(), // Trap shake time
         simulationConfig_->duration(), // End time
         simulationConfig_->targetVel(),  // Target velocity
         avgK);  // Average k
@@ -84,6 +85,7 @@ void Simulator::run() {
   ElectrodeLocator locator = geometry_.electrodeLocations();
 
   std::cout << "Running simulation..." << std::endl;
+
   ez::ezETAProgressBar timeBar(nTimeSteps);
   timeBar.start();
 
@@ -168,6 +170,13 @@ void Simulator::run() {
       geometry_.applyElectrodeVoltages(voltageScheme_->getVoltages(t+1));
       field_ = geometry_.makeSmartField();
     }
+
+#ifdef EBUG_FIELDS
+    for (int z = 0; z < acceleratorConfig_->z(); ++z) {
+      std::cout << field_.magnitudeAt(acceleratorConfig_->x()/2, acceleratorConfig_->y()/2, z) << " ";
+    }
+    std::cout << std::endl;
+#endif
   }
 
   statsStorage_.nCollided = nCollided;
